@@ -47,6 +47,8 @@ void callback_ReadLine(ImGuiContext *, ImGuiSettingsHandler *, void *entry, cons
         cfg.scene.scene_color = v;
     } else if (sscanf(line, "scene.show_grid=%d", &d1) == 1) {
         cfg.scene.show_grid = d1;
+    } else if (sscanf(line, "scene.draw_background=%d", &d1) == 1) {
+        cfg.scene.draw_background = d1;
     } else if (sscanf(line, "net.use_binary_protocol=%d", &d1) == 1) {
         cfg.net.use_binary_protocol = d1;
     } else if (sscanf(line, "camera.origin_on_top_left=%d", &d1) == 1) {
@@ -112,6 +114,7 @@ void callback_WriteAll(ImGuiContext *, ImGuiSettingsHandler *handler, ImGuiTextB
     write(*buf, "scene.scene_color", glm::vec3{cfg.scene.scene_color},
           "Scene background color, rgb format");
     write(*buf, P(scene.show_grid), "If true, grid will be shown by default");
+    write(*buf, P(scene.draw_background), "If true, map background will be shown by default");
 
     // const auto &net = cfg.net;
     // write(*buf, P(net.use_binary_protocol),

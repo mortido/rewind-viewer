@@ -5,7 +5,7 @@
 #include <cgutils/ResourceManager.h>
 #include <cgutils/Shader.h>
 #include <common/logger.h>
-#include <net/json_handler/JsonHandler.h>
+#include <net/proto_buf/ProtoBufHandler.h>
 #include <viewer/Config.h>
 #include <viewer/UIController.h>
 
@@ -147,7 +147,7 @@ void prepare_and_run_game_loop(GLFWwindow *window) {
         throw std::runtime_error("Not implemented");
     } else {
         LOG_INFO("Create network protocol handler: working with JSON protocol");
-        proto_handler = std::make_unique<JsonHandler>(&scene);
+        proto_handler = std::make_unique<net::ProtoBufHandler>(&scene);
     }
 
     // Start network listening

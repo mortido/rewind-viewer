@@ -345,6 +345,7 @@ void UIController::info_widget(Scene *scene) {
         if (ImGui::CollapsingHeader("Options", flags)) {
             ImGui::Checkbox("World origin on top left", &conf_->camera.origin_on_top_left);
             ImGui::Checkbox("Draw grid", &conf_->scene.show_grid);
+            ImGui::Checkbox("Draw background", &conf_->scene.draw_background);
         }
     }
     if (ImGui::CollapsingHeader(ICON_FA_MAP_O " Layer visibility", flags)) {

@@ -8,7 +8,7 @@ else()
     add_compile_options(-Wextra)
 endif()
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 set(Sources
     main.cpp
@@ -34,7 +34,8 @@ set(Sources
 
     net/NetListener.cpp
     net/ProtoHandler.cpp
-    net/json_handler/JsonHandler.cpp
+    net/proto_buf/ProtoBufHandler.cpp
+    net/proto_buf/messages.pb.cc
     net/PrimitiveType.cpp
 )
 
@@ -42,9 +43,14 @@ add_executable(${PROJECT_NAME} ${Sources})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)
 
+find_package(Protobuf REQUIRED)
+message("Protobuf_LIBRARIES: " ${Protobuf_LIBRARIES})
+message("Protobuf_INCLUDE_DIRS: " ${Protobuf_INCLUDE_DIRS})
+include_directories(${Protobuf_INCLUDE_DIRS})
+
 target_link_libraries(${PROJECT_NAME}
     Glad glfw glm
-    ImGui stb_image csimplesocket nljson loguru)
+    ImGui stb_image csimplesocket nljson loguru ${Protobuf_LIBRARIES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 

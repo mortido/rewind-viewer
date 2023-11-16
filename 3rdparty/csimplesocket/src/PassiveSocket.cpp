@@ -40,293 +40,133 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *----------------------------------------------------------------------------*/
+
 #include "PassiveSocket.h"
 
-
-
-CPassiveSocket::CPassiveSocket(CSocketType nType) : CSimpleSocket(nType)
-{
-}
-
-bool CPassiveSocket::BindMulticast(const uint8 *pInterface, const uint8 *pGroup, int16 nPort)
-{
-    bool           bRetVal = false;
-#if defined(WIN32) || defined(_WIN32)
-    ULONG          inAddr;
-#else
-    int32          nReuse;
-    in_addr_t      inAddr;
-
-    nReuse = IPTOS_LOWDELAY;
+#ifdef _WIN32
+#include <Ws2tcpip.h>
+#elif defined( _LINUX ) || defined( _DARWIN )
+#include <netinet/ip.h>
 #endif
 
-    //--------------------------------------------------------------------------
-    // Set the following socket option SO_REUSEADDR.  This will allow the file
-    // descriptor to be reused immediately after the socket is closed instead
-    // of setting in a TIMED_WAIT state.
-    //--------------------------------------------------------------------------
-    memset(&m_stMulticastGroup,0,sizeof(m_stMulticastGroup));
-    m_stMulticastGroup.sin_family = AF_INET;
-    m_stMulticastGroup.sin_port = htons(nPort);
-    
-    //--------------------------------------------------------------------------
-    // If no IP Address (interface ethn) is supplied, or the loop back is 
-    // specified then bind to any interface, else bind to specified interface.
-    //--------------------------------------------------------------------------
-    if ((pInterface == NULL) || (!strlen((const char *)pInterface)))
-    {
-        m_stMulticastGroup.sin_addr.s_addr = htonl(INADDR_ANY);
-    }
-    else
-    {
-        if ((inAddr = inet_addr((const char *)pInterface)) != INADDR_NONE)
-        {
-            m_stMulticastGroup.sin_addr.s_addr = inAddr;
-        }
-    }
-    
-    //--------------------------------------------------------------------------
-    // Bind to the specified port 
-    //--------------------------------------------------------------------------
-    if (bind(m_socket, (struct sockaddr *)&m_stMulticastGroup, sizeof(m_stMulticastGroup)) == 0)
-    {
-        //----------------------------------------------------------------------
-        // Join the multicast group
-        //----------------------------------------------------------------------
-        m_stMulticastRequest.imr_multiaddr.s_addr = inet_addr((const char *)pGroup);
-        m_stMulticastRequest.imr_interface.s_addr = m_stMulticastGroup.sin_addr.s_addr;
+CPassiveSocket::CPassiveSocket( CSocketType nType ) : CSimpleSocket( nType ) {}
 
-        if (SETSOCKOPT(m_socket, IPPROTO_IP, IP_ADD_MEMBERSHIP, 
-                       (void *)&m_stMulticastRequest,
-                       sizeof(m_stMulticastRequest)) == CSimpleSocket::SocketSuccess)
-        {
-            bRetVal = true;
-        }
-
-        m_timer.SetEndTime();
-    }
-
-    m_timer.Initialize();
-    m_timer.SetStartTime();
-
-
-    //--------------------------------------------------------------------------
-    // If there was a socket error then close the socket to clean out the 
-    // connection in the backlog.
-    //--------------------------------------------------------------------------
-    TranslateSocketError();
-
-    if (bRetVal == false)
-    {
-        Close();
-    }
-
-    return bRetVal;
-}
-
-
-
-//------------------------------------------------------------------------------
-//
-// Listen() - 
-//
-//------------------------------------------------------------------------------
-bool CPassiveSocket::Listen(const uint8 *pAddr, int16 nPort, int32 nConnectionBacklog)
+bool CPassiveSocket::Listen( const char* pAddr, uint16_t nPort, int32_t nConnectionBacklog )
 {
-    bool           bRetVal = false;
-#ifdef WIN32
-    ULONG          inAddr;
-#else
-    int32          nReuse;
-    in_addr_t      inAddr;
-
-    nReuse = IPTOS_LOWDELAY;
-#endif
-
-    //--------------------------------------------------------------------------
-    // Set the following socket option SO_REUSEADDR.  This will allow the file
-    // descriptor to be reused immediately after the socket is closed instead
-    // of setting in a TIMED_WAIT state.
-    //--------------------------------------------------------------------------
 #ifdef _LINUX
-    SETSOCKOPT(m_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&nReuse, sizeof(int32));
-    SETSOCKOPT(m_socket, IPPROTO_TCP, IP_TOS, &nReuse, sizeof(int32));
+   //--------------------------------------------------------------------------
+   // Set the following socket option SO_REUSEADDR. This will allow the file
+   // descriptor to be reused immediately after the socket is closed instead
+   // of setting in a TIMED_WAIT state.
+   //--------------------------------------------------------------------------
+   if ( !SetOptionReuseAddr() )
+   {
+      return false;
+   }
 #endif
 
-    memset(&m_stServerSockaddr,0,sizeof(m_stServerSockaddr));
-    m_stServerSockaddr.sin_family = AF_INET;
-    m_stServerSockaddr.sin_port = htons(nPort);
-    
-    //--------------------------------------------------------------------------
-    // If no IP Address (interface ethn) is supplied, or the loop back is 
-    // specified then bind to any interface, else bind to specified interface.
-    //--------------------------------------------------------------------------
-    if ((pAddr == NULL) || (!strlen((const char *)pAddr)))
-    {
-        m_stServerSockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    }
-    else
-    {
-        if ((inAddr = inet_addr((const char *)pAddr)) != INADDR_NONE)
-        {
-            m_stServerSockaddr.sin_addr.s_addr = inAddr;
-        }
-    }
-    
-    m_timer.Initialize();
-    m_timer.SetStartTime();
+   if ( ( pAddr == nullptr ) || ( strlen( pAddr ) == 0 ) )
+   {
+      // bind to all interfaces
+      m_stServerSockaddr.sin_addr.s_addr = htonl( INADDR_ANY );
+   }
+   else
+   {
+      // lookup specified address
+      switch ( inet_pton( m_nSocketDomain, pAddr, &m_stServerSockaddr.sin_addr ) )
+      {
+      // Only possible with bad socket domain
+      // case SocketError:
+      //   TranslateSocketError();
+      //   return false;
+      case 0:
+         SetSocketError( SocketInvalidAddress );
+         return false;
+      default:
+         // Otherwise Success
+         break;
+      }
+   }
 
-    //--------------------------------------------------------------------------
-    // Bind to the specified port 
-    //--------------------------------------------------------------------------
-    if (bind(m_socket, (struct sockaddr *)&m_stServerSockaddr, sizeof(m_stServerSockaddr)) != CSimpleSocket::SocketError)
-    {
-        if (m_nSocketType == CSimpleSocket::SocketTypeTcp)
-        {
-            if (listen(m_socket, nConnectionBacklog) != CSimpleSocket::SocketError)
-            {
-                bRetVal = true;
-            }
-        }  
-        else      
-        {
-            bRetVal = true;
-        }
-    }
+   m_stServerSockaddr.sin_family = static_cast<decltype( m_stServerSockaddr.sin_family )>( m_nSocketDomain );
+   m_stServerSockaddr.sin_port = htons( nPort );
 
-    m_timer.SetEndTime();
+   m_timer.SetStartTime();
 
-    //--------------------------------------------------------------------------
-    // If there was a socket error then close the socket to clean out the 
-    // connection in the backlog.
-    //--------------------------------------------------------------------------
-    TranslateSocketError();
+   // Bind to the specified addr and port
+   bool bRetVal = ( BIND( m_socket, &m_stServerSockaddr, SOCKET_ADDR_IN_SIZE ) == CSimpleSocket::SocketSuccess );
 
-    if (bRetVal == false)
-    {
-        Close();
-    }
+   if ( bRetVal && m_nSocketType == CSimpleSocket::SocketTypeTcp )
+   {
+      bRetVal = ( listen( m_socket, nConnectionBacklog ) != CSimpleSocket::SocketError );
+   }
 
-    return bRetVal;
+   m_timer.SetEndTime();
+
+   TranslateSocketError();
+
+   // If there was a socket error then close the socket to clean out the connection in the backlog.
+   if ( !bRetVal )
+   {
+      m_stServerSockaddr.sin_port = htons( 0 );
+      m_stServerSockaddr.sin_addr.s_addr = htonl( INADDR_ANY );
+      const CSocketError err = GetSocketError();
+      Close();
+      SetSocketError( err );
+   }
+   else
+   {
+      socklen_t nSockAddrLen( SOCKET_ADDR_IN_SIZE );
+      memset( &m_stServerSockaddr, 0, SOCKET_ADDR_IN_SIZE );
+      GETSOCKNAME( m_socket, &m_stServerSockaddr, &nSockAddrLen );
+   }
+
+   return bRetVal;
 }
 
-
-//------------------------------------------------------------------------------
-//
-// Accept() - 
-//
-//------------------------------------------------------------------------------
-CActiveSocket *CPassiveSocket::Accept()
+auto CPassiveSocket::Accept() -> std::unique_ptr<CActiveSocket>
 {
-    uint32         nSockLen;
-    CActiveSocket *pClientSocket = NULL;
-    SOCKET         socket = (SOCKET)CSimpleSocket::SocketError;
+   if ( m_nSocketType != CSimpleSocket::SocketTypeTcp )
+   {
+      SetSocketError( CSimpleSocket::SocketProtocolError );
+      return nullptr;
+   }
 
-    if (m_nSocketType != CSimpleSocket::SocketTypeTcp)
-    {
-        SetSocketError(CSimpleSocket::SocketProtocolError);
-        return pClientSocket;
-    }
+   auto pClientSocket = std::make_unique<CActiveSocket>();
+   CSocketError socketErrno;
 
-    pClientSocket = new CActiveSocket();
+   m_timer.SetStartTime();
 
-    //--------------------------------------------------------------------------
-    // Wait for incoming connection.
-    //--------------------------------------------------------------------------
-    if (pClientSocket != NULL)
-    {
-        CSocketError socketErrno = SocketSuccess;
+   // do
+   //{
+   socklen_t nSockAddrLen( SOCKET_ADDR_IN_SIZE );
+   const SOCKET socket = ACCEPT( m_socket, &m_stClientSockaddr, &nSockAddrLen );   // Wait for incoming connection.
 
-        m_timer.Initialize();
-        m_timer.SetStartTime();
-        
-        nSockLen = sizeof(m_stClientSockaddr);
-        
-        do
-        {
-            errno = 0;
-            socket = accept(m_socket, (struct sockaddr *)&m_stClientSockaddr, (socklen_t *)&nSockLen);
+   if ( socket != INVALID_SOCKET )
+   {
+      pClientSocket->SetSocketHandle( socket );
+      pClientSocket->TranslateSocketError();
+      socketErrno = pClientSocket->GetSocketError();
 
-            if (socket != (SOCKET)CSimpleSocket::SocketError)
-            {
-                pClientSocket->SetSocketHandle(socket);
-                pClientSocket->TranslateSocketError();
-                socketErrno = pClientSocket->GetSocketError();
-                socklen_t nSockLen = sizeof(struct sockaddr);
+      // Store client and server IP and port information for this connection.
+      GETPEERNAME( m_socket, &pClientSocket->m_stClientSockaddr, &nSockAddrLen );
+      memcpy( &pClientSocket->m_stClientSockaddr, &m_stClientSockaddr, SOCKET_ADDR_IN_SIZE );
 
-                //-------------------------------------------------------------
-                // Store client and server IP and port information for this
-                // connection.
-                //-------------------------------------------------------------
-                getpeername(m_socket, (struct sockaddr *)&pClientSocket->m_stClientSockaddr, &nSockLen);
-                memcpy((void *)&pClientSocket->m_stClientSockaddr, (void *)&m_stClientSockaddr, nSockLen);
+      GETSOCKNAME( m_socket, &pClientSocket->m_stServerSockaddr, &nSockAddrLen );
+   }
+   else
+   {
+      TranslateSocketError();
+      socketErrno = GetSocketError();
+   }
+   //} while ( socketErrno == CSimpleSocket::SocketInterrupted );
 
-                memset(&pClientSocket->m_stServerSockaddr, 0, nSockLen);
-                getsockname(m_socket, (struct sockaddr *)&pClientSocket->m_stServerSockaddr, &nSockLen);
-            }
-            else
-            {
-                TranslateSocketError();
-                socketErrno = GetSocketError();
-            }
+   m_timer.SetEndTime();
 
-        } while (socketErrno == CSimpleSocket::SocketInterrupted);
-        
-        m_timer.SetEndTime();
-        
-        if (socketErrno != CSimpleSocket::SocketSuccess)
-        {
-            delete pClientSocket;
-            pClientSocket = NULL;
-        }
-    }
+   if ( socketErrno != CSimpleSocket::SocketSuccess )
+   {
+      pClientSocket = nullptr;
+   }
 
-    return pClientSocket;
-}
-
-
-//------------------------------------------------------------------------------
-//
-// Send() - Send data on a valid socket
-//
-//------------------------------------------------------------------------------
-int32 CPassiveSocket::Send(const uint8 *pBuf, size_t bytesToSend)
-{
-    SetSocketError(SocketSuccess);
-    m_nBytesSent = 0;
-
-    switch(m_nSocketType)
-    {
-        case CSimpleSocket::SocketTypeUdp:
-        {
-            if (IsSocketValid())
-            {
-                if ((bytesToSend > 0) && (pBuf != NULL))
-                {
-                    m_timer.Initialize();
-                    m_timer.SetStartTime();
-
-                    m_nBytesSent = SENDTO(m_socket, pBuf, bytesToSend, 0, 
-                                          (const sockaddr *)&m_stClientSockaddr, 
-                                          sizeof(m_stClientSockaddr));
-
-                    m_timer.SetEndTime();
-
-                    if (m_nBytesSent == CSimpleSocket::SocketError)
-                    {
-                        TranslateSocketError();
-                    }
-                }
-            }
-            break;
-        }
-        case CSimpleSocket::SocketTypeTcp:
-           CSimpleSocket::Send(pBuf, bytesToSend);
-           break;
-       default:
-           SetSocketError(SocketProtocolError);
-           break;
-    }
-
-    return m_nBytesSent;
+   return pClientSocket;
 }

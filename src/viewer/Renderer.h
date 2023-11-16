@@ -24,6 +24,7 @@ class Renderer {
     void render_background(glm::vec3 color);
     void render_grid(glm::vec3 color);
     void render_primitives(const RenderContext &ctx);
+    void set_map_config(glm::vec2 size, glm::u16vec2 grid);
 
  private:
     ResourceManager *mgr_;

@@ -68,3 +68,7 @@ void ProtoHandler::set_layer(size_t layer) {
     frame_->set_layer_id(last_layer_id_);
     permanent_frame_.set_layer_id(last_layer_id_);
 }
+
+void ProtoHandler::set_map_config(glm::vec2 size, glm::u16vec2 grid){
+    scene_->set_map_config(size, grid);
+}

@@ -13,13 +13,9 @@ NetListener::NetListener(std::string listen_host, uint16_t listen_port,
                          std::unique_ptr<ProtoHandler> &&handler)
     : host_(std::move(listen_host)), port_(listen_port), handler_(std::move(handler)) {
     socket_ = std::make_unique<CPassiveSocket>(CPassiveSocket::SocketTypeTcp);
-    if (socket_->Initialize()) {
-        socket_->DisableNagleAlgoritm();
-        if (!socket_->Listen(reinterpret_cast<const uint8_t *>(host_.data()), port_)) {
-            LOG_ERROR("NetListener:: Cannot listen on socket: %d", errno);
-        }
-    } else {
-        LOG_ERROR("NetListener:: Cannot initialize socket: %d", errno);
+    socket_->DisableNagleAlgoritm();
+    if (!socket_->Listen(host_.data(), port_)) {
+        LOG_ERROR("NetListener:: Cannot listen on socket: %d", errno);
     }
     status_ = ConStatus::CLOSED;
 }
@@ -32,7 +28,7 @@ void NetListener::run() {
     while (!stop_) {
         status_ = ConStatus::WAIT;
         LOG_INFO("NetClient:: Start listening");
-        CActiveSocket *client_socket = socket_->Accept();
+        std::unique_ptr<CActiveSocket> client_socket = socket_->Accept();
         if (!client_socket) {
             if (stop_) {
                 return;
@@ -44,14 +40,15 @@ void NetListener::run() {
                      strerror(errno));
             throw std::runtime_error(buf);
         } else {
-            LOG_INFO("NetListener:: Got connection from %s:%u", client_socket->GetClientAddr(),
+            LOG_INFO("NetListener:: Got connection from %s:%u",
+                     client_socket->GetClientAddr().c_str(),
                      static_cast<uint16_t>(client_socket->GetClientPort()));
         }
         status_ = ConStatus::ESTABLISHED;
         // Cleanup previous data
         handler_->on_new_connection();
         // Serve socket
-        serve_connection(client_socket);
+        serve_connection(client_socket.get());
     }
 }
 
@@ -66,25 +63,46 @@ void NetListener::stop() {
     stop_ = true;
 }
 
-void NetListener::serve_connection(CActiveSocket *client) {
-    while (!stop_) {
-        const int32_t nbytes = client->Receive(1024);
-        if (stop_) {
-            break;
-        }
-        if (nbytes > 0) {
-            auto data = client->GetData();
-            // todo: Maybe remove that zero, because it doesn't make sense in case of binary data
-            //  same for debug print
-            data[nbytes] = '\0';
-            LOG_V9("NetClient:: Message %d bytes, '%s'", nbytes, data);
-            handler_->set_immediate_mode(immediate_mode_.load());
-            // Strategy can send several messages in one block
-            handler_->handle_message(data, static_cast<uint32_t>(nbytes));
+int32_t read_bytes(CActiveSocket *socket, std::string& buf, uint32_t size) {
+    int32_t i = 0;
+    while(size > 0) {
+        const int32_t received = socket->Receive(size, reinterpret_cast<uint8_t*>(&buf[i]));
+        if (received > 0) {
+            i += received;
+            size -= received;
         } else {
+            return 0;
+        }
+    }
+    return i;
+}
+
+void NetListener::serve_connection(CActiveSocket *client) {
+    std::string buffer(1024, '\0');
+    uint16_t message_size;
+    while (!stop_) {
+        if (read_bytes(client, buffer, sizeof(uint16_t)) == 0) {
             client->Close();
             status_ = ConStatus::CLOSED;
             break;
+        }
+        memcpy(&message_size, buffer.data(), sizeof(uint16_t));
+        if (stop_) {
+            break;
+        }
+        LOG_V9("NetClient:: Message %d bytes", message_size);
+        if (read_bytes(client, buffer, message_size) == 0) {
+            client->Close();
+            status_ = ConStatus::CLOSED;
+            break;
+        }
+
+        handler_->set_immediate_mode(immediate_mode_.load());
+        // Strategy can send several messages in one block
+        try {
+            handler_->handle_message(reinterpret_cast<const uint8_t *>(buffer.data()), message_size);
+        } catch (const std::exception &e) {
+            LOG_WARN("NetListener(handler_)::Exception: %s", e.what());
         }
     }
 }

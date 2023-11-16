@@ -4,7 +4,6 @@ project(csimplesocket)
 
 set(Sources
     src/ActiveSocket.cpp
-    src/HTTPActiveSocket.cpp
     src/PassiveSocket.cpp
     src/SimpleSocket.cpp)
 

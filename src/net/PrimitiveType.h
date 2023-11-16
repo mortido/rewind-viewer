@@ -15,6 +15,7 @@ enum class PrimitiveType {
     MESSAGE,
     POPUP,
     OPTIONS,
+    MAP,
     END,
 
     TYPES_COUNT

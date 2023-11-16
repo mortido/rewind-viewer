@@ -71,6 +71,10 @@ class Scene {
     /// @note Called from render thread
     bool has_data() const;
 
+    /// Set map configuration for scene
+    /// @note called from network thread
+    void set_map_config(glm::vec2 size, glm::u16vec2 grid);
+
  private:
     const Config::SceneConf &conf_;
 

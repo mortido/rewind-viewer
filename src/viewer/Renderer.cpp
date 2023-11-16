@@ -77,10 +77,8 @@ Renderer::Renderer(ResourceManager *res, glm::u32vec2 area_size, glm::u16vec2 gr
     GLuint vbo = mgr_->gen_buffer();
     //@formatter:off
     const float points[] = {
-        -1.0f, -1.0f, 0.0f,   0.0f, 0.0f,
-         1.0f, -1.0f, 0.0f,   1.0f, 0.0f,
-        -1.0f,  1.0f, 0.0f,   0.0f, 1.0f,
-         1.0f,  1.0f, 0.0f,   1.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        -1.0f, 1.0f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,  0.0f, 1.0f, 1.0f,
     };
     //@formatter:on
 
@@ -130,7 +128,7 @@ void Renderer::render_background(glm::vec3 color) {
     glBindVertexArray(attr_->rect_vao);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-    //if (auto context = test_draw()) {
+    // if (auto context = test_draw()) {
     //    context->draw(ctx_render_params_, *shaders_);
     //}
 }
@@ -189,4 +187,11 @@ void Renderer::render_grid(glm::vec3 color) {
 
 void Renderer::render_primitives(const RenderContext &ctx) {
     ctx.draw(ctx_render_params_, *shaders_);
+}
+
+void Renderer::set_map_config(glm::vec2 size, glm::u16vec2 grid) {
+    area_size_ = size;
+    grid_cells_ = grid;
+    attr_->grid_model = glm::scale(glm::mat4{1.0}, {area_size_.x, area_size_.y, 0.0f});
+    attr_->grid_vao=0; // TODO: Not sure if it is correct way....
 }

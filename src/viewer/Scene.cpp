@@ -26,7 +26,9 @@ void Scene::update_and_render(const Camera &cam) {
     }
 
     renderer_->update_frustum(cam);
-    renderer_->render_background(conf_.scene_color);
+    if (conf_.draw_background) {
+        renderer_->render_background(conf_.scene_color);
+    }
 
     // Grid
     if (conf_.show_grid) {
@@ -116,4 +118,8 @@ void Scene::clear_data() {
 
 bool Scene::has_data() const {
     return frames_count_ > 0;
+}
+
+void Scene::set_map_config(glm::vec2 size, glm::u16vec2 grid) {
+    renderer_->set_map_config(size, grid);
 }

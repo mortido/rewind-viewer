@@ -19,7 +19,7 @@ class ProtoHandler {
 
     /// Called whenever data from socket should be processed
     /// data should be copied if wanted to be used after function call
-    virtual void handle_message(const uint8_t *data, uint32_t nbytes) = 0;
+    virtual void handle_message(const uint8_t *data, int32_t nbytes) = 0;
 
     /// Any saved data from old messages should be cleared on this call
     virtual void on_new_connection();
@@ -40,6 +40,9 @@ class ProtoHandler {
 
     /// Set primitives layer, affect both permanent and normal frames
     void set_layer(size_t layer);
+
+    /// Set map config for scene
+    void set_map_config(glm::vec2 size, glm::u16vec2 grid);
 
  private:
     void reset_state();

@@ -101,6 +101,11 @@ struct Triangle {
     std::vector<glm::vec2> points;
 };
 
+struct Map {
+    glm::vec2 size;
+    glm::u16vec2 grid;
+};
+
 std::vector<glm::vec2> convert_check(const GeoPoints &points) {
     if (!points.size() % 2 != 0) {
         throw ParsingError{
@@ -123,6 +128,14 @@ glm::vec2 convert_position(const GeoPoints &points) {
                            std::to_string(pts.size())};
     }
     return pts[0];
+}
+
+glm::u16vec2 convert_dimension(const std::vector<uint16_t> &values) {
+    if (values.size() != 2) {
+        throw ParsingError{"Unexpected number of values, expected 2, but got " +
+                           std::to_string(values.size())};
+    }
+    return glm::u16vec2(values[0], values[1]);
 }
 
 /*
@@ -210,6 +223,11 @@ inline void from_json(const nlohmann::json &j, ColorShape &p) {
         throw ParsingError{"Triangle should be created using exactly 3 points, got " +
                            std::to_string(p.points.size())};
     }
+}
+
+[[maybe_unused]] inline void from_json(const nlohmann::json &j, Map &map) {
+    map.size = convert_position(j["sz"].get<std::vector<float>>());
+    map.grid = convert_dimension(j["gr"].get<std::vector<uint16_t>>());
 }
 
 }  // namespace pod
@@ -311,6 +329,12 @@ void JsonHandler::process_json_message(const uint8_t *chunk_begin, const uint8_t
                 if (!found_option) {
                     LOG_ERROR("useless 'options' without any option");
                 }
+                break;
+            }
+            case PrimitiveType::MAP: {
+                LOG_V8("JsonHandler::Map detected");
+                auto obj = j.get<pod::Map>();
+                set_map_config(obj.size, obj.grid);
                 break;
             }
             case PrimitiveType::TYPES_COUNT: break;

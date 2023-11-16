@@ -16,6 +16,7 @@ PrimitiveType primitve_type_from_str(const std::string &str) {
         {"message", PrimitiveType::MESSAGE},
         {"popup", PrimitiveType::POPUP},
         {"options", PrimitiveType::OPTIONS},
+        {"map", PrimitiveType::MAP},
         {"end", PrimitiveType::END}};
 
     auto it = mapping.find(str);
