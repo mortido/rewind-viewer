@@ -1,17 +1,13 @@
-//
-// Created by valdemar on 22.10.17.
-//
-
 #pragma once
-
-#include <viewer/Scene.h>
-
 #include <clsocket/ActiveSocket.h>
 #include <clsocket/PassiveSocket.h>
+#include <viewer/Scene.h>
 
 #include <atomic>
 
-class MessageHandler;
+#include "MessageHandler.h"
+
+namespace rewind_viewer::net {
 
 /**
  * Negotiation with running strategy
@@ -23,37 +19,39 @@ class MessageHandler;
  */
 class NetListener {
  public:
-    enum class ConStatus { WAIT, ESTABLISHED, CLOSED };
+  enum class ConStatus { WAIT, ESTABLISHED, CLOSED };
 
-    NetListener(std::string listen_host, uint16_t listen_port,
-                std::unique_ptr<MessageHandler> &&handler);
+  NetListener(std::string listen_host, uint16_t listen_port,
+              std::unique_ptr<MessageHandler> &&handler);
 
-    /// Return current connection status.
-    /// Will be wait until first data chunk, established while tcp connection alive
-    ConStatus connection_status() const;
+  /// Return current connection status.
+  /// Will be wait until first data chunk, established while tcp connection alive
+  ConStatus connection_status() const;
 
-    /// Start gathering and operating information from socket
-    /// Blocking call, should be running on personal thread
-    void run();
+  /// Start gathering and operating information from socket
+  /// Blocking call, should be running on personal thread
+  void run();
 
-    /// Immediate mode
-    /// Send primitives as soon as they come, do not wait 'end'
-    /// Called from render thread
-    void set_immediate_mode(bool enable);
+  /// Immediate mode
+  /// Send primitives as soon as they come, do not wait 'end'
+  /// Called from render thread
+  void set_immediate_mode(bool enable);
 
-    void stop();
+  void stop();
 
  private:
-    void serve_connection(CActiveSocket *client);
+  void serve_connection(CActiveSocket *client);
 
-    std::unique_ptr<CPassiveSocket> socket_;
-    ConStatus status_;
+  std::unique_ptr<CPassiveSocket> socket_;
+  ConStatus status_;
 
-    std::string host_;
-    uint16_t port_;
+  std::string host_;
+  uint16_t port_;
 
-    std::unique_ptr<MessageHandler> handler_;
+  std::unique_ptr<MessageHandler> handler_;
 
-    std::atomic<bool> stop_{false};
-    std::atomic<bool> immediate_mode_{false};
+  std::atomic<bool> stop_{false};
+  std::atomic<bool> immediate_mode_{false};
 };
+
+}  // namespace rewind_viewer::net

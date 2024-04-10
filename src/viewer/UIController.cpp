@@ -110,7 +110,7 @@ UIController::~UIController() {
     ImGui::DestroyContext();
 }
 
-void UIController::next_frame(Scene *scene, NetListener::ConStatus client_status) {
+void UIController::next_frame(Scene *scene, rewind_viewer::net::NetListener::ConStatus client_status) {
     // Start new frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -265,7 +265,7 @@ void UIController::main_menu_bar() {
     }
 }
 
-void UIController::fps_overlay_widget(NetListener::ConStatus net_status) {
+void UIController::fps_overlay_widget(rewind_viewer::net::NetListener::ConStatus net_status) {
     ImGui::SetNextWindowPos(ImVec2(10, 20));
     const auto flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize |
                        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
@@ -284,15 +284,15 @@ void UIController::fps_overlay_widget(NetListener::ConStatus net_status) {
         ImVec4 color;
         static const float intensity = 1.0;
         switch (net_status) {
-            case NetListener::ConStatus::WAIT:
+            case rewind_viewer::net::NetListener::ConStatus::WAIT:
                 strstatus = "WAITING";
                 color = {intensity, intensity, 0.0, 1.0};
                 break;
-            case NetListener::ConStatus::ESTABLISHED:
+            case rewind_viewer::net::NetListener::ConStatus::ESTABLISHED:
                 strstatus = "CONNECTED";
                 color = {0.0, intensity, 0.0, 1.0};
                 break;
-            case NetListener::ConStatus::CLOSED:
+            case rewind_viewer::net::NetListener::ConStatus::CLOSED:
                 strstatus = "CLOSED";
                 color = {intensity, 0.0, 0.0, 1.0};
                 break;

@@ -146,7 +146,7 @@ void prepare_and_run_game_loop(GLFWwindow *window) {
 
     // Start network listening
     LOG_INFO("Start networking thread");
-    NetListener net(NETWORK_HOST, NETWORK_PORT, std::move(message_handler));
+    rewind_viewer::net::NetListener net(NETWORK_HOST, NETWORK_PORT, std::move(message_handler));
     std::thread network_thread([&net] {
         try {
             net.run();

@@ -25,7 +25,7 @@ class UIController {
     /**
      * Call ImGui next frame and clear up OpenGl background
      */
-    void next_frame(Scene *scene, NetListener::ConStatus client_status);
+    void next_frame(Scene *scene, rewind_viewer::net::NetListener::ConStatus client_status);
     void frame_end();
 
     bool close_requested() const;
@@ -35,7 +35,7 @@ class UIController {
  private:
     void main_menu_bar();
 
-    void fps_overlay_widget(NetListener::ConStatus net_status);
+    void fps_overlay_widget(rewind_viewer::net::NetListener::ConStatus net_status);
     void info_widget(Scene *scene);
     void playback_control_widget(Scene *scene);
 

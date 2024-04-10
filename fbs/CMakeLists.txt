@@ -5,11 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 find_program(FLATC_EXECUTABLE NAMES flatc)
 
 # Define the input and output files for FlatBuffers.
-set(FBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/draw_messages.fbs")
+set(FBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/rewind_message.fbs")
 set(INCLUDE_FBS_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(GENERATED_FBS_DIR "${INCLUDE_FBS_DIR}/fbs")
 file(MAKE_DIRECTORY ${GENERATED_FBS_DIR})
-set(GENERATED_FBS_HDRS "${GENERATED_FBS_DIR}/draw_messages.fbs.h")
+set(GENERATED_FBS_HDRS "${GENERATED_FBS_DIR}/rewind_message.fbs.h")
 
 # Custom command to compile the FlatBuffers schema file to C++ header.
 add_custom_command(

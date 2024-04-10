@@ -3,11 +3,16 @@
 #include <cstdint>
 
 namespace rewind_viewer::net {
+
+struct ParsingError : std::runtime_error {
+  using std::runtime_error::runtime_error;
+};
+
 class FlatBuffersHandler : public MessageHandler {
  public:
-    using MessageHandler::MessageHandler;
+  using MessageHandler::MessageHandler;
 
-    void handle_message(const uint8_t *data, int32_t nbytes) override;
+  void handle_message(const uint8_t *data, int32_t nbytes) override;
 };
 
 }  // namespace rewind_viewer::net
