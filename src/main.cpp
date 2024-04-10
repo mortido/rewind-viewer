@@ -5,7 +5,7 @@
 #include <cgutils/ResourceManager.h>
 #include <cgutils/Shader.h>
 #include <common/logger.h>
-#include <net/proto_buf/ProtoBufHandler.h>
+#include <net/flatbuffers/FlatBuffersHandler.h>
 #include <viewer/Config.h>
 #include <viewer/UIController.h>
 
@@ -17,7 +17,7 @@
 constexpr size_t DEFAULT_WIN_WIDTH = 1200;
 constexpr size_t DEFAULT_WIN_HEIGHT = 800;
 
-constexpr const char *WINDOW_TITLE = "Rewind viewer for Russian AI Cup";
+constexpr const char *WINDOW_TITLE = "Rewind Viewer [mortido remix]";
 constexpr const char *CONF_FILENAME = "rewindviewer.ini";
 
 static const char *NETWORK_HOST = "127.0.0.1";
@@ -141,18 +141,12 @@ void prepare_and_run_game_loop(GLFWwindow *window) {
     LOG_INFO("Create GUI controller");
     UIController ui(&cam, &conf);
 
-    std::unique_ptr<ProtoHandler> proto_handler;
-    if (conf.net.use_binary_protocol) {
-        LOG_INFO("Create network protocol handler: working with Binary protocol");
-        throw std::runtime_error("Not implemented");
-    } else {
-        LOG_INFO("Create network protocol handler: working with JSON protocol");
-        proto_handler = std::make_unique<net::ProtoBufHandler>(&scene);
-    }
+    LOG_INFO("Create network message handler");
+    auto message_handler = std::make_unique<rewind_viewer::net::FlatBuffersHandler>(&scene);
 
     // Start network listening
     LOG_INFO("Start networking thread");
-    NetListener net(NETWORK_HOST, NETWORK_PORT, std::move(proto_handler));
+    NetListener net(NETWORK_HOST, NETWORK_PORT, std::move(message_handler));
     std::thread network_thread([&net] {
         try {
             net.run();

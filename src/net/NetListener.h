@@ -6,12 +6,12 @@
 
 #include <viewer/Scene.h>
 
-#include <csimplesocket/ActiveSocket.h>
-#include <csimplesocket/PassiveSocket.h>
+#include <clsocket/ActiveSocket.h>
+#include <clsocket/PassiveSocket.h>
 
 #include <atomic>
 
-class ProtoHandler;
+class MessageHandler;
 
 /**
  * Negotiation with running strategy
@@ -26,7 +26,7 @@ class NetListener {
     enum class ConStatus { WAIT, ESTABLISHED, CLOSED };
 
     NetListener(std::string listen_host, uint16_t listen_port,
-                std::unique_ptr<ProtoHandler> &&handler);
+                std::unique_ptr<MessageHandler> &&handler);
 
     /// Return current connection status.
     /// Will be wait until first data chunk, established while tcp connection alive
@@ -52,7 +52,7 @@ class NetListener {
     std::string host_;
     uint16_t port_;
 
-    std::unique_ptr<ProtoHandler> handler_;
+    std::unique_ptr<MessageHandler> handler_;
 
     std::atomic<bool> stop_{false};
     std::atomic<bool> immediate_mode_{false};

@@ -1,17 +1,20 @@
-cmake_minimum_required(VERSION 3.0)
-project(loguru LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.21)
+project(loguru)
 
-set(CMAKE_CXX_STANDARD 11)
+set(SOURCES src/loguru.cpp)
+set(HEADERS include/loguru/loguru.hpp)
 
-set(version_1_5_1 75606d74bd1d374e8525a53db91f054b8b7d4cac)
-
-include(utils)
-LoadDependency(https://raw.githubusercontent.com/emilk/loguru/${version_1_5_1}/loguru.hpp include/loguru.hpp)
-
-add_library(${PROJECT_NAME} STATIC src/loguru.cpp)
+add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME} PUBLIC include/loguru)
 
 if (UNIX)
-    target_link_libraries(${PROJECT_NAME} PRIVATE dl pthread)
-endif()
-
+    find_package(Threads REQUIRED) # defines IMPORTED target Threads::Threads
+    target_link_libraries(${PROJECT_NAME}
+            PRIVATE
+            Threads::Threads    # pthreads (or equivalent)
+            ${_lib_dl_linkflag} # dl (or equivalent)
+            )
+#    target_link_libraries(${PROJECT_NAME} PRIVATE dl pthread)
+endif ()

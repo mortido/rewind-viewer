@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <loguru.hpp>
+#include <loguru/loguru.hpp>
 
 //@formatter:off
 #define LOG_INFO(format, ...)   LOG_F(INFO,      format, ##__VA_ARGS__)

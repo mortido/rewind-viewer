@@ -49,8 +49,8 @@ void callback_ReadLine(ImGuiContext *, ImGuiSettingsHandler *, void *entry, cons
         cfg.scene.show_grid = d1;
     } else if (sscanf(line, "scene.draw_background=%d", &d1) == 1) {
         cfg.scene.draw_background = d1;
-    } else if (sscanf(line, "net.use_binary_protocol=%d", &d1) == 1) {
-        cfg.net.use_binary_protocol = d1;
+//    } else if (sscanf(line, "net.use_binary_protocol=%d", &d1) == 1) {
+//        cfg.net.use_binary_protocol = d1;
     } else if (sscanf(line, "camera.origin_on_top_left=%d", &d1) == 1) {
         cfg.camera.origin_on_top_left = d1;
     } else if (sscanf(line, "camera.start_position=(%f,%f)", &p.x, &p.y) == 2) {

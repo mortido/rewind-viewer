@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.21)
 project(rewind-viewer)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -6,8 +6,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 #3rdparites
 add_subdirectory(3rdparty/glad)
 add_subdirectory(3rdparty/stb_image)
-add_subdirectory(3rdparty/csimplesocket)
-add_subdirectory(3rdparty/json)
+add_subdirectory(3rdparty/clsocket)
 add_subdirectory(3rdparty/loguru)
 
 
@@ -33,7 +32,10 @@ endif()
 set(GLM_TEST_ENABLE OFF)
 add_subdirectory(3rdparty/glm)
 add_subdirectory(3rdparty/imgui) # Depends from glm
-
+add_subdirectory(3rdparty/flatbuffers)
 
 #Project
+file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 add_subdirectory(src)
+#add_subdirectory(proto)  # deprecated as flatbuffers can be used without installing.
+add_subdirectory(fbs)

@@ -1,8 +1,7 @@
 #include "ProtoBufHandler.h"
 
 #include <common/logger.h>
-#include <net/PrimitiveType.h>
-#include <net/proto_buf/messages.pb.h>
+#include <rewind_messages.pb.h>
 #include <viewer/FrameEditor.h>
 
 #include <cassert>
@@ -40,14 +39,13 @@ struct ParsingError : std::runtime_error {
     using std::runtime_error::runtime_error;
 };
 
-namespace net {
+namespace rewind_viewer::net {
 void ProtoBufHandler::handle_message(const uint8_t* data, int32_t nbytes) {
-    net::messages::DrawMessage msg;
+    proto::rewind::DrawMessage msg;
     msg.ParseFromArray(data, nbytes);
     auto& ctx = get_frame_editor().context();
 
     if (msg.has_circle()) {
-    } else if (msg.has_circle()) {
         LOG_V8("ProtoBufHandler::CIRCLE");
         const auto& circle = msg.circle();
         ctx.add_circle({circle.center().x(), circle.center().y()}, circle.radius(),
@@ -124,24 +122,4 @@ void ProtoBufHandler::handle_message(const uint8_t* data, int32_t nbytes) {
     on_message_processed(msg.has_end_frame());
 }
 
-//            case PrimitiveType::RECTANGLE: {
-//                LOG_V8("JsonHandler::Rectangle detected");
-//                auto obj = j.get<pod::Rectangle>();
-//                ctx.add_rectangle(obj.top_left, obj.bottom_right, obj.colors, obj.fill);
-//                break;
-//            }
-//            case PrimitiveType::TRIANGLE: {
-//                LOG_V8("JsonHandler::Triangle detected");
-//                auto obj = j.get<pod::Triangle>();
-//                ctx.add_triangle(obj.points[0], obj.points[1], obj.points[2], obj.colors,
-//                obj.fill); break;
-//            }
-//            case PrimitiveType::POLYLINE: {
-//                LOG_V8("JsonHandler::Polyline detected");
-//                auto obj = j.get<pod::Polyline>();
-//                ctx.add_polyline(obj.points, obj.color);
-//                break;
-//            }
-
-
-}  // namespace net
+}  // namespace rewind_viewer::net

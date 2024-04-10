@@ -1,15 +1,16 @@
-# Rewind viewer
+# Rewind viewer [mortido remix]
 
-[![MIT License](https://img.shields.io/github/license/kswaldemar/rewind-viewer.svg?style=flat-square)](./LICENSE)
-[![C++ standard](https://img.shields.io/badge/C++-14-blue.svg?style=flat-square)](https://isocpp.org/)
+[![MIT License](https://img.shields.io/github/license/mortido/rewind-viewer.svg?style=flat-square)](./LICENSE)
+[![C++ standard](https://img.shields.io/badge/C++-17-blue.svg?style=flat-square)](https://isocpp.org/)
 [![OpenGL](https://img.shields.io/badge/OpenGL-3.3-green.svg?style=flat-square)](https://www.khronos.org/opengl/)
 [![RAIC](https://img.shields.io/badge/Russian%20AI%20Cup-2017-yellow.svg?style=flat-square)](http://russianaicup.ru/)
 [![Build status](https://travis-ci.org/kswaldemar/rewind-viewer.svg?branch=master)](https://travis-ci.org/kswaldemar/rewind-viewer)
 [![Linux](https://github.com/kswaldemar/rewind-viewer/workflows/Linux/badge.svg)](https://github.com/kswaldemar/rewind-viewer/actions?query=workflow%3ALinux)
 [![Windows](https://github.com/kswaldemar/rewind-viewer/workflows/Windows/badge.svg)](https://github.com/kswaldemar/rewind-viewer/actions?query=workflow%3AWindows)
-[![GitHub Releases](https://img.shields.io/github/release/kswaldemar/rewind-viewer.svg?style=flat-square)](https://github.com/kswaldemar/rewind-viewer/releases)
 
-Fast Russain AI Cup championship match viewer with rewinding support written in OpenGL
+[//]: # ([![GitHub Releases]&#40;https://img.shields.io/github/release/kswaldemar/rewind-viewer.svg?style=flat-square&#41;]&#40;https://github.com/kswaldemar/rewind-viewer/releases&#41;)
+
+Fast Russian AI Cup championship match viewer with rewinding support written in OpenGL
 
 ![](https://user-images.githubusercontent.com/10009947/101282773-06be3080-37e8-11eb-9edd-47e30e58e2a0.png)
 
@@ -85,8 +86,7 @@ Project created with help of many great libraries:
  - [glm](https://glm.g-truc.net/0.9.8/index.html) math library for OpenGL
  - [glfw](http://www.glfw.org/) for creating window and crossplatform context handling
  - [ImGui](https://github.com/ocornut/imgui) for UI widgets inside application
- - [nlohmann json](https://github.com/nlohmann/json) for json operating
- - [csimplesocket](https://github.com/DFHack/clsocket) for network interaction
+ - [clsocket](https://github.com/DFHack/clsocket) for network interaction
  - [stb_image](https://github.com/nothings/stb) for images processing
  - [loguru](https://github.com/emilk/loguru) for logging support
 

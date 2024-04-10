@@ -1,13 +1,13 @@
-#include <net/ProtoHandler.h>
+#include <net/MessageHandler.h>
 
 #include <cstdint>
 
-namespace net {
-class ProtoBufHandler : public ProtoHandler {
+namespace rewind_viewer::net {
+class ProtoBufHandler : public MessageHandler {
  public:
-    using ProtoHandler::ProtoHandler;
+    using MessageHandler::MessageHandler;
 
     void handle_message(const uint8_t *data, int32_t nbytes) override;
 };
 
-}  // namespace net
+}  // namespace rewind_viewer::net

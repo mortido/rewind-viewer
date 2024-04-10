@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.21)
 project(rewindviewer LANGUAGES C CXX)
+set(CMAKE_CXX_STANDARD 17)
 
 add_compile_options(-Wall)
 if (MSVC)
@@ -7,8 +8,6 @@ if (MSVC)
 else()
     add_compile_options(-Wextra)
 endif()
-
-set(CMAKE_CXX_STANDARD 17)
 
 set(Sources
     main.cpp
@@ -33,24 +32,19 @@ set(Sources
     viewer/FrameEditor.cpp
 
     net/NetListener.cpp
-    net/ProtoHandler.cpp
-    net/proto_buf/ProtoBufHandler.cpp
-    net/proto_buf/messages.pb.cc
-    net/PrimitiveType.cpp
+    net/MessageHandler.cpp
+#    net/proto_buf/ProtoBufHandler.cpp  # deprecated as flatbuffers can be used without installing.
+    net/flatbuffers/FlatBuffersHandler.cpp
 )
 
 add_executable(${PROJECT_NAME} ${Sources})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)
 
-find_package(Protobuf REQUIRED)
-message("Protobuf_LIBRARIES: " ${Protobuf_LIBRARIES})
-message("Protobuf_INCLUDE_DIRS: " ${Protobuf_INCLUDE_DIRS})
-include_directories(${Protobuf_INCLUDE_DIRS})
-
 target_link_libraries(${PROJECT_NAME}
-    Glad glfw glm
-    ImGui stb_image csimplesocket nljson loguru ${Protobuf_LIBRARIES})
+    Glad glfw glm ImGui stb_image clsocket loguru
+#        proto_messages
+        flatbuffers_messages)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 

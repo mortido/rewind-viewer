@@ -1,8 +1,7 @@
 #include "NetListener.h"
-#include "ProtoHandler.h"
+#include "MessageHandler.h"
 
 #include <common/logger.h>
-#include <net/PrimitiveType.h>
 
 #ifdef __APPLE__
 #include <cerrno>
@@ -10,10 +9,11 @@
 #endif
 
 NetListener::NetListener(std::string listen_host, uint16_t listen_port,
-                         std::unique_ptr<ProtoHandler> &&handler)
+                         std::unique_ptr<MessageHandler> &&handler)
     : host_(std::move(listen_host)), port_(listen_port), handler_(std::move(handler)) {
     socket_ = std::make_unique<CPassiveSocket>(CPassiveSocket::SocketTypeTcp);
     socket_->DisableNagleAlgoritm();
+    socket_->Initialize();
     if (!socket_->Listen(host_.data(), port_)) {
         LOG_ERROR("NetListener:: Cannot listen on socket: %d", errno);
     }
@@ -28,7 +28,14 @@ void NetListener::run() {
     while (!stop_) {
         status_ = ConStatus::WAIT;
         LOG_INFO("NetClient:: Start listening");
-        std::unique_ptr<CActiveSocket> client_socket = socket_->Accept();
+        if (!socket_->IsSocketValid()) {
+            status_ = ConStatus::CLOSED;
+            char buf[256];
+            snprintf(buf, sizeof(buf), "Can't accept connection, invalid socket: %s",
+                     socket_->DescribeError());
+            throw std::runtime_error(buf);
+        }
+        std::unique_ptr<CActiveSocket> client_socket(socket_->Accept());
         if (!client_socket) {
             if (stop_) {
                 return;
@@ -40,8 +47,7 @@ void NetListener::run() {
                      strerror(errno));
             throw std::runtime_error(buf);
         } else {
-            LOG_INFO("NetListener:: Got connection from %s:%u",
-                     client_socket->GetClientAddr().c_str(),
+            LOG_INFO("NetListener:: Got connection from %s:%u", client_socket->GetClientAddr(),
                      static_cast<uint16_t>(client_socket->GetClientPort()));
         }
         status_ = ConStatus::ESTABLISHED;
@@ -63,10 +69,10 @@ void NetListener::stop() {
     stop_ = true;
 }
 
-int32_t read_bytes(CActiveSocket *socket, std::string& buf, uint32_t size) {
+int32_t read_bytes(CActiveSocket *socket, std::string &buf, uint32_t size) {
     int32_t i = 0;
-    while(size > 0) {
-        const int32_t received = socket->Receive(size, reinterpret_cast<uint8_t*>(&buf[i]));
+    while (size > 0) {
+        const int32_t received = socket->Receive(size, reinterpret_cast<uint8_t *>(&buf[i]));
         if (received > 0) {
             i += received;
             size -= received;
@@ -80,7 +86,11 @@ int32_t read_bytes(CActiveSocket *socket, std::string& buf, uint32_t size) {
 void NetListener::serve_connection(CActiveSocket *client) {
     std::string buffer(1024, '\0');
     uint16_t message_size;
+    uint16_t schema_version;
     while (!stop_) {
+        // TODO: read schema_version
+        // TODO: endianness?
+
         if (read_bytes(client, buffer, sizeof(uint16_t)) == 0) {
             client->Close();
             status_ = ConStatus::CLOSED;
@@ -100,7 +110,8 @@ void NetListener::serve_connection(CActiveSocket *client) {
         handler_->set_immediate_mode(immediate_mode_.load());
         // Strategy can send several messages in one block
         try {
-            handler_->handle_message(reinterpret_cast<const uint8_t *>(buffer.data()), message_size);
+            handler_->handle_message(reinterpret_cast<const uint8_t *>(buffer.data()),
+                                     message_size);
         } catch (const std::exception &e) {
             LOG_WARN("NetListener(handler_)::Exception: %s", e.what());
         }

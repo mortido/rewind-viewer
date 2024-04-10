@@ -1,0 +1,87 @@
+namespace rewind_viewer.fbs;
+
+struct Vector2f {
+  x:float = 0;
+  y:float = 0;
+}
+
+table Color {
+  value:uint;
+  fill:bool = false;
+}
+
+table Circle {
+  color:Color (required);
+  center:Vector2f (required);
+  radius:float;
+}
+
+table Rectangle {
+  color:Color (required);
+  position:Vector2f (required);
+  size:Vector2f (required);
+}
+
+table Triangle {
+  color:Color (required);
+  points:[Vector2f] (required);
+}
+
+table Polyline {
+  color:Color (required);
+  points:[Vector2f] (required);
+}
+
+table LogText {
+  text:string (required);
+}
+
+table Popup {
+  text:string (required);
+  area_position:Vector2f (required);
+  area_size:Vector2f (required);
+}
+
+table PopupRound {
+  text:string (required);
+  area_center:Vector2f (required);
+  area_radius:float;
+}
+
+table Layer {
+  id:uint;
+  use_permanent_frame:bool=false;
+}
+
+table Map {
+  width:float;
+  height:float;
+  x_grid:uint;
+  y_grid:uint;
+}
+
+table Options {
+  map:Map;
+  layer:Layer;
+}
+
+table EndFrame {
+}
+
+union Command {
+  Circle,
+  Rectangle,
+  Triangle,
+  Polyline,
+  LogText,
+  Popup,
+  PopupRound,
+  Options,
+  EndFrame
+}
+
+table RewindMessage {
+  command:Command (required);
+}
+
+root_type RewindMessage;

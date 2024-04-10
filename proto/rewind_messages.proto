@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package proto.rewind;
+
+message Vector2f {
+  float x = 1;
+  float y = 2;
+}
+
+message Color {
+  uint32 value = 1;
+  bool fill = 2;
+}
+
+message Circle {
+  Color color = 1;
+  Vector2f center = 2;
+  float radius = 3;
+}
+
+message Rectangle {
+  Color color = 1;
+  Vector2f top_left = 2;
+  Vector2f bottom_right = 3;
+}
+
+message Triangle {
+  Color color = 1;
+  repeated Vector2f points = 2;
+}
+
+message Polyline {
+  Color color = 1;
+  repeated Vector2f points = 2;
+}
+
+message LogText {
+  string text = 1;
+}
+
+message Popup {
+  string text = 1;
+  Vector2f position = 2;
+  float width = 3;
+  float height = 4;
+}
+
+message PopupRound {
+  string text = 1;
+  Vector2f center = 2;
+  float radius = 3;
+}
+
+message Options {
+  optional bool use_permanent_frame = 1;
+  optional uint32 layer = 2;
+}
+
+message Map {
+  float width = 1;
+  float height = 2;
+  uint32 x_grid = 3;
+  uint32 y_grid = 4;
+}
+
+message EndFrame {
+
+}
+
+message DrawMessage {
+  oneof command {
+    Circle circle = 1;
+    Rectangle rectangle = 2;
+    Triangle triangle = 3;
+    Polyline polyline = 4;
+    LogText log_text = 5;
+    Popup popup = 6;
+    PopupRound popup_round = 7;
+    Options options = 8;
+    Map map = 9;
+    EndFrame end_frame = 10;
+  }
+}
