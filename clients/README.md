@@ -1,23 +1,24 @@
-# JSON protocol
+# Message protocol
 
-Viewer draw primitives. Each primitive has field `type`
+Rewind viewer uses FlatBuffers for control message serialization. See [message schema](https://github.com/mortido/rewind-viewer/blob/develop/fbs/rewind_message.fbs) for more details.
 
-Type may be one of:
- - circle
- - rectangle
- - triangle
- - polyline
- - message
- - popup
- - options
- - end
- 
-All primitives will be shown **after** `type: end` comes, thus closing current frame and start next one.
- 
-For positions used array-like format, e.g. `[x1,y1,x2,y2,...]`
+Viewer accepts the following types of commands:
+- Circle
+- Rectangle
+- Triangle
+- Polyline
+- LogText
+- Popup
+- PopupRound
+- Options
+- EndFrame
 
-For colors used integer format in form of `ARGB`. 
-But zero alpha component means fully opaque object instead of invisible one. 
+### Vector2f
+Structure for 2D coordinates and sizes
+
+### Color
+Color value is encoded as uint32 in form `ARGB`
+But zero alpha component means fully opaque object instead of invisible one.
 Example:
 ```
 0xff0000    # red
@@ -26,88 +27,76 @@ Example:
 0x0000ff    # blue
 0x000033    # dark blue
 ```
+`fill` attribute is used by some primitives to fill them with specified color.
 
-See "options" section to learn about viewer state and layer manipulation
-
-### circle
-```yaml
-type: 'circle'
-p: [float, float]   # center position (x, y)
-r: float            # radius
-color: color        # color, integer format
-fill: boolean       # whenever to fill with color
+### Circle
+```
+color:Color;        # Color (fill supported)
+center:Vector2f;    # Center position
+radius:float;       # Radius
 ```
 
-### rectangle
-```yaml
-type: 'rectangle'
-tl: [float, float]                  # top-left point
-br: [float, float]                  # bottom-right point
-color: color                        # color, integer format
-       [color, color, color, color] #  or you may specify different color for each vertex 
-                                    #    (field should be either color or array of colors)
-                                    #  vertex order for colors is top_left, bottom_left, top_right, bottom_right  
+### Rectangle
+```
+color:Color;        # Color (fill supported)
+position:Vector2f;  # Position (least x and y coordinates)
+size:Vector2f;      # Size (width, height)  
 ```
 :information_source: If you mix up `tl` and `br` positions they will be normalized
 
-### triangle
-```yaml
-type: 'triangle'
-points: [float, float, float, 
-         float, float, float]  # exactly 3 points (6 floats)
-color: color                   # color, integer format
-       [color, color, color]   #   or you may specify different colors for each vertex
-                               #    (field should be either color or array of colors)
-fill: boolean                  # whenever to fill with color
+### Ttriangle
+```
+color:Color;        # Color (fill supported)
+points:[Vector2f];  # Exactly 3 points
 ```
 
-### polyline
-```yaml
-type: 'polyline'
-points: [float, float,       
-         float, float, ...]  # arbitrary points count, but at least 4 float (2 points)
-color: color                 # color, integer format
+### Polyline
+```
+color:Color;        # Color (fill not supported)
+points:[Vector2f];  # Arbitrary points count (atleast 2 points)
 ```
 
-### message
+### LogText
 Messages will be shown in `Frame message` window inside viewer.
 You can send several messages during one frame. Newline added automatically after each message
 Escape characters also allowed, e.g. you can send `multilined\nstring`
-```yaml
-type: 'message'
-message: string
 ```
-### popup
-Show popup window with message when cursor overlaps with given shape
-
-Round popup:
-```yaml
-type: 'popup'
-p: [float, float]   # circle center position
-r: float            # circle radius
-text: string        # text to be displayed (escape characters as \n are allowed)
+text:string
 ```
 
-Rectangular popup:
-```yaml
-type: 'popup'
-tl: [float, float]  # top-left
-br: [float, float]  # bottom-right point
-text: string        # text to be displayed (escape characters as \n are allowed)
+### Popup
+Shows popup window with message when cursor overlaps with given rectangular area.
+```
+text:string;             # Text to be displayed (escape characters as \n are allowed)
+area_position:Vector2f;  # Position (least x and y coordinates)
+area_size:Vector2f;      # Size of area (width, heigh)
 ```
 
-### options
-Frame options
-- `layer` Set active layer (1-10) for primitives.
-_Note:_ `end` primitive reset layer to its default value
-- `permanent` Primitives from permanent frame drawn before each frame, thus allow to once draw unchanged data, like map border
-```yaml
-type: 'options'
-layer: integer      # set layer for primitives
-permanent: boolean  # whenever to draw primitives to permanent layer
+### PopupRound:
+Shows popup window with message when cursor overlaps with given circular area.
 ```
-### end
-Closes frame and starts new one
-```yaml
-type: 'end'
+text:string;             # Text to be displayed (escape characters as \n are allowed)
+area_center:Vector2f     # Center position
+area_radius:float;       # Area radius
 ```
+
+### Options
+```
+map:Map;
+layer:Layer;
+
+Layer {
+  id:uint;                   # Set active layer (0-9) for primitives
+  use_permanent_frame:bool;  # Whenever to draw primitives to permanent layer
+}
+
+Map {
+  width:float;     # Map canvas width
+  height:float;    # Map canvas height
+  x_grid:uint;     # Map x cells count (used to draw grid)
+  y_grid:uint;     # Map y cells count (used to draw grid)
+}
+```
+
+### End
+Don't have any data. Indicates and of frame. All objects will be drawn after it (if immediate mode is disabled).

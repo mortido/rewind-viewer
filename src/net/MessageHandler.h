@@ -1,11 +1,9 @@
-//
-// Created by valdemar on 20.11.18.
-//
-
 #pragma once
 
-#include <viewer/FrameEditor.h>
-#include <viewer/Scene.h>
+#include "viewer/FrameEditor.h"
+#include "viewer/Scene.h"
+
+//namespace rewind_viewer::net {
 
 class MessageHandler {
  public:
@@ -57,3 +55,5 @@ class MessageHandler {
     bool immediate_data_sent_{false};
     size_t last_layer_id_ = Frame::DEFAULT_LAYER;
 };
+
+//}  // namespace rewind_viewer::net

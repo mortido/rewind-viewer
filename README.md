@@ -3,42 +3,48 @@
 [![MIT License](https://img.shields.io/github/license/mortido/rewind-viewer.svg?style=flat-square)](./LICENSE)
 [![C++ standard](https://img.shields.io/badge/C++-17-blue.svg?style=flat-square)](https://isocpp.org/)
 [![OpenGL](https://img.shields.io/badge/OpenGL-3.3-green.svg?style=flat-square)](https://www.khronos.org/opengl/)
-[![RAIC](https://img.shields.io/badge/Russian%20AI%20Cup-2017-yellow.svg?style=flat-square)](http://russianaicup.ru/)
-[![Build status](https://travis-ci.org/kswaldemar/rewind-viewer.svg?branch=master)](https://travis-ci.org/kswaldemar/rewind-viewer)
-[![Linux](https://github.com/kswaldemar/rewind-viewer/workflows/Linux/badge.svg)](https://github.com/kswaldemar/rewind-viewer/actions?query=workflow%3ALinux)
-[![Windows](https://github.com/kswaldemar/rewind-viewer/workflows/Windows/badge.svg)](https://github.com/kswaldemar/rewind-viewer/actions?query=workflow%3AWindows)
 
-[//]: # ([![GitHub Releases]&#40;https://img.shields.io/github/release/kswaldemar/rewind-viewer.svg?style=flat-square&#41;]&#40;https://github.com/kswaldemar/rewind-viewer/releases&#41;)
+[//]: # ([![Build status]&#40;https://travis-ci.org/mortido/rewind-viewer.svg?branch=develop&#41;]&#40;https://travis-ci.org/mortido/rewind-viewer&#41;)
+[//]: # ([![Linux]&#40;https://github.com/mortido/rewind-viewer/workflows/Linux/badge.svg&#41;]&#40;https://github.com/kswaldemar/rewind-viewer/actions?query=workflow%3ALinux&#41;)
+[//]: # ([![Windows]&#40;https://github.com/mortido/rewind-viewer/workflows/Windows/badge.svg&#41;]&#40;https://github.com/kswaldemar/rewind-viewer/actions?query=workflow%3AWindows&#41;)
+[//]: # ([![GitHub Releases]&#40;https://img.shields.io/github/release/mortido/rewind-viewer.svg?style=flat-square&#41;]&#40;https://github.com/kswaldemar/rewind-viewer/releases&#41;)
 
-Fast Russian AI Cup championship match viewer with rewinding support written in OpenGL
+Remix of great tool for visualization for bot competitions.
+Original Rewind Viewer writen by Vladimir Kiselev (aka kswaldemar) is located [here](https://github.com/kswaldemar/rewind-viewer).
 
 ![](https://user-images.githubusercontent.com/10009947/101282773-06be3080-37e8-11eb-9edd-47e30e58e2a0.png)
 
 ## Overview
-The viewer has several advantages in comparison of local-runner with drawing plugin:
+
+Key differences with original rewind viewer:
+ - binary protocol for faster communication and more primitives per frame
+ - updated API (e.g. map size option)
+ - bugfixes
+
+Original features:
  - All figures are drawn using your video adapter, so no more problems with slow drawing
- - Rewinding - ability to navigate between game tick
+ - Rewinding - ability to navigate between game ticks
  - In Pause navigation - zoom and navigate in any game state
  - Handy mouse navigation
 
 Drawbacks:
- - Viewer running as standalone application, it knows nothing about local runner or your strategy, so you need manually 
-send all data (like buildings, units etc.) and you can draw only data visible by your strategy
+ - Viewer running as standalone application, it knows nothing about your strategy, so you need manually 
+send all data and you can draw only data visible by your strategy
  - In theory, high memory usage, because it needs to store all drawing primitives for rewinding support
 
 
 ## Binaries
 
-Source code with changelog for significant releases can be found in [github releases page](https://github.com/kswaldemar/rewind-viewer/releases).
+There is no binaries for now. You should build rewind-viewer yourself.
 
-Prebuilt windows binaries for other version, such as bugfixes [can be found here](https://github.com/kswaldemar/rewind-viewer/issues/23). It is required to have x86 C++ Redistributable for Visual Studio 2015 installed to run prebuild windows binaries.
+[//]: # (It is required to have x86 C++ Redistributable for Visual Studio 2015 installed to run prebuild windows binaries.)
 
 
 ## Build
 
 Clone repository with submodules:
 ```
-git clone --recursive https://github.com/kswaldemar/rewind-viewer.git
+git clone --recursive https://github.com/mortido/rewind-viewer.git
 ```
 
 Unix, MacOS:
@@ -53,10 +59,7 @@ mkdir build && cd build
 cmake ..
 cmake --build . --config Release
 ```
-*Note*: Compiler with c++14 support needed. That means Visual Studio 2015 or higher on Windows. 
-
-:warning: **Note**: Viewer should be launched from the same folder, where `resources` is located. 
-So you need to manually copy `resources` to build folder, or copy executable to project root directory.
+*Note*: Compiler with c++17 support needed. 
 
 ## Strategy integration
 
@@ -74,11 +77,12 @@ Sample usage:
 
 ### Create client four your language
 
-You can use [Python3 client](https://github.com/kswaldemar/rewind-viewer/blob/master/clients/python3/RewindClient.py) as a reference.
+You can use [C++ client](https://github.com/mortido/rewind-viewer/tree/develop/clients/cpp) as a reference.
 
-Documentation for json protocol [can be found here](./clients/README.md).
+Documentation for message protocol can be found [here](https://github.com/mortido/rewind-viewer/tree/develop/clients).
+
 ## License
-Project sources distributed under [MIT license](https://github.com/kswaldemar/rewind-viewer/blob/master/LICENSE), third parties distributed under their own licences
+Project sources distributed under [MIT license](https://github.com/mortido/rewind-viewer/blob/develop/LICENSE), third parties distributed under their own licences
 
 ## Credits
 Project created with help of many great libraries:
@@ -87,6 +91,7 @@ Project created with help of many great libraries:
  - [glfw](http://www.glfw.org/) for creating window and crossplatform context handling
  - [ImGui](https://github.com/ocornut/imgui) for UI widgets inside application
  - [clsocket](https://github.com/DFHack/clsocket) for network interaction
+ - [flatbuffers](https://github.com/google/flatbuffers) for binary messages
  - [stb_image](https://github.com/nothings/stb) for images processing
  - [loguru](https://github.com/emilk/loguru) for logging support
 
