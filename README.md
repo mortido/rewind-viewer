@@ -61,21 +61,13 @@ cmake --build . --config Release
 ```
 *Note*: Compiler with c++17 support needed. 
 
-## Strategy integration
+## Usage
 
-Strategy should send commands in json format via socket. You may use one from `clients` folder or implement your own.
+Run Rewind Viewer before starting you code. It will reset itself on new connection, so no restarts required.
 
-:warning: Json protocol starting from release 2.0 doesn't compatible with older clients (from 1.3 and below). 
-Check that your client is updated. 
+See [clients](https://github.com/mortido/rewind-viewer/tree/develop/clients) for more information regardless specific language usage.
 
-Sample usage: 
-1. Start the viewer.
-2. Start localrunner, preferably in render_to_screen=false mode.
-3. Start your strategy.
-4. To be able to drew things in the viewer you will need to create a client, send data to the client in your strategy, and **end the frame** with client command. 
-5. There is no need to close the viewer after the strategy is done, just start from step 2. Old drawn data will be cleaned after new connection.
-
-### Create client four your language
+## Create client four your language
 
 You can use [C++ client](https://github.com/mortido/rewind-viewer/tree/develop/clients/cpp) as a reference.
 
