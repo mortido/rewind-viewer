@@ -15,10 +15,18 @@ Viewer accepts the following types of commands:
 
 ### Vector2f
 Structure for 2D coordinates and sizes
+```
+x:float;
+y:float;
+```
 
 ### Color
 Color value is encoded as uint32 in form `ARGB`
 But zero alpha component means fully opaque object instead of invisible one.
+```
+value:uint;
+fill:bool;   # used by some primitives to fill them with specified color
+```
 Example:
 ```
 0xff0000    # red
@@ -27,7 +35,6 @@ Example:
 0x0000ff    # blue
 0x000033    # dark blue
 ```
-`fill` attribute is used by some primitives to fill them with specified color.
 
 ### Circle
 ```

@@ -96,7 +96,7 @@ void FlatBuffersHandler::handle_message(const uint8_t* data, [[maybe_unused]] in
       // TODO: restore gradient colors feature.
       glm::vec2 top_left{rectangle->position()->x(), rectangle->position()->y()};
       glm::vec2 bottom_right{top_left.x + rectangle->size()->x(),
-                             top_left.y + rectangle->size()->x()};
+                             top_left.y + rectangle->size()->y()};
       normalize(top_left, bottom_right);
       ctx.add_rectangle(top_left, bottom_right, convert_color(rectangle->color()->value()),
                         rectangle->color()->fill());
@@ -113,9 +113,10 @@ void FlatBuffersHandler::handle_message(const uint8_t* data, [[maybe_unused]] in
         throw ParsingError{"Popup area height should be positive, got " +
                            std::to_string(popup->area_size()->y())};
       }
-      get_frame_editor().add_box_popup({popup->area_position()->x(), popup->area_position()->y()},
-                                       {popup->area_size()->x(), popup->area_size()->y()},
-                                       popup->text()->str());
+      get_frame_editor().add_box_popup(
+          {popup->area_position()->x() + 0.5 * popup->area_size()->x(),
+           popup->area_position()->y() + 0.5 * popup->area_size()->y()},
+          {popup->area_size()->x(), popup->area_size()->y()}, popup->text()->str());
       break;
     }
     case fbs::Command_PopupRound: {

@@ -117,7 +117,7 @@ class RewindClient {
    * It can be used like printf, e.g.: message("This %s will be %s", "string", "formatted")
    */
   template<typename... Args>
-  void message(const char *fmt, Args... args) {
+  void log_text(const char *fmt, Args... args) {
     flatbuffers::FlatBufferBuilder builder;
     auto str = builder.CreateString(format(fmt, args...));
     auto command = fbs::CreateLogText(builder, str);
@@ -155,9 +155,9 @@ class RewindClient {
 
   void send(const uint8_t *buf, uint16_t buf_size) {
     static uint8_t buffer[sizeof(int16_t)];
-
     memcpy(buffer, &buf_size, sizeof(int16_t));
     socket_.Send(buffer, sizeof(int16_t));
+
     socket_.Send(buf, buf_size);
   }
 

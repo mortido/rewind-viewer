@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.21)
-project(rewind_viewer_client)
+project(cpp_example)
 
-add_library(${PROJECT_NAME} INTERFACE)
-target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(rewind_viewer_client INTERFACE flatbuffers clsocket)
+add_subdirectory(clsocket)
+add_subdirectory(flatbuffers)
+add_subdirectory(rewind_viewer)
+
+set(SOURCES main.cpp)
+
+add_executable(${PROJECT_NAME} ${SOURCES})
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+target_link_libraries(${PROJECT_NAME} PRIVATE rewind_viewer_client)
