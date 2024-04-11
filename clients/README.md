@@ -10,6 +10,8 @@
  - rust **[Not Implemented]**
  - TtypeScript **[Not Implemented]**
 
+Original clients [implementation](https://github.com/kswaldemar/rewind-viewer/tree/develop/clients) can be used as reference.
+
 # Message protocol
 
 Rewind viewer uses FlatBuffers for control message serialization. See [message schema](https://github.com/mortido/rewind-viewer/blob/develop/fbs/rewind_message.fbs) for more details.
