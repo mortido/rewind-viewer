@@ -1,5 +1,7 @@
 #pragma once
-
+#include <cstdio>
+#include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "clsocket/ActiveSocket.h"
@@ -186,9 +188,14 @@ class RewindClient {
 
   template <typename... Args>
   static inline std::string format(const char *fmt, Args... args) {
-    static char buf[2048];
-    int bytes = sprintf(buf, fmt, args...);
-    buf[bytes] = '\0';
+    thread_local char buf[2048];
+    int bytes = snprintf(buf, sizeof(buf), fmt, args...);
+    if (bytes < 0) {
+      throw std::runtime_error("Encoding error in snprintf");
+    }
+    if (bytes >= sizeof(buf)) {
+      throw std::runtime_error("Buffer size is too small for formatted string");
+    }
     return {buf};
   }
 };
