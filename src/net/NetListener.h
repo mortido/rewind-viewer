@@ -9,6 +9,8 @@
 
 namespace rewind_viewer::net {
 
+constexpr uint16_t MESSAGE_SCHEMA_VERSION = 4;
+
 /**
  * Negotiation with running strategy
  *  - listen socket, read json primitives
@@ -40,9 +42,12 @@ class NetListener {
   void stop();
 
  private:
-  void serve_connection(CActiveSocket *client);
+  void accept_client();
+  void serve_connection();
+  bool read_bytes(std::string &buf, uint16_t size);
 
   std::unique_ptr<CPassiveSocket> socket_;
+  std::unique_ptr<CActiveSocket> client_;
   ConStatus status_;
 
   std::string host_;

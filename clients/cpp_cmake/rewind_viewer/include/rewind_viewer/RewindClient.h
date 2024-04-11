@@ -7,6 +7,8 @@
 
 namespace rewind_viewer {
 
+constexpr uint16_t MESSAGE_SCHEMA_VERSION = 4;
+
 template<typename Vec2T>
 class RewindClient {
  public:
@@ -19,6 +21,12 @@ class RewindClient {
     if (!socket_.Open(host.c_str(), port)) {
       fprintf(stderr, "RewindClient:: Cannot open viewer socket. Launch viewer before behavior\n");
     }
+
+    // Send protocol version 1 timee on connection.
+    static uint8_t buffer[sizeof(int16_t)];
+    // TODO: endianness
+    memcpy(buffer, &MESSAGE_SCHEMA_VERSION, sizeof(int16_t));
+    socket_.Send(buffer, sizeof(int16_t));
   }
 
   void set_opacity(uint32_t opacity) {
@@ -155,6 +163,7 @@ class RewindClient {
 
   void send(const uint8_t *buf, uint16_t buf_size) {
     static uint8_t buffer[sizeof(int16_t)];
+    // TODO: endianness
     memcpy(buffer, &buf_size, sizeof(int16_t));
     socket_.Send(buffer, sizeof(int16_t));
 
