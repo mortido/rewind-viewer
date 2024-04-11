@@ -1,3 +1,15 @@
+# Clients
+
+ - C++17
+ - C++17 cmake project
+ - C# **[Not Implemented]**
+ - Go **[Not Implemented]**
+ - Java **[Not Implemented]**
+ - Kotlin **[Not Implemented]**
+ - Python3 **[Not Implemented]**
+ - rust **[Not Implemented]**
+ - TtypeScript **[Not Implemented]**
+
 # Message protocol
 
 Rewind viewer uses FlatBuffers for control message serialization. See [message schema](https://github.com/mortido/rewind-viewer/blob/develop/fbs/rewind_message.fbs) for more details.
