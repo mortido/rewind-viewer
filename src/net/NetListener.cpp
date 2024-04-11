@@ -1,6 +1,6 @@
 #include "NetListener.h"
 
-#include <common/logger.h>
+#include "common/logger.h"
 
 #ifdef __APPLE__
 #include <cerrno>
@@ -19,6 +19,12 @@ NetListener::NetListener(std::string listen_host, uint16_t listen_port,
     LOG_ERROR("NetListener:: Cannot listen on socket: %d", errno);
   }
   status_ = ConStatus::CLOSED;
+
+  // Could be std::endian::native == std::endian::little in c++20
+  const int32_t value{0x01};
+  const void *address{static_cast<const void *>(&value)};
+  const unsigned char *least_significant_address{static_cast<const unsigned char *>(address)};
+  is_little_endian_ = *least_significant_address == 0x01;
 }
 
 NetListener::ConStatus NetListener::connection_status() const {
@@ -30,8 +36,7 @@ void NetListener::run() {
     status_ = ConStatus::WAIT;
     LOG_INFO("Start listening");
     accept_client();
-    LOG_INFO("Got connection from %s:%u", client_->GetClientAddr(),
-             client_->GetClientPort());
+    LOG_INFO("Got connection from %s:%u", client_->GetClientAddr(), client_->GetClientPort());
     status_ = ConStatus::ESTABLISHED;
     serve_connection();
     status_ = ConStatus::CLOSED;
@@ -78,7 +83,9 @@ void NetListener::serve_connection() {
   if (!read_bytes(buffer, sizeof(uint16_t))) {
     return;
   }
-  // TODO: endianness
+  if (!is_little_endian_) {
+    std::reverse(buffer.data(), buffer.data() + sizeof(uint16_t));
+  }
   memcpy(&schema_version, buffer.data(), sizeof(uint16_t));
   if (schema_version != MESSAGE_SCHEMA_VERSION) {
     LOG_ERROR("Incorrect schema version, got %u, required %u", schema_version,
@@ -93,7 +100,9 @@ void NetListener::serve_connection() {
     if (!read_bytes(buffer, sizeof(uint16_t))) {
       break;
     }
-    // TODO: endianness
+    if (!is_little_endian_) {
+      std::reverse(buffer.data(), buffer.data() + sizeof(uint16_t));
+    }
     memcpy(&message_size, buffer.data(), sizeof(uint16_t));
     LOG_V9("Message %u bytes", message_size);
 

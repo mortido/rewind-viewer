@@ -1,11 +1,11 @@
 #pragma once
 #include <clsocket/ActiveSocket.h>
 #include <clsocket/PassiveSocket.h>
-#include <viewer/Scene.h>
 
 #include <atomic>
 
 #include "MessageHandler.h"
+#include "viewer/Scene.h"
 
 namespace rewind_viewer::net {
 
@@ -57,6 +57,8 @@ class NetListener {
 
   std::atomic<bool> stop_{false};
   std::atomic<bool> immediate_mode_{false};
+
+  bool is_little_endian_;
 };
 
 }  // namespace rewind_viewer::net

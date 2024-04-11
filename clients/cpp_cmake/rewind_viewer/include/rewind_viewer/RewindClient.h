@@ -1,15 +1,15 @@
 #pragma once
 
 #include <vector>
-#include <clsocket/ActiveSocket.h>
 
+#include "clsocket/ActiveSocket.h"
 #include "messages/rewind_message.fbs.h"
 
 namespace rewind_viewer {
 
 constexpr uint16_t MESSAGE_SCHEMA_VERSION = 4;
 
-template<typename Vec2T>
+template <typename Vec2T>
 class RewindClient {
  public:
   RewindClient(const RewindClient &) = delete;
@@ -22,9 +22,17 @@ class RewindClient {
       fprintf(stderr, "RewindClient:: Cannot open viewer socket. Launch viewer before behavior\n");
     }
 
+    // Could be std::endian::native == std::endian::little in c++20
+    const int32_t value{0x01};
+    const void *address{static_cast<const void *>(&value)};
+    const unsigned char *least_significant_address{static_cast<const unsigned char *>(address)};
+    is_little_endian_ = *least_significant_address == 0x01;
+
     // Send protocol version 1 timee on connection.
     static uint8_t buffer[sizeof(int16_t)];
-    // TODO: endianness
+    if (!is_little_endian_) {
+      std::reverse(buffer, buffer + sizeof(uint16_t));
+    }
     memcpy(buffer, &MESSAGE_SCHEMA_VERSION, sizeof(int16_t));
     socket_.Send(buffer, sizeof(int16_t));
   }
@@ -75,7 +83,8 @@ class RewindClient {
     std::vector<fbs::Vector2f> points_obj;
     points_obj.emplace_back(static_cast<float>(p1.x), static_cast<float>(p1.y));
     points_obj.emplace_back(static_cast<float>(p2.x), static_cast<float>(p2.y));
-    auto command = fbs::CreatePolyline(builder, color_obj, builder.CreateVectorOfStructs(points_obj));
+    auto command =
+        fbs::CreatePolyline(builder, color_obj, builder.CreateVectorOfStructs(points_obj));
     auto msg = fbs::CreateRewindMessage(builder, fbs::Command_Polyline, command.Union());
     builder.Finish(msg);
     send(builder.GetBufferPointer(), builder.GetSize());
@@ -88,20 +97,23 @@ class RewindClient {
     for (const auto &p : points) {
       points_obj.emplace_back(static_cast<float>(p.x), static_cast<float>(p.y));
     }
-    auto command = fbs::CreatePolyline(builder, color_obj, builder.CreateVectorOfStructs(points_obj));
+    auto command =
+        fbs::CreatePolyline(builder, color_obj, builder.CreateVectorOfStructs(points_obj));
     auto msg = fbs::CreateRewindMessage(builder, fbs::Command_Polyline, command.Union());
     builder.Finish(msg);
     send(builder.GetBufferPointer(), builder.GetSize());
   }
 
-  void triangle(const Vec2T &p1, const Vec2T &p2, const Vec2T &p3, uint32_t color, bool fill = false) {
+  void triangle(const Vec2T &p1, const Vec2T &p2, const Vec2T &p3, uint32_t color,
+                bool fill = false) {
     flatbuffers::FlatBufferBuilder builder;
     auto color_obj = fbs::CreateColor(builder, color | opacity_, fill);
     std::vector<fbs::Vector2f> points_obj;
     points_obj.emplace_back(static_cast<float>(p1.x), static_cast<float>(p1.y));
     points_obj.emplace_back(static_cast<float>(p2.x), static_cast<float>(p2.y));
     points_obj.emplace_back(static_cast<float>(p3.x), static_cast<float>(p3.y));
-    auto command = fbs::CreateTriangle(builder, color_obj, builder.CreateVectorOfStructs(points_obj));
+    auto command =
+        fbs::CreateTriangle(builder, color_obj, builder.CreateVectorOfStructs(points_obj));
     auto msg = fbs::CreateRewindMessage(builder, fbs::Command_Triangle, command.Union());
     builder.Finish(msg);
     send(builder.GetBufferPointer(), builder.GetSize());
@@ -124,7 +136,7 @@ class RewindClient {
    * Can be used several times per frame
    * It can be used like printf, e.g.: message("This %s will be %s", "string", "formatted")
    */
-  template<typename... Args>
+  template <typename... Args>
   void log_text(const char *fmt, Args... args) {
     flatbuffers::FlatBufferBuilder builder;
     auto str = builder.CreateString(format(fmt, args...));
@@ -134,7 +146,7 @@ class RewindClient {
     send(builder.GetBufferPointer(), builder.GetSize());
   }
 
-  template<typename... Args>
+  template <typename... Args>
   void popup_round(const Vec2T &pos, double r, const char *fmt, Args... args) {
     flatbuffers::FlatBufferBuilder builder;
     auto str = builder.CreateString(format(fmt, args...));
@@ -145,7 +157,7 @@ class RewindClient {
     send(builder.GetBufferPointer(), builder.GetSize());
   }
 
-  template<typename... Args>
+  template <typename... Args>
   void popup(const Vec2T &position, const Vec2T &size, const char *fmt, Args... args) {
     flatbuffers::FlatBufferBuilder builder;
     auto str = builder.CreateString(format(fmt, args...));
@@ -158,19 +170,21 @@ class RewindClient {
   }
 
  private:
+  bool is_little_endian_;
   CActiveSocket socket_;
   uint32_t opacity_{0x0};
 
   void send(const uint8_t *buf, uint16_t buf_size) {
     static uint8_t buffer[sizeof(int16_t)];
-    // TODO: endianness
     memcpy(buffer, &buf_size, sizeof(int16_t));
+    if (!is_little_endian_) {
+      std::reverse(buffer, buffer + sizeof(uint16_t));
+    }
     socket_.Send(buffer, sizeof(int16_t));
-
     socket_.Send(buf, buf_size);
   }
 
-  template<typename... Args>
+  template <typename... Args>
   static inline std::string format(const char *fmt, Args... args) {
     static char buf[2048];
     int bytes = sprintf(buf, fmt, args...);

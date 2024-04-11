@@ -43,18 +43,18 @@ There is no binaries for now. You should build rewind-viewer yourself.
 ## Build
 
 Clone repository with submodules:
-```
+```bash
 git clone --recursive https://github.com/mortido/rewind-viewer.git
 ```
 
 Unix, MacOS:
-```
+```bash
 mkdir build && cd build
 cmake --CMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 Windows:
-```
+```bash
 mkdir build && cd build
 cmake ..
 cmake --build . --config Release
@@ -69,9 +69,12 @@ See [clients](https://github.com/mortido/rewind-viewer/tree/develop/clients) for
 
 ## Create client four your language
 
-You can use [C++ client](https://github.com/mortido/rewind-viewer/tree/develop/clients/cpp) as a reference.
-
-Documentation for message protocol can be found [here](https://github.com/mortido/rewind-viewer/tree/develop/clients).
+ - Generate flatbuffers messages for your language. See [Makefile](https://github.com/mortido/rewind-viewer/blob/develop/Makefile) for more info. You will need FlatBuffers compiler (flatc) to be installed.
+```bash
+# Example of message generation for c++
+make cpp_client
+```
+ - Use message protocol and existent clients as [guidelines](https://github.com/mortido/rewind-viewer/tree/develop/clients)
 
 ## License
 Project sources distributed under [MIT license](https://github.com/mortido/rewind-viewer/blob/develop/LICENSE), third parties distributed under their own licences

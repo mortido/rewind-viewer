@@ -5,9 +5,9 @@
 #include "Spinlock.h"
 
 void Spinlock::lock() {
-    while (lock_.test_and_set(std::memory_order_acquire))
-        ;
+  while (lock_.test_and_set(std::memory_order_acquire))
+    ;
 }
 void Spinlock::unlock() {
-    lock_.clear(std::memory_order_release);
+  lock_.clear(std::memory_order_release);
 }

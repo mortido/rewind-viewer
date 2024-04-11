@@ -1,11 +1,11 @@
 #include "FlatBuffersHandler.h"
 
-#include <common/logger.h>
-#include <rewind_messages.fbs.h>
-#include <viewer/FrameEditor.h>
-
 #include <cassert>
 #include <string>
+
+#include "common/logger.h"
+#include "messages/rewind_message.fbs.h"
+#include "viewer/FrameEditor.h"
 
 namespace {
 

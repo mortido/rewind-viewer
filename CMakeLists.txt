@@ -33,5 +33,5 @@ add_subdirectory(3rdparty/flatbuffers)
 
 #Project
 file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
-add_subdirectory(fbs)
+# add_subdirectory(fbs)  # no need if messages pregenerated
 add_subdirectory(src)

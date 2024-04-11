@@ -33,7 +33,6 @@ set(Sources
 
     net/NetListener.cpp
     net/MessageHandler.cpp
-#    net/proto_buf/ProtoBufHandler.cpp  # deprecated as flatbuffers can be used without installing.
     net/flatbuffers/FlatBuffersHandler.cpp
 )
 
@@ -42,9 +41,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)
 
 target_link_libraries(${PROJECT_NAME}
-    Glad glfw glm ImGui stb_image clsocket loguru
-#        proto_messages
-        flatbuffers_messages)
+    Glad glfw glm ImGui stb_image clsocket loguru flatbuffers) # flatbuffers_messages)  # exclude as it pregenerated
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
