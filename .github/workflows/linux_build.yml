@@ -7,10 +7,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install OpenGL
-        shell: bash
-        run: sudo apt install libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
-
       - uses: actions/checkout@v2
         with:
           submodules: true
@@ -19,4 +15,4 @@ jobs:
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
-        run: cmake --build build --target rewindviewer --parallel 6
+        run: cmake --build build --target rewind-viewer --parallel 6

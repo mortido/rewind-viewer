@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(rewind-viewer)
+project(rewind-viewer LANGUAGES C CXX)
 
 #3rdparites
 add_subdirectory(3rdparty/glad)
