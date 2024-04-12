@@ -26,6 +26,6 @@ jobs:
         if: ${{ always() }}  # TODO: only on release tag.
         uses: actions/upload-artifact@v4
         with:
-          name: rewind-viewer-windows
+          name: rewind-viewer_dev_windows
           path: build/Release
           retention-days: 3

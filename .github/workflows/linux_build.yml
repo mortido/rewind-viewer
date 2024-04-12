@@ -27,13 +27,18 @@ jobs:
           mkdir ./build/Release
           cp -R ./resources ./build/Release
           cp ./build/rewind-viewer ./build/Release/
-          chmod +x ./build/Release/rewind-viewer
         shell: bash
+
+      - name: Install Zip utils
+        run: sudo apt-get update -y && sudo apt-get install -y zip
+
+      - name: Create zip archive
+        run: zip -r rewind-viewer_dev_linux.zip ./build/Release/
 
       - name: Upload Binaries
         if: ${{ always() }}  # TODO: only on release tag.
         uses: actions/upload-artifact@v4
         with:
-          name: rewind-viewer-linux
-          path: build/Release
+          name: rewind-viewer_dev_linux
+          path: rewind-viewer_dev_linux.zip
           retention-days: 3

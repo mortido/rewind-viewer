@@ -22,13 +22,15 @@ jobs:
           mkdir ./build/Release
           cp -R ./resources ./build/Release
           cp ./build/rewind-viewer ./build/Release/
-          chmod +x ./build/Release/rewind-viewer
         shell: bash
+
+      - name: Create zip archive
+        run: zip -r rewind-viewer_dev_macos.zip ./build/Release/
 
       - name: Upload Binaries
         if: ${{ always() }}  # TODO: only on release tag.
         uses: actions/upload-artifact@v4
         with:
-          name: rewind-viewer-macos
-          path: build/Release
+          name: rewind-viewer_dev_macos
+          path: rewind-viewer_dev_macos.zip
           retention-days: 3
