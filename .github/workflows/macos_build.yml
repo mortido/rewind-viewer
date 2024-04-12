@@ -1,20 +1,15 @@
-name: Linux Build
+name: MacOS Build
 
 on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev
 
       - name: Configure CMake
         run: cmake -S . -B build -D CMAKE_BUILD_TYPE=Release

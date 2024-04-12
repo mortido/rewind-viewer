@@ -4,9 +4,6 @@
 [![C++ standard](https://img.shields.io/badge/C++-17-blue.svg?style=flat-square)](https://isocpp.org/)
 [![OpenGL](https://img.shields.io/badge/OpenGL-3.3-green.svg?style=flat-square)](https://www.khronos.org/opengl/)
 
-[//]: # ([![Build status]&#40;https://travis-ci.org/mortido/rewind-viewer.svg?branch=develop&#41;]&#40;https://travis-ci.org/mortido/rewind-viewer&#41;)
-[//]: # ([![Linux]&#40;https://github.com/mortido/rewind-viewer/workflows/Linux/badge.svg&#41;]&#40;https://github.com/kswaldemar/rewind-viewer/actions?query=workflow%3ALinux&#41;)
-[//]: # ([![Windows]&#40;https://github.com/mortido/rewind-viewer/workflows/Windows/badge.svg&#41;]&#40;https://github.com/kswaldemar/rewind-viewer/actions?query=workflow%3AWindows&#41;)
 [//]: # ([![GitHub Releases]&#40;https://img.shields.io/github/release/mortido/rewind-viewer.svg?style=flat-square&#41;]&#40;https://github.com/kswaldemar/rewind-viewer/releases&#41;)
 
 Remix of great tool for visualization for bot competitions.
@@ -45,15 +42,36 @@ There is no binaries for now. You should build rewind-viewer yourself.
 Clone repository with submodules:
 ```bash
 git clone --recursive https://github.com/mortido/rewind-viewer.git
+cd rewind-viewer
 ```
 
-Unix, MacOS:
+Linux:
+
+[![Linux Build status](https://github.com/mortido/rewind-viewer/actions/workflows/linux_build.yml/badge.svg)](https://github.com/mortido/rewind-viewer/actions)
+
+```bash
+# Install dependencies
+sudo apt-get update && sudo apt-get install -y libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev 
+
+mkdir build
+cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
+cmake --build build --target rewind-viewer -j
+```
+
+MacOS:
+
+[![Macos Build status](https://github.com/mortido/rewind-viewer/actions/workflows/macos_build.yml/badge.svg)](https://github.com/mortido/rewind-viewer/actions)
+
 ```bash
 mkdir build && cd build
 cmake --CMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
+
 Windows:
+
+[![Windows Build status](https://github.com/mortido/rewind-viewer/actions/workflows/windows_build.yml/badge.svg)](https://github.com/mortido/rewind-viewer/actions)
+
 ```bash
 mkdir build && cd build
 cmake ..
