@@ -1,7 +1,8 @@
 #include "NetListener.h"
 
-#include "common/logger.h"
+#include <algorithm>
 
+#include "common/logger.h"
 #ifdef __APPLE__
 #include <cerrno>
 #include <utility>
