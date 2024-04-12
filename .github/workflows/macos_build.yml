@@ -19,13 +19,13 @@ jobs:
 
       - name: Copy assets
         run: |
-          mkdir ./build/Release
-          cp -R ./resources ./build/Release
-          cp ./build/rewind-viewer ./build/Release/
+          mkdir ./rewind-viewer
+          cp -R ./resources ./rewind-viewer
+          cp ./build/rewind-viewer ./rewind-viewer
         shell: bash
 
       - name: Create zip archive
-        run: zip -r rewind-viewer_dev_macos.zip ./build/Release/
+        run: zip -r rewind-viewer_dev_macos.zip ./rewind-viewer
 
       - name: Upload Binaries
         if: ${{ always() }}  # TODO: only on release tag.
