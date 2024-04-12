@@ -22,5 +22,17 @@ jobs:
       - name: Build
         run: cmake --build build --target rewind-viewer --parallel
 
-      - name: ls
-        run: ls ./build
+      - name: Copy assets
+        run: |
+          mkdir ./build/Release
+          cp -R ./resources ./build/Release
+          cp ./build/rewind-viewer ./build/Release/
+        shell: bash
+
+      - name: Upload Binaries
+        if: ${{ always() }}  # TODO: only on release tag.
+        uses: actions/upload-artifact@v4
+        with:
+          name: rewind-viewer-linux
+          path: build/Release
+          retention-days: 3

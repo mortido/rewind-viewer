@@ -63,9 +63,9 @@ MacOS:
 [![Macos Build status](https://github.com/mortido/rewind-viewer/actions/workflows/macos_build.yml/badge.svg)](https://github.com/mortido/rewind-viewer/actions)
 
 ```bash
-mkdir build && cd build
-cmake --CMAKE_BUILD_TYPE=Release ..
-cmake --build .
+mkdir build
+cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
+cmake --build build --target rewind-viewer -j
 ```
 
 Windows:
@@ -73,9 +73,9 @@ Windows:
 [![Windows Build status](https://github.com/mortido/rewind-viewer/actions/workflows/windows_build.yml/badge.svg)](https://github.com/mortido/rewind-viewer/actions)
 
 ```bash
-mkdir build && cd build
-cmake ..
-cmake --build . --config Release
+mkdir build
+cmake -S . -B build
+cmake --build build --target rewind-viewer -j --config Release
 ```
 *Note*: Compiler with c++17 support needed. 
 
