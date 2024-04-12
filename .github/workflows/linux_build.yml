@@ -21,3 +21,6 @@ jobs:
 
       - name: Build
         run: cmake --build build --target rewind-viewer --parallel
+
+      - name: ls
+        run: ls ./build

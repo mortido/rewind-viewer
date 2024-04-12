@@ -16,3 +16,13 @@ jobs:
 
       - name: Build
         run: cmake --build build --target rewind-viewer --parallel --config Release
+
+      - name: ls
+        run: ls ./build
+
+      - name: Upload Binaries
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: rewind-viewer-windows
+          path: build/Release
