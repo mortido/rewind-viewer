@@ -41,8 +41,10 @@ void Scene::update_and_render(const Camera &cam) {
         const auto &perm_frame_contexts = permanent_frame_.all_contexts();
         const auto &frame_contexts = active_frame_->all_contexts();
         for (size_t idx = 0; idx < Frame::LAYERS_COUNT; ++idx) {
-            if (conf_.enabled_layers[idx]) {
+            if (conf_.enabled_permanent_layers[idx]) {
                 renderer_->render_primitives(perm_frame_contexts[idx]);
+            }
+            if (conf_.enabled_layers[idx]) {
                 renderer_->render_primitives(frame_contexts[idx]);
             }
         }

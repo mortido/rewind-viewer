@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdio>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -44,92 +45,92 @@ class RewindClient {
   }
 
   void end_frame() {
-    flatbuffers::FlatBufferBuilder builder;
-    auto command = fbs::CreateEndFrame(builder);
-    auto msg = fbs::CreateRewindMessage(builder, fbs::Command_EndFrame, command.Union());
-    builder.Finish(msg);
-    send(builder.GetBufferPointer(), builder.GetSize());
+    builder_.Clear();
+    auto command = fbs::CreateEndFrame(builder_);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_EndFrame, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
   void switch_to_layer(size_t layer, bool permanent = false) {
-    flatbuffers::FlatBufferBuilder builder;
-    auto layer_obj = fbs::CreateLayer(builder, layer, permanent);
-    auto command = fbs::CreateOptions(builder, 0, layer_obj);
-    auto msg = fbs::CreateRewindMessage(builder, fbs::Command_Options, command.Union());
-    builder.Finish(msg);
-    send(builder.GetBufferPointer(), builder.GetSize());
+    builder_.Clear();
+    auto layer_obj = fbs::CreateLayer(builder_, layer, permanent);
+    auto command = fbs::CreateOptions(builder_, 0, layer_obj);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Options, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
   void map(const Vec2T &size, uint32_t grid_x, uint32_t grid_y) {
-    flatbuffers::FlatBufferBuilder builder;
-    auto map_obj = fbs::CreateMap(builder, size.x, size.y, grid_x, grid_y);
-    auto command = fbs::CreateOptions(builder, map_obj, 0);
-    auto msg = fbs::CreateRewindMessage(builder, fbs::Command_Options, command.Union());
-    builder.Finish(msg);
-    send(builder.GetBufferPointer(), builder.GetSize());
+    builder_.Clear();
+    auto map_obj = fbs::CreateMap(builder_, size.x, size.y, grid_x, grid_y);
+    auto command = fbs::CreateOptions(builder_, map_obj, 0);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Options, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
   void circle(const Vec2T &center, double r, uint32_t color, bool fill = false) {
-    flatbuffers::FlatBufferBuilder builder;
-    auto color_obj = fbs::CreateColor(builder, color | opacity_, fill);
+    builder_.Clear();
+    auto color_obj = fbs::CreateColor(builder_, color | opacity_, fill);
     auto center_obj = fbs::Vector2f(static_cast<float>(center.x), static_cast<float>(center.y));
-    auto command = fbs::CreateCircle(builder, color_obj, &center_obj, static_cast<float>(r));
-    auto msg = fbs::CreateRewindMessage(builder, fbs::Command_Circle, command.Union());
-    builder.Finish(msg);
-    send(builder.GetBufferPointer(), builder.GetSize());
+    auto command = fbs::CreateCircle(builder_, color_obj, &center_obj, static_cast<float>(r));
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Circle, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
   void line(const Vec2T &p1, const Vec2T &p2, uint32_t color) {
-    flatbuffers::FlatBufferBuilder builder;
-    auto color_obj = fbs::CreateColor(builder, color | opacity_, false);
+    builder_.Clear();
+    auto color_obj = fbs::CreateColor(builder_, color | opacity_, false);
     std::vector<fbs::Vector2f> points_obj;
     points_obj.emplace_back(static_cast<float>(p1.x), static_cast<float>(p1.y));
     points_obj.emplace_back(static_cast<float>(p2.x), static_cast<float>(p2.y));
     auto command =
-        fbs::CreatePolyline(builder, color_obj, builder.CreateVectorOfStructs(points_obj));
-    auto msg = fbs::CreateRewindMessage(builder, fbs::Command_Polyline, command.Union());
-    builder.Finish(msg);
-    send(builder.GetBufferPointer(), builder.GetSize());
+        fbs::CreatePolyline(builder_, color_obj, builder_.CreateVectorOfStructs(points_obj));
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Polyline, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
   void polyline(const std::vector<Vec2T> &points, uint32_t color) {
-    flatbuffers::FlatBufferBuilder builder;
-    auto color_obj = fbs::CreateColor(builder, color | opacity_, false);
+    builder_.Clear();
+    auto color_obj = fbs::CreateColor(builder_, color | opacity_, false);
     std::vector<fbs::Vector2f> points_obj;
     for (const auto &p : points) {
       points_obj.emplace_back(static_cast<float>(p.x), static_cast<float>(p.y));
     }
     auto command =
-        fbs::CreatePolyline(builder, color_obj, builder.CreateVectorOfStructs(points_obj));
-    auto msg = fbs::CreateRewindMessage(builder, fbs::Command_Polyline, command.Union());
-    builder.Finish(msg);
-    send(builder.GetBufferPointer(), builder.GetSize());
+        fbs::CreatePolyline(builder_, color_obj, builder_.CreateVectorOfStructs(points_obj));
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Polyline, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
   void triangle(const Vec2T &p1, const Vec2T &p2, const Vec2T &p3, uint32_t color,
                 bool fill = false) {
-    flatbuffers::FlatBufferBuilder builder;
-    auto color_obj = fbs::CreateColor(builder, color | opacity_, fill);
+    builder_.Clear();
+    auto color_obj = fbs::CreateColor(builder_, color | opacity_, fill);
     std::vector<fbs::Vector2f> points_obj;
     points_obj.emplace_back(static_cast<float>(p1.x), static_cast<float>(p1.y));
     points_obj.emplace_back(static_cast<float>(p2.x), static_cast<float>(p2.y));
     points_obj.emplace_back(static_cast<float>(p3.x), static_cast<float>(p3.y));
     auto command =
-        fbs::CreateTriangle(builder, color_obj, builder.CreateVectorOfStructs(points_obj));
-    auto msg = fbs::CreateRewindMessage(builder, fbs::Command_Triangle, command.Union());
-    builder.Finish(msg);
-    send(builder.GetBufferPointer(), builder.GetSize());
+        fbs::CreateTriangle(builder_, color_obj, builder_.CreateVectorOfStructs(points_obj));
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Triangle, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
   void rectangle(const Vec2T &position, const Vec2T &size, uint32_t color, bool fill = false) {
-    flatbuffers::FlatBufferBuilder builder;
-    auto color_obj = fbs::CreateColor(builder, color | opacity_, fill);
+    builder_.Clear();
+    auto color_obj = fbs::CreateColor(builder_, color | opacity_, fill);
     fbs::Vector2f position_obj{static_cast<float>(position.x), static_cast<float>(position.y)};
     fbs::Vector2f size_obj{static_cast<float>(size.x), static_cast<float>(size.y)};
-    auto command = fbs::CreateRectangle(builder, color_obj, &position_obj, &size_obj);
-    auto msg = fbs::CreateRewindMessage(builder, fbs::Command_Rectangle, command.Union());
-    builder.Finish(msg);
-    send(builder.GetBufferPointer(), builder.GetSize());
+    auto command = fbs::CreateRectangle(builder_, color_obj, &position_obj, &size_obj);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Rectangle, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
   /**
@@ -140,43 +141,47 @@ class RewindClient {
    */
   template <typename... Args>
   void log_text(const char *fmt, Args... args) {
-    flatbuffers::FlatBufferBuilder builder;
-    auto str = builder.CreateString(format(fmt, args...));
-    auto command = fbs::CreateLogText(builder, str);
-    auto msg = fbs::CreateRewindMessage(builder, fbs::Command_LogText, command.Union());
-    builder.Finish(msg);
-    send(builder.GetBufferPointer(), builder.GetSize());
+    builder_.Clear();
+    auto str = builder_.CreateString(format(fmt, args...));
+    auto command = fbs::CreateLogText(builder_, str);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_LogText, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
   template <typename... Args>
   void popup_round(const Vec2T &pos, double r, const char *fmt, Args... args) {
-    flatbuffers::FlatBufferBuilder builder;
-    auto str = builder.CreateString(format(fmt, args...));
+    builder_.Clear();
+    auto str = builder_.CreateString(format(fmt, args...));
     fbs::Vector2f center_obj{static_cast<float>(pos.x), static_cast<float>(pos.y)};
-    auto command = fbs::CreatePopupRound(builder, str, &center_obj, r);
-    auto msg = fbs::CreateRewindMessage(builder, fbs::Command_PopupRound, command.Union());
-    builder.Finish(msg);
-    send(builder.GetBufferPointer(), builder.GetSize());
+    auto command = fbs::CreatePopupRound(builder_, str, &center_obj, r);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_PopupRound, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
   template <typename... Args>
   void popup(const Vec2T &position, const Vec2T &size, const char *fmt, Args... args) {
-    flatbuffers::FlatBufferBuilder builder;
-    auto str = builder.CreateString(format(fmt, args...));
+    builder_.Clear();
+    auto str = builder_.CreateString(format(fmt, args...));
     fbs::Vector2f position_obj{static_cast<float>(position.x), static_cast<float>(position.y)};
     fbs::Vector2f size_obj{static_cast<float>(size.x), static_cast<float>(size.y)};
-    auto command = fbs::CreatePopup(builder, str, &position_obj, &size_obj);
-    auto msg = fbs::CreateRewindMessage(builder, fbs::Command_Popup, command.Union());
-    builder.Finish(msg);
-    send(builder.GetBufferPointer(), builder.GetSize());
+    auto command = fbs::CreatePopup(builder_, str, &position_obj, &size_obj);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Popup, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
  private:
   bool is_little_endian_;
+  flatbuffers::FlatBufferBuilder builder_;
   CActiveSocket socket_;
   uint32_t opacity_{0x0};
 
-  void send(const uint8_t *buf, uint16_t buf_size) {
+  void send(const uint8_t *buf, uint64_t buf_size) {
+    if (buf_size > std::numeric_limits<uint16_t>::max()) {
+      throw std::runtime_error("Rewind message size can't be more then max value of uint16");
+    }
     static uint8_t buffer[sizeof(int16_t)];
     memcpy(buffer, &buf_size, sizeof(int16_t));
     if (!is_little_endian_) {

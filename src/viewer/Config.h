@@ -29,6 +29,7 @@ struct Config {
         bool show_grid = true;
         bool draw_background = true;
         std::array<bool, Frame::LAYERS_COUNT> enabled_layers = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+        std::array<bool, Frame::LAYERS_COUNT> enabled_permanent_layers = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
     } scene;
 
 //    struct NetConf {

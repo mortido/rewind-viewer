@@ -107,8 +107,7 @@ GLFWwindow *setup_window() {
     if (!icon_data) {
         LOG_ERROR(
             "Cannot find application icon (%s). "
-            "Make sure you launch viewer from directory with 'resources' folder. "
-            "MacOS: run from terminal",
+            "Make sure you launch viewer from directory with 'resources' folder. ",
             icon_path.c_str());
         return nullptr;
     }

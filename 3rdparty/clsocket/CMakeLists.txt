@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 project(clsocket)
+set (CMAKE_CXX_STANDARD 11)
 
 set(SOURCES
         src/SimpleSocket.cpp
