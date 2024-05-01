@@ -50,6 +50,10 @@ struct PopupRound;
 struct PopupRoundBuilder;
 struct PopupRoundT;
 
+struct CameraView;
+struct CameraViewBuilder;
+struct CameraViewT;
+
 struct Layer;
 struct LayerBuilder;
 struct LayerT;
@@ -80,12 +84,13 @@ enum Command : uint8_t {
   Command_Popup = 6,
   Command_PopupRound = 7,
   Command_Options = 8,
-  Command_EndFrame = 9,
+  Command_CameraView = 9,
+  Command_EndFrame = 10,
   Command_MIN = Command_NONE,
   Command_MAX = Command_EndFrame
 };
 
-inline const Command (&EnumValuesCommand())[10] {
+inline const Command (&EnumValuesCommand())[11] {
   static const Command values[] = {
     Command_NONE,
     Command_Circle,
@@ -96,13 +101,14 @@ inline const Command (&EnumValuesCommand())[10] {
     Command_Popup,
     Command_PopupRound,
     Command_Options,
+    Command_CameraView,
     Command_EndFrame
   };
   return values;
 }
 
 inline const char * const *EnumNamesCommand() {
-  static const char * const names[11] = {
+  static const char * const names[12] = {
     "NONE",
     "Circle",
     "Rectangle",
@@ -112,6 +118,7 @@ inline const char * const *EnumNamesCommand() {
     "Popup",
     "PopupRound",
     "Options",
+    "CameraView",
     "EndFrame",
     nullptr
   };
@@ -160,6 +167,10 @@ template<> struct CommandTraits<rewind_viewer::fbs::Options> {
   static const Command enum_value = Command_Options;
 };
 
+template<> struct CommandTraits<rewind_viewer::fbs::CameraView> {
+  static const Command enum_value = Command_CameraView;
+};
+
 template<> struct CommandTraits<rewind_viewer::fbs::EndFrame> {
   static const Command enum_value = Command_EndFrame;
 };
@@ -198,6 +209,10 @@ template<> struct CommandUnionTraits<rewind_viewer::fbs::PopupRoundT> {
 
 template<> struct CommandUnionTraits<rewind_viewer::fbs::OptionsT> {
   static const Command enum_value = Command_Options;
+};
+
+template<> struct CommandUnionTraits<rewind_viewer::fbs::CameraViewT> {
+  static const Command enum_value = Command_CameraView;
 };
 
 template<> struct CommandUnionTraits<rewind_viewer::fbs::EndFrameT> {
@@ -297,6 +312,14 @@ struct CommandUnion {
   const rewind_viewer::fbs::OptionsT *AsOptions() const {
     return type == Command_Options ?
       reinterpret_cast<const rewind_viewer::fbs::OptionsT *>(value) : nullptr;
+  }
+  rewind_viewer::fbs::CameraViewT *AsCameraView() {
+    return type == Command_CameraView ?
+      reinterpret_cast<rewind_viewer::fbs::CameraViewT *>(value) : nullptr;
+  }
+  const rewind_viewer::fbs::CameraViewT *AsCameraView() const {
+    return type == Command_CameraView ?
+      reinterpret_cast<const rewind_viewer::fbs::CameraViewT *>(value) : nullptr;
   }
   rewind_viewer::fbs::EndFrameT *AsEndFrame() {
     return type == Command_EndFrame ?
@@ -976,6 +999,100 @@ inline ::flatbuffers::Offset<PopupRound> CreatePopupRoundDirect(
 
 ::flatbuffers::Offset<PopupRound> CreatePopupRound(::flatbuffers::FlatBufferBuilder &_fbb, const PopupRoundT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct CameraViewT : public ::flatbuffers::NativeTable {
+  typedef CameraView TableType;
+  std::string name{};
+  std::unique_ptr<rewind_viewer::fbs::Vector2f> position{};
+  float view_radius = 0.0f;
+  CameraViewT() = default;
+  CameraViewT(const CameraViewT &o);
+  CameraViewT(CameraViewT&&) FLATBUFFERS_NOEXCEPT = default;
+  CameraViewT &operator=(CameraViewT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct CameraView FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CameraViewT NativeTableType;
+  typedef CameraViewBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_POSITION = 6,
+    VT_VIEW_RADIUS = 8
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  const rewind_viewer::fbs::Vector2f *position() const {
+    return GetStruct<const rewind_viewer::fbs::Vector2f *>(VT_POSITION);
+  }
+  float view_radius() const {
+    return GetField<float>(VT_VIEW_RADIUS, 0.0f);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffsetRequired(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_POSITION, 4) &&
+           VerifyField<float>(verifier, VT_VIEW_RADIUS, 4) &&
+           verifier.EndTable();
+  }
+  CameraViewT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(CameraViewT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<CameraView> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CameraViewT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct CameraViewBuilder {
+  typedef CameraView Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(CameraView::VT_NAME, name);
+  }
+  void add_position(const rewind_viewer::fbs::Vector2f *position) {
+    fbb_.AddStruct(CameraView::VT_POSITION, position);
+  }
+  void add_view_radius(float view_radius) {
+    fbb_.AddElement<float>(CameraView::VT_VIEW_RADIUS, view_radius, 0.0f);
+  }
+  explicit CameraViewBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CameraView> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CameraView>(end);
+    fbb_.Required(o, CameraView::VT_NAME);
+    fbb_.Required(o, CameraView::VT_POSITION);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CameraView> CreateCameraView(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    const rewind_viewer::fbs::Vector2f *position = nullptr,
+    float view_radius = 0.0f) {
+  CameraViewBuilder builder_(_fbb);
+  builder_.add_view_radius(view_radius);
+  builder_.add_position(position);
+  builder_.add_name(name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<CameraView> CreateCameraViewDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    const rewind_viewer::fbs::Vector2f *position = nullptr,
+    float view_radius = 0.0f) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return rewind_viewer::fbs::CreateCameraView(
+      _fbb,
+      name__,
+      position,
+      view_radius);
+}
+
+::flatbuffers::Offset<CameraView> CreateCameraView(::flatbuffers::FlatBufferBuilder &_fbb, const CameraViewT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct LayerT : public ::flatbuffers::NativeTable {
   typedef Layer TableType;
   uint32_t id = 0;
@@ -1275,6 +1392,9 @@ struct RewindMessage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const rewind_viewer::fbs::Options *command_as_Options() const {
     return command_type() == rewind_viewer::fbs::Command_Options ? static_cast<const rewind_viewer::fbs::Options *>(command()) : nullptr;
   }
+  const rewind_viewer::fbs::CameraView *command_as_CameraView() const {
+    return command_type() == rewind_viewer::fbs::Command_CameraView ? static_cast<const rewind_viewer::fbs::CameraView *>(command()) : nullptr;
+  }
   const rewind_viewer::fbs::EndFrame *command_as_EndFrame() const {
     return command_type() == rewind_viewer::fbs::Command_EndFrame ? static_cast<const rewind_viewer::fbs::EndFrame *>(command()) : nullptr;
   }
@@ -1320,6 +1440,10 @@ template<> inline const rewind_viewer::fbs::PopupRound *RewindMessage::command_a
 
 template<> inline const rewind_viewer::fbs::Options *RewindMessage::command_as<rewind_viewer::fbs::Options>() const {
   return command_as_Options();
+}
+
+template<> inline const rewind_viewer::fbs::CameraView *RewindMessage::command_as<rewind_viewer::fbs::CameraView>() const {
+  return command_as_CameraView();
 }
 
 template<> inline const rewind_viewer::fbs::EndFrame *RewindMessage::command_as<rewind_viewer::fbs::EndFrame>() const {
@@ -1675,6 +1799,51 @@ inline ::flatbuffers::Offset<PopupRound> CreatePopupRound(::flatbuffers::FlatBuf
       _area_radius);
 }
 
+inline CameraViewT::CameraViewT(const CameraViewT &o)
+      : name(o.name),
+        position((o.position) ? new rewind_viewer::fbs::Vector2f(*o.position) : nullptr),
+        view_radius(o.view_radius) {
+}
+
+inline CameraViewT &CameraViewT::operator=(CameraViewT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(name, o.name);
+  std::swap(position, o.position);
+  std::swap(view_radius, o.view_radius);
+  return *this;
+}
+
+inline CameraViewT *CameraView::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<CameraViewT>(new CameraViewT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void CameraView::UnPackTo(CameraViewT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = name(); if (_e) _o->name = _e->str(); }
+  { auto _e = position(); if (_e) _o->position = std::unique_ptr<rewind_viewer::fbs::Vector2f>(new rewind_viewer::fbs::Vector2f(*_e)); }
+  { auto _e = view_radius(); _o->view_radius = _e; }
+}
+
+inline ::flatbuffers::Offset<CameraView> CameraView::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CameraViewT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateCameraView(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<CameraView> CreateCameraView(::flatbuffers::FlatBufferBuilder &_fbb, const CameraViewT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CameraViewT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _name = _fbb.CreateString(_o->name);
+  auto _position = _o->position ? _o->position.get() : nullptr;
+  auto _view_radius = _o->view_radius;
+  return rewind_viewer::fbs::CreateCameraView(
+      _fbb,
+      _name,
+      _position,
+      _view_radius);
+}
+
 inline LayerT *Layer::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<LayerT>(new LayerT());
   UnPackTo(_o.get(), _resolver);
@@ -1868,6 +2037,10 @@ inline bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Co
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::Options *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case Command_CameraView: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::CameraView *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     case Command_EndFrame: {
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::EndFrame *>(obj);
       return verifier.VerifyTable(ptr);
@@ -1923,6 +2096,10 @@ inline void *CommandUnion::UnPack(const void *obj, Command type, const ::flatbuf
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::Options *>(obj);
       return ptr->UnPack(resolver);
     }
+    case Command_CameraView: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::CameraView *>(obj);
+      return ptr->UnPack(resolver);
+    }
     case Command_EndFrame: {
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::EndFrame *>(obj);
       return ptr->UnPack(resolver);
@@ -1966,6 +2143,10 @@ inline ::flatbuffers::Offset<void> CommandUnion::Pack(::flatbuffers::FlatBufferB
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::OptionsT *>(value);
       return CreateOptions(_fbb, ptr, _rehasher).Union();
     }
+    case Command_CameraView: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::CameraViewT *>(value);
+      return CreateCameraView(_fbb, ptr, _rehasher).Union();
+    }
     case Command_EndFrame: {
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::EndFrameT *>(value);
       return CreateEndFrame(_fbb, ptr, _rehasher).Union();
@@ -2006,6 +2187,10 @@ inline CommandUnion::CommandUnion(const CommandUnion &u) : type(u.type), value(n
     }
     case Command_Options: {
       value = new rewind_viewer::fbs::OptionsT(*reinterpret_cast<rewind_viewer::fbs::OptionsT *>(u.value));
+      break;
+    }
+    case Command_CameraView: {
+      value = new rewind_viewer::fbs::CameraViewT(*reinterpret_cast<rewind_viewer::fbs::CameraViewT *>(u.value));
       break;
     }
     case Command_EndFrame: {
@@ -2056,6 +2241,11 @@ inline void CommandUnion::Reset() {
     }
     case Command_Options: {
       auto ptr = reinterpret_cast<rewind_viewer::fbs::OptionsT *>(value);
+      delete ptr;
+      break;
+    }
+    case Command_CameraView: {
+      auto ptr = reinterpret_cast<rewind_viewer::fbs::CameraViewT *>(value);
       delete ptr;
       break;
     }

@@ -65,6 +65,7 @@ def RewindMessageEnd(builder):
 def End(builder):
     return RewindMessageEnd(builder)
 
+import rewind_viewer.fbs.CameraView
 import rewind_viewer.fbs.Circle
 import rewind_viewer.fbs.Command
 import rewind_viewer.fbs.EndFrame
@@ -85,7 +86,7 @@ class RewindMessageT(object):
     # RewindMessageT
     def __init__(self):
         self.commandType = 0  # type: int
-        self.command = None  # type: Union[None, rewind_viewer.fbs.Circle.CircleT, rewind_viewer.fbs.Rectangle.RectangleT, rewind_viewer.fbs.Triangle.TriangleT, rewind_viewer.fbs.Polyline.PolylineT, rewind_viewer.fbs.LogText.LogTextT, rewind_viewer.fbs.Popup.PopupT, rewind_viewer.fbs.PopupRound.PopupRoundT, rewind_viewer.fbs.Options.OptionsT, rewind_viewer.fbs.EndFrame.EndFrameT]
+        self.command = None  # type: Union[None, rewind_viewer.fbs.Circle.CircleT, rewind_viewer.fbs.Rectangle.RectangleT, rewind_viewer.fbs.Triangle.TriangleT, rewind_viewer.fbs.Polyline.PolylineT, rewind_viewer.fbs.LogText.LogTextT, rewind_viewer.fbs.Popup.PopupT, rewind_viewer.fbs.PopupRound.PopupRoundT, rewind_viewer.fbs.Options.OptionsT, rewind_viewer.fbs.CameraView.CameraViewT, rewind_viewer.fbs.EndFrame.EndFrameT]
 
     @classmethod
     def InitFromBuf(cls, buf, pos):

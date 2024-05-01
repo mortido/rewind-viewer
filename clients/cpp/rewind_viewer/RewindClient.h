@@ -10,7 +10,7 @@
 
 namespace rewind_viewer {
 
-constexpr uint16_t MESSAGE_SCHEMA_VERSION = 4;
+constexpr uint16_t MESSAGE_SCHEMA_VERSION = 5;
 
 template <typename Vec2T>
 class RewindClient {
@@ -168,6 +168,16 @@ class RewindClient {
     fbs::Vector2f size_obj{static_cast<float>(size.x), static_cast<float>(size.y)};
     auto command = fbs::CreatePopup(builder_, str, &position_obj, &size_obj);
     auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Popup, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
+  void camera_view(const std::string& name,  const Vec2T &pos, double r) {
+    builder_.Clear();
+    auto name_obj = builder_.CreateString(name);
+    fbs::Vector2f pos_obj{static_cast<float>(pos.x), static_cast<float>(pos.y)};
+    auto command = fbs::CreateCameraView(builder_, name_obj, &pos_obj, r);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_CameraView, command.Union());
     builder_.Finish(msg);
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }

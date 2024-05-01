@@ -1,201 +1,160 @@
-#include <glad/glad.h>
 
-#include <GLFW/glfw3.h>
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
 
-#include <cgutils/ResourceManager.h>
-#include <cgutils/Shader.h>
-#include <common/logger.h>
-#include <net/flatbuffers/FlatBuffersHandler.h>
-#include <viewer/Config.h>
-#include <viewer/UIController.h>
+// #include "cgutils/opengl.h"
+#include "common/logger.h"
+#include "rewind_viewer.h"
 
-#include <stb_image.h>
+// #include <stb_image.h>
 
-#include <exception>
-#include <thread>
+constexpr const char* CONFIG_FILENAME = "rewind-viewer.yaml";
+constexpr const char* LOG_FILENAME = "rewind-viewer.log";
+constexpr const char* WINDOW_TITLE = "Rewind Viewer [mortido remix]";
 
-constexpr size_t DEFAULT_WIN_WIDTH = 1200;
-constexpr size_t DEFAULT_WIN_HEIGHT = 800;
-
-constexpr const char *WINDOW_TITLE = "Rewind Viewer [mortido remix]";
-constexpr const char *CONF_FILENAME = "rewindviewer.ini";
-
-static const char *NETWORK_HOST = "127.0.0.1";
-static const uint16_t NETWORK_PORT = 9111;
-
-GLFWwindow *setup_window();
-void prepare_and_run_game_loop(GLFWwindow *window);
-
-int main(int argc, char **argv) {
-    loguru::g_stderr_verbosity = loguru::Verbosity_INFO;
-    loguru::init(argc, argv);
-    loguru::add_file("rewindviewer.log", loguru::Truncate, loguru::g_stderr_verbosity);
-
-    // Init GLFW
-    LOG_INFO("Init GLFW");
-    if (glfwInit() != GL_TRUE) {
-        LOG_FATAL("Failed to initialize GLFW");
-        return -1;
-    }
-
-    auto window = setup_window();
-    if (!window) {
-        LOG_FATAL("Cannot setup window");
-        return -3;
-    }
-
-    LOG_INFO("Load OpenGL functions");
-    if (!gladLoadGL()) {
-        LOG_FATAL("Failed to load opengl");
-        return -2;
-    }
-
-    LOG_INFO("OpenGL %s, GLSL %s", glGetString(GL_VERSION),
-             glGetString(GL_SHADING_LANGUAGE_VERSION));
-    LOG_INFO("Driver %s, Renderer %s", glGetString(GL_VENDOR), glGetString(GL_RENDERER));
+GLFWwindow* create_window(const rewind_viewer::models::UIConfig& config) {
+#if defined(__APPLE__)
+  // GL 3.2 + GLSL 150
+  const char* glsl_version = "#version 150";
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
+#else
+  // GL 3.0 + GLSL 130
+  const char* glsl_version = "#version 130";
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+  // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+  // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
+#endif
 
 #if defined(OPENGL_DEBUG) && !defined(__APPLE__)
 #if (GL_ARB_debug_output)
-    LOG_INFO("OpenGL:: Debug output enabled");
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-    glDebugMessageCallbackARB(cg::debug_output_callback, nullptr);
-    glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+  LOG_INFO("OpenGL:: Debug output enabled");
+  glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+  glDebugMessageCallbackARB(cg::debug_output_callback, nullptr);
+  glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 #endif
 #endif
 
-    LOG_INFO("Setup vertical sync to 60fps");
-    glfwSwapInterval(1);
-    try {
-        LOG_INFO("Start main draw loop");
-        prepare_and_run_game_loop(window);
-    } catch (const std::exception &e) {
-        LOG_ERROR("Exception:: %s", e.what());
-    }
-
-    glfwTerminate();
-    return 0;
-}
-
-GLFWwindow *setup_window() {
-    glfwSetErrorCallback([](int error, const char *description) {
-        LOG_ERROR("GLFW error(%d): %s", error, description);
-    });
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-#ifdef OPENGL_DEBUG
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-#endif
-
-    LOG_INFO("Create main window");
-    GLFWwindow *window =
-        glfwCreateWindow(DEFAULT_WIN_WIDTH, DEFAULT_WIN_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
-    if (!window) {
-        return nullptr;
-    }
-
-    int width;
-    int height;
-    int nr_channels;
-    const std::string icon_path = "resources/icon.png";
-    auto icon_data = stbi_load(icon_path.c_str(), &width, &height, &nr_channels, 0);
-    if (!icon_data) {
-        LOG_ERROR(
-            "Cannot find application icon (%s). "
-            "Make sure you launch viewer from directory with 'resources' folder. ",
-            icon_path.c_str());
-        return nullptr;
-    }
-    GLFWimage icon{width, height, icon_data};
-    LOG_INFO("Setup application icon");
-    glfwSetWindowIcon(window, 1, &icon);
-
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(
-        window, [](GLFWwindow *, int width, int height) { glViewport(0, 0, width, height); });
-
+  GLFWwindow* window =
+      glfwCreateWindow(config.windows_width, config.windows_height, WINDOW_TITLE, nullptr, nullptr);
+  if (window == nullptr) {
     return window;
+  }
+
+//  int width;
+//  int height;
+//  int nr_channels;
+//  const std::string icon_path = "resources/icon.png";
+//  auto icon_data = stbi_load(icon_path.c_str(), &width, &height, &nr_channels, 0);
+//  if (!icon_data) {
+//    LOG_ERROR(
+//        "Cannot find application icon (%s). "
+//        "Make sure you launch viewer from directory with 'resources' folder. ",
+//        icon_path.c_str());
+//    return nullptr;
+//  }
+//  GLFWimage icon{width, height, icon_data};
+//  LOG_INFO("Setup application icon");
+//  glfwSetWindowIcon(window, 1, &icon);
+
+
+
+  glfwMakeContextCurrent(window);
+//  glfwSetFramebufferSizeCallback(
+//      window, [](GLFWwindow *, int width, int height) { glViewport(0, 0, width, height); });
+  LOG_INFO("Enable vsync");
+  glfwSwapInterval(1);
+
+  LOG_INFO("Setup Dear ImGui context");
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO();
+  (void)io;
+//  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
+
+  LOG_INFO("Setup Platform/Renderer backends");
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  ImGui_ImplOpenGL3_Init(glsl_version);
+
+  return window;
 }
 
-void prepare_and_run_game_loop(GLFWwindow *window) {
-    LOG_INFO("Try load configuration file");
-    auto conf_ptr = Config::init_with_imgui(CONF_FILENAME);
-    auto &conf = *conf_ptr;
+static void glfw_error_callback(int error, const char* description) {
+  LOG_FATAL("GLFW Error %d: %s", error, description);
+}
 
-    LOG_INFO("Create camera");
-    Camera cam(conf.camera);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+int main(int argc, char** argv) {
+  loguru::g_stderr_verbosity = loguru::Verbosity_INFO;
+  loguru::init(argc, argv);
+  loguru::add_file(LOG_FILENAME, loguru::Truncate, loguru::g_stderr_verbosity);
 
-    LOG_INFO("Create Resource manager");
-    ResourceManager res("resources/textures/");
-    Shader::set_shaders_folder("resources/shaders/");
+  LOG_INFO("Load configuration from %s", CONFIG_FILENAME);
+  auto& config = rewind_viewer::models::Config::get_instance();
+  // TODO: config.load_from_file(CONFIG_FILENAME);
 
-    LOG_INFO("Create Scene");
-    Scene scene(&res, &conf.scene);
+  glfwSetErrorCallback(glfw_error_callback);
+  LOG_INFO("Initialize GLFW");
+  if (!glfwInit()) {
+    LOG_FATAL("Failed to initialize GLFW");
+    return EXIT_FAILURE;
+  }
 
-    LOG_INFO("Create GUI controller");
-    UIController ui(&cam, &conf);
+  LOG_INFO("Create main window");
+  auto window = create_window(config.ui);
+  if (!window) {
+    LOG_FATAL("Cannot setup window");
+    return EXIT_FAILURE;
+  }
 
-    LOG_INFO("Create network message handler");
-    auto message_handler = std::make_unique<rewind_viewer::net::FlatBuffersHandler>(&scene);
+  LOG_INFO("Load OpenGL functions");
+  if (!gladLoadGL()) {
+    LOG_FATAL("Failed to load opengl");
+    return EXIT_FAILURE;
+  }
 
-    // Start network listening
-    LOG_INFO("Start networking thread");
-    rewind_viewer::net::NetListener net(NETWORK_HOST, NETWORK_PORT, std::move(message_handler));
-    std::thread network_thread([&net] {
-        try {
-            net.run();
-        } catch (const std::exception &ex) {
-            LOG_ERROR("NetListener Exception:: %s", ex.what());
-        }
-    });
-    network_thread.detach();
+  LOG_INFO("OpenGL %s, GLSL %s", glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
+  LOG_INFO("Driver %s, Renderer %s", glGetString(GL_VENDOR), glGetString(GL_RENDERER));
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    LOG_INFO("Start render loop");
-    while (!glfwWindowShouldClose(window)) {
-        // Read window events
-        glfwPollEvents();
+  rewind_viewer::RewindViewer rewind(window, config);
 
-        if (!conf.ui.update_unfocused && !glfwGetWindowAttrib(window, GLFW_FOCUSED)) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            continue;
-        }
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        // Swap buffers
-        glfwSwapBuffers(window);
+  while (!glfwWindowShouldClose(window)) {
+    // Poll and handle events
+    glfwPollEvents();
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
 
-        // Updates
-        ui.next_frame(&scene, net.connection_status());
-        cam.update();
+    glClearColor(config.ui.canvas_background_color.r, config.ui.canvas_background_color.g,
+                 config.ui.canvas_background_color.b, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if (ui.close_requested()) {
-            glfwSetWindowShouldClose(window, true);
-        }
+    rewind.render();
 
-        // Primitives send mode
-        net.set_immediate_mode(ui.immediate_mode_enabled());
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    glfwSwapBuffers(window);
+  }
 
-        // Non Ui related drawing
-        scene.update_and_render(cam);
+  LOG_INFO("Stop rewind");
+  rewind.stop();
 
-        // Cleanup opengl state
-        glBindVertexArray(0);
-        glUseProgram(0);
+  LOG_INFO("Clean up");
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
 
-        // Render UI
-        ui.frame_end();
-    }
+  glfwDestroyWindow(window);
+  glfwTerminate();
 
-    net.stop();
-
-    LOG_INFO("Exit from application");
+  LOG_INFO("Exit from application");
+  return EXIT_SUCCESS;
 }

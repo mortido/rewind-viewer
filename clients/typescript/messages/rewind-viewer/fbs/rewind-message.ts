@@ -4,6 +4,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
+import { CameraView, CameraViewT } from '../../rewind-viewer/fbs/camera-view.js';
 import { Circle, CircleT } from '../../rewind-viewer/fbs/circle.js';
 import { Command, unionToCommand, unionListToCommand } from '../../rewind-viewer/fbs/command.js';
 import { EndFrame, EndFrameT } from '../../rewind-viewer/fbs/end-frame.js';
@@ -102,7 +103,7 @@ unpackTo(_o: RewindMessageT): void {
 export class RewindMessageT implements flatbuffers.IGeneratedObject {
 constructor(
   public commandType: Command = Command.NONE,
-  public command: CircleT|EndFrameT|LogTextT|OptionsT|PolylineT|PopupRoundT|PopupT|RectangleT|TriangleT|null = null
+  public command: CameraViewT|CircleT|EndFrameT|LogTextT|OptionsT|PolylineT|PopupRoundT|PopupT|RectangleT|TriangleT|null = null
 ){}
 
 

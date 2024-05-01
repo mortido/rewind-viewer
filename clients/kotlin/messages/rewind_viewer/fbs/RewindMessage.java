@@ -99,6 +99,10 @@ public final class RewindMessage extends Table {
         _oCommandValue = command(new rewind_viewer.fbs.Options());
         _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.Options) _oCommandValue).unpack() : null);
         break;
+      case rewind_viewer.fbs.Command.CameraView:
+        _oCommandValue = command(new rewind_viewer.fbs.CameraView());
+        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.CameraView) _oCommandValue).unpack() : null);
+        break;
       case rewind_viewer.fbs.Command.EndFrame:
         _oCommandValue = command(new rewind_viewer.fbs.EndFrame());
         _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.EndFrame) _oCommandValue).unpack() : null);

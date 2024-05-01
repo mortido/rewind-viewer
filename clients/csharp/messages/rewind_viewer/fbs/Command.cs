@@ -16,7 +16,8 @@ public enum Command : byte
   Popup = 6,
   PopupRound = 7,
   Options = 8,
-  EndFrame = 9,
+  CameraView = 9,
+  EndFrame = 10,
 };
 
 public class CommandUnion {
@@ -45,6 +46,8 @@ public class CommandUnion {
   public static CommandUnion FromPopupRound(rewind_viewer.fbs.PopupRoundT _popupround) { return new CommandUnion{ Type = Command.PopupRound, Value = _popupround }; }
   public rewind_viewer.fbs.OptionsT AsOptions() { return this.As<rewind_viewer.fbs.OptionsT>(); }
   public static CommandUnion FromOptions(rewind_viewer.fbs.OptionsT _options) { return new CommandUnion{ Type = Command.Options, Value = _options }; }
+  public rewind_viewer.fbs.CameraViewT AsCameraView() { return this.As<rewind_viewer.fbs.CameraViewT>(); }
+  public static CommandUnion FromCameraView(rewind_viewer.fbs.CameraViewT _cameraview) { return new CommandUnion{ Type = Command.CameraView, Value = _cameraview }; }
   public rewind_viewer.fbs.EndFrameT AsEndFrame() { return this.As<rewind_viewer.fbs.EndFrameT>(); }
   public static CommandUnion FromEndFrame(rewind_viewer.fbs.EndFrameT _endframe) { return new CommandUnion{ Type = Command.EndFrame, Value = _endframe }; }
 
@@ -59,6 +62,7 @@ public class CommandUnion {
       case Command.Popup: return rewind_viewer.fbs.Popup.Pack(builder, _o.AsPopup()).Value;
       case Command.PopupRound: return rewind_viewer.fbs.PopupRound.Pack(builder, _o.AsPopupRound()).Value;
       case Command.Options: return rewind_viewer.fbs.Options.Pack(builder, _o.AsOptions()).Value;
+      case Command.CameraView: return rewind_viewer.fbs.CameraView.Pack(builder, _o.AsCameraView()).Value;
       case Command.EndFrame: return rewind_viewer.fbs.EndFrame.Pack(builder, _o.AsEndFrame()).Value;
     }
   }
@@ -96,6 +100,9 @@ static public class CommandVerify
         break;
       case Command.Options:
         result = rewind_viewer.fbs.OptionsVerify.Verify(verifier, tablePos);
+        break;
+      case Command.CameraView:
+        result = rewind_viewer.fbs.CameraViewVerify.Verify(verifier, tablePos);
         break;
       case Command.EndFrame:
         result = rewind_viewer.fbs.EndFrameVerify.Verify(verifier, tablePos);

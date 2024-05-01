@@ -1,21 +1,17 @@
-cmake_minimum_required(VERSION 2.8)
-
+cmake_minimum_required(VERSION 3.21)
 project(ImGui)
 
-add_library(${PROJECT_NAME} STATIC
-    include/imgui.h
-    include/imgui_internal.h
-    include/imstb_rectpack.h
-    include/imstb_textedit.h
-    include/imstb_truetype.h
+file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/**.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/**.h")
+file(GLOB_RECURSE HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/**.h")
+set(DEBUGGERS debuggers/imgui.gdb debuggers/imgui.natstepfilter debuggers/imgui.natvis)
 
-    src/imgui.cpp
-    src/imgui_demo.cpp
-    src/imgui_draw.cpp
-    src/imgui_widgets.cpp
-)
+add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${DEBUGGERS})
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME} PRIVATE include/imgui)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 #Dependency for implicit vector conversions
-get_target_property(glm_includes glm INTERFACE_INCLUDE_DIRECTORIES)
-target_include_directories(${PROJECT_NAME} PRIVATE ${glm_includes})
+target_link_libraries(${PROJECT_NAME} glfw glm)
+
+#get_target_property(glm_includes glm INTERFACE_INCLUDE_DIRECTORIES)
+#target_include_directories(${PROJECT_NAME} PRIVATE ${glm_includes})

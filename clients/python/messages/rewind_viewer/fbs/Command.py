@@ -12,7 +12,8 @@ class Command(object):
     Popup = 6
     PopupRound = 7
     Options = 8
-    EndFrame = 9
+    CameraView = 9
+    EndFrame = 10
 
 def CommandCreator(unionType, table):
     from flatbuffers.table import Table
@@ -42,6 +43,9 @@ def CommandCreator(unionType, table):
     if unionType == Command().Options:
         import rewind_viewer.fbs.Options
         return rewind_viewer.fbs.Options.OptionsT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == Command().CameraView:
+        import rewind_viewer.fbs.CameraView
+        return rewind_viewer.fbs.CameraView.CameraViewT.InitFromBuf(table.Bytes, table.Pos)
     if unionType == Command().EndFrame:
         import rewind_viewer.fbs.EndFrame
         return rewind_viewer.fbs.EndFrame.EndFrameT.InitFromBuf(table.Bytes, table.Pos)

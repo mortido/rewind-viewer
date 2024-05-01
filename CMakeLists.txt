@@ -6,6 +6,8 @@ add_subdirectory(3rdparty/glad)
 add_subdirectory(3rdparty/stb_image)
 add_subdirectory(3rdparty/clsocket)
 add_subdirectory(3rdparty/loguru)
+add_subdirectory(3rdparty/rapidyaml)
+add_subdirectory(3rdparty/flatbuffers)
 
 if(UNIX)
     find_library(Glfw_LIBRARY glfw)
@@ -28,8 +30,8 @@ endif()
 
 set(GLM_TEST_ENABLE OFF)
 add_subdirectory(3rdparty/glm)
-add_subdirectory(3rdparty/imgui) # Depends from glm
-add_subdirectory(3rdparty/flatbuffers)
+add_subdirectory(3rdparty/imgui) # Depends from glm and GLFW
+
 
 #Project
 file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})

@@ -29,6 +29,7 @@ public class CommandUnion {
   public rewind_viewer.fbs.PopupT asPopup() { return (rewind_viewer.fbs.PopupT) value; }
   public rewind_viewer.fbs.PopupRoundT asPopupRound() { return (rewind_viewer.fbs.PopupRoundT) value; }
   public rewind_viewer.fbs.OptionsT asOptions() { return (rewind_viewer.fbs.OptionsT) value; }
+  public rewind_viewer.fbs.CameraViewT asCameraView() { return (rewind_viewer.fbs.CameraViewT) value; }
   public rewind_viewer.fbs.EndFrameT asEndFrame() { return (rewind_viewer.fbs.EndFrameT) value; }
 
   public static int pack(FlatBufferBuilder builder, CommandUnion _o) {
@@ -41,6 +42,7 @@ public class CommandUnion {
       case Command.Popup: return rewind_viewer.fbs.Popup.pack(builder, _o.asPopup());
       case Command.PopupRound: return rewind_viewer.fbs.PopupRound.pack(builder, _o.asPopupRound());
       case Command.Options: return rewind_viewer.fbs.Options.pack(builder, _o.asOptions());
+      case Command.CameraView: return rewind_viewer.fbs.CameraView.pack(builder, _o.asCameraView());
       case Command.EndFrame: return rewind_viewer.fbs.EndFrame.pack(builder, _o.asEndFrame());
       default: return 0;
     }

@@ -19,7 +19,8 @@ const (
 	CommandPopup      Command = 6
 	CommandPopupRound Command = 7
 	CommandOptions    Command = 8
-	CommandEndFrame   Command = 9
+	CommandCameraView Command = 9
+	CommandEndFrame   Command = 10
 )
 
 var EnumNamesCommand = map[Command]string{
@@ -32,6 +33,7 @@ var EnumNamesCommand = map[Command]string{
 	CommandPopup:      "Popup",
 	CommandPopupRound: "PopupRound",
 	CommandOptions:    "Options",
+	CommandCameraView: "CameraView",
 	CommandEndFrame:   "EndFrame",
 }
 
@@ -45,6 +47,7 @@ var EnumValuesCommand = map[string]Command{
 	"Popup":      CommandPopup,
 	"PopupRound": CommandPopupRound,
 	"Options":    CommandOptions,
+	"CameraView": CommandCameraView,
 	"EndFrame":   CommandEndFrame,
 }
 
@@ -81,6 +84,8 @@ func (t *CommandT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 		return t.Value.(*PopupRoundT).Pack(builder)
 	case CommandOptions:
 		return t.Value.(*OptionsT).Pack(builder)
+	case CommandCameraView:
+		return t.Value.(*CameraViewT).Pack(builder)
 	case CommandEndFrame:
 		return t.Value.(*EndFrameT).Pack(builder)
 	}
@@ -121,6 +126,10 @@ func (rcv Command) UnPack(table flatbuffers.Table) *CommandT {
 		var x Options
 		x.Init(table.Bytes, table.Pos)
 		return &CommandT{Type: CommandOptions, Value: x.UnPack()}
+	case CommandCameraView:
+		var x CameraView
+		x.Init(table.Bytes, table.Pos)
+		return &CommandT{Type: CommandCameraView, Value: x.UnPack()}
 	case CommandEndFrame:
 		var x EndFrame
 		x.Init(table.Bytes, table.Pos)

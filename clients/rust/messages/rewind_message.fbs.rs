@@ -29,10 +29,10 @@ pub mod fbs {
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 pub const ENUM_MIN_COMMAND: u8 = 0;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
-pub const ENUM_MAX_COMMAND: u8 = 9;
+pub const ENUM_MAX_COMMAND: u8 = 10;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_COMMAND: [Command; 10] = [
+pub const ENUM_VALUES_COMMAND: [Command; 11] = [
   Command::NONE,
   Command::Circle,
   Command::Rectangle,
@@ -42,6 +42,7 @@ pub const ENUM_VALUES_COMMAND: [Command; 10] = [
   Command::Popup,
   Command::PopupRound,
   Command::Options,
+  Command::CameraView,
   Command::EndFrame,
 ];
 
@@ -59,10 +60,11 @@ impl Command {
   pub const Popup: Self = Self(6);
   pub const PopupRound: Self = Self(7);
   pub const Options: Self = Self(8);
-  pub const EndFrame: Self = Self(9);
+  pub const CameraView: Self = Self(9);
+  pub const EndFrame: Self = Self(10);
 
   pub const ENUM_MIN: u8 = 0;
-  pub const ENUM_MAX: u8 = 9;
+  pub const ENUM_MAX: u8 = 10;
   pub const ENUM_VALUES: &'static [Self] = &[
     Self::NONE,
     Self::Circle,
@@ -73,6 +75,7 @@ impl Command {
     Self::Popup,
     Self::PopupRound,
     Self::Options,
+    Self::CameraView,
     Self::EndFrame,
   ];
   /// Returns the variant's name or "" if unknown.
@@ -87,6 +90,7 @@ impl Command {
       Self::Popup => Some("Popup"),
       Self::PopupRound => Some("PopupRound"),
       Self::Options => Some("Options"),
+      Self::CameraView => Some("CameraView"),
       Self::EndFrame => Some("EndFrame"),
       _ => None,
     }
@@ -158,6 +162,7 @@ pub enum CommandT {
   Popup(Box<PopupT>),
   PopupRound(Box<PopupRoundT>),
   Options(Box<OptionsT>),
+  CameraView(Box<CameraViewT>),
   EndFrame(Box<EndFrameT>),
 }
 impl Default for CommandT {
@@ -177,6 +182,7 @@ impl CommandT {
       Self::Popup(_) => Command::Popup,
       Self::PopupRound(_) => Command::PopupRound,
       Self::Options(_) => Command::Options,
+      Self::CameraView(_) => Command::CameraView,
       Self::EndFrame(_) => Command::EndFrame,
     }
   }
@@ -191,6 +197,7 @@ impl CommandT {
       Self::Popup(v) => Some(v.pack(fbb).as_union_value()),
       Self::PopupRound(v) => Some(v.pack(fbb).as_union_value()),
       Self::Options(v) => Some(v.pack(fbb).as_union_value()),
+      Self::CameraView(v) => Some(v.pack(fbb).as_union_value()),
       Self::EndFrame(v) => Some(v.pack(fbb).as_union_value()),
     }
   }
@@ -361,6 +368,27 @@ impl CommandT {
   /// If the union variant matches, return a mutable reference to the OptionsT.
   pub fn as_options_mut(&mut self) -> Option<&mut OptionsT> {
     if let Self::Options(v) = self { Some(v.as_mut()) } else { None }
+  }
+  /// If the union variant matches, return the owned CameraViewT, setting the union to NONE.
+  pub fn take_camera_view(&mut self) -> Option<Box<CameraViewT>> {
+    if let Self::CameraView(_) = self {
+      let v = core::mem::replace(self, Self::NONE);
+      if let Self::CameraView(w) = v {
+        Some(w)
+      } else {
+        unreachable!()
+      }
+    } else {
+      None
+    }
+  }
+  /// If the union variant matches, return a reference to the CameraViewT.
+  pub fn as_camera_view(&self) -> Option<&CameraViewT> {
+    if let Self::CameraView(v) = self { Some(v.as_ref()) } else { None }
+  }
+  /// If the union variant matches, return a mutable reference to the CameraViewT.
+  pub fn as_camera_view_mut(&mut self) -> Option<&mut CameraViewT> {
+    if let Self::CameraView(v) = self { Some(v.as_mut()) } else { None }
   }
   /// If the union variant matches, return the owned EndFrameT, setting the union to NONE.
   pub fn take_end_frame(&mut self) -> Option<Box<EndFrameT>> {
@@ -1882,6 +1910,190 @@ impl PopupRoundT {
     })
   }
 }
+pub enum CameraViewOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct CameraView<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for CameraView<'a> {
+  type Inner = CameraView<'a>;
+  #[inline]
+  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    Self { _tab: flatbuffers::Table::new(buf, loc) }
+  }
+}
+
+impl<'a> CameraView<'a> {
+  pub const VT_NAME: flatbuffers::VOffsetT = 4;
+  pub const VT_POSITION: flatbuffers::VOffsetT = 6;
+  pub const VT_VIEW_RADIUS: flatbuffers::VOffsetT = 8;
+
+  #[inline]
+  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+    CameraView { _tab: table }
+  }
+  #[allow(unused_mut)]
+  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
+    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
+    args: &'args CameraViewArgs<'args>
+  ) -> flatbuffers::WIPOffset<CameraView<'bldr>> {
+    let mut builder = CameraViewBuilder::new(_fbb);
+    builder.add_view_radius(args.view_radius);
+    if let Some(x) = args.position { builder.add_position(x); }
+    if let Some(x) = args.name { builder.add_name(x); }
+    builder.finish()
+  }
+
+  pub fn unpack(&self) -> CameraViewT {
+    let name = {
+      let x = self.name();
+      x.to_string()
+    };
+    let position = {
+      let x = self.position();
+      x.unpack()
+    };
+    let view_radius = self.view_radius();
+    CameraViewT {
+      name,
+      position,
+      view_radius,
+    }
+  }
+
+  #[inline]
+  pub fn name(&self) -> &'a str {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(CameraView::VT_NAME, None).unwrap()}
+  }
+  #[inline]
+  pub fn position(&self) -> &'a Vector2f {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<Vector2f>(CameraView::VT_POSITION, None).unwrap()}
+  }
+  #[inline]
+  pub fn view_radius(&self) -> f32 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<f32>(CameraView::VT_VIEW_RADIUS, Some(0.0)).unwrap()}
+  }
+}
+
+impl flatbuffers::Verifiable for CameraView<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("name", Self::VT_NAME, true)?
+     .visit_field::<Vector2f>("position", Self::VT_POSITION, true)?
+     .visit_field::<f32>("view_radius", Self::VT_VIEW_RADIUS, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct CameraViewArgs<'a> {
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub position: Option<&'a Vector2f>,
+    pub view_radius: f32,
+}
+impl<'a> Default for CameraViewArgs<'a> {
+  #[inline]
+  fn default() -> Self {
+    CameraViewArgs {
+      name: None, // required field
+      position: None, // required field
+      view_radius: 0.0,
+    }
+  }
+}
+
+pub struct CameraViewBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> CameraViewBuilder<'a, 'b, A> {
+  #[inline]
+  pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CameraView::VT_NAME, name);
+  }
+  #[inline]
+  pub fn add_position(&mut self, position: &Vector2f) {
+    self.fbb_.push_slot_always::<&Vector2f>(CameraView::VT_POSITION, position);
+  }
+  #[inline]
+  pub fn add_view_radius(&mut self, view_radius: f32) {
+    self.fbb_.push_slot::<f32>(CameraView::VT_VIEW_RADIUS, view_radius, 0.0);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> CameraViewBuilder<'a, 'b, A> {
+    let start = _fbb.start_table();
+    CameraViewBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<CameraView<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    self.fbb_.required(o, CameraView::VT_NAME,"name");
+    self.fbb_.required(o, CameraView::VT_POSITION,"position");
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl core::fmt::Debug for CameraView<'_> {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    let mut ds = f.debug_struct("CameraView");
+      ds.field("name", &self.name());
+      ds.field("position", &self.position());
+      ds.field("view_radius", &self.view_radius());
+      ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct CameraViewT {
+  pub name: String,
+  pub position: Vector2fT,
+  pub view_radius: f32,
+}
+impl Default for CameraViewT {
+  fn default() -> Self {
+    Self {
+      name: "".to_string(),
+      position: Default::default(),
+      view_radius: 0.0,
+    }
+  }
+}
+impl CameraViewT {
+  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
+  ) -> flatbuffers::WIPOffset<CameraView<'b>> {
+    let name = Some({
+      let x = &self.name;
+      _fbb.create_string(x)
+    });
+    let position_tmp = Some(self.position.pack());
+    let position = position_tmp.as_ref();
+    let view_radius = self.view_radius;
+    CameraView::create(_fbb, &CameraViewArgs{
+      name,
+      position,
+      view_radius,
+    })
+  }
+}
 pub enum LayerOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -2562,6 +2774,11 @@ impl<'a> RewindMessage<'a> {
             .expect("Invalid union table, expected `Command::Options`.")
             .unpack()
       )),
+      Command::CameraView => CommandT::CameraView(Box::new(
+        self.command_as_camera_view()
+            .expect("Invalid union table, expected `Command::CameraView`.")
+            .unpack()
+      )),
       Command::EndFrame => CommandT::EndFrame(Box::new(
         self.command_as_end_frame()
             .expect("Invalid union table, expected `Command::EndFrame`.")
@@ -2702,6 +2919,20 @@ impl<'a> RewindMessage<'a> {
 
   #[inline]
   #[allow(non_snake_case)]
+  pub fn command_as_camera_view(&self) -> Option<CameraView<'a>> {
+    if self.command_type() == Command::CameraView {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { CameraView::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
   pub fn command_as_end_frame(&self) -> Option<EndFrame<'a>> {
     if self.command_type() == Command::EndFrame {
       let u = self.command();
@@ -2733,6 +2964,7 @@ impl flatbuffers::Verifiable for RewindMessage<'_> {
           Command::Popup => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Popup>>("Command::Popup", pos),
           Command::PopupRound => v.verify_union_variant::<flatbuffers::ForwardsUOffset<PopupRound>>("Command::PopupRound", pos),
           Command::Options => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Options>>("Command::Options", pos),
+          Command::CameraView => v.verify_union_variant::<flatbuffers::ForwardsUOffset<CameraView>>("Command::CameraView", pos),
           Command::EndFrame => v.verify_union_variant::<flatbuffers::ForwardsUOffset<EndFrame>>("Command::EndFrame", pos),
           _ => Ok(()),
         }
@@ -2840,6 +3072,13 @@ impl core::fmt::Debug for RewindMessage<'_> {
         },
         Command::Options => {
           if let Some(x) = self.command_as_options() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::CameraView => {
+          if let Some(x) = self.command_as_camera_view() {
             ds.field("command", &x)
           } else {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")

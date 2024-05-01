@@ -2,6 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+import { CameraView, CameraViewT } from '../../rewind-viewer/fbs/camera-view.js';
 import { Circle, CircleT } from '../../rewind-viewer/fbs/circle.js';
 import { EndFrame, EndFrameT } from '../../rewind-viewer/fbs/end-frame.js';
 import { LogText, LogTextT } from '../../rewind-viewer/fbs/log-text.js';
@@ -23,13 +24,14 @@ export enum Command {
   Popup = 6,
   PopupRound = 7,
   Options = 8,
-  EndFrame = 9
+  CameraView = 9,
+  EndFrame = 10
 }
 
 export function unionToCommand(
   type: Command,
-  accessor: (obj:Circle|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Triangle) => Circle|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Triangle|null
-): Circle|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Triangle|null {
+  accessor: (obj:CameraView|Circle|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Triangle) => CameraView|Circle|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Triangle|null
+): CameraView|Circle|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Triangle|null {
   switch(Command[type]) {
     case 'NONE': return null; 
     case 'Circle': return accessor(new Circle())! as Circle;
@@ -40,6 +42,7 @@ export function unionToCommand(
     case 'Popup': return accessor(new Popup())! as Popup;
     case 'PopupRound': return accessor(new PopupRound())! as PopupRound;
     case 'Options': return accessor(new Options())! as Options;
+    case 'CameraView': return accessor(new CameraView())! as CameraView;
     case 'EndFrame': return accessor(new EndFrame())! as EndFrame;
     default: return null;
   }
@@ -47,9 +50,9 @@ export function unionToCommand(
 
 export function unionListToCommand(
   type: Command, 
-  accessor: (index: number, obj:Circle|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Triangle) => Circle|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Triangle|null, 
+  accessor: (index: number, obj:CameraView|Circle|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Triangle) => CameraView|Circle|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Triangle|null, 
   index: number
-): Circle|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Triangle|null {
+): CameraView|Circle|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Triangle|null {
   switch(Command[type]) {
     case 'NONE': return null; 
     case 'Circle': return accessor(index, new Circle())! as Circle;
@@ -60,6 +63,7 @@ export function unionListToCommand(
     case 'Popup': return accessor(index, new Popup())! as Popup;
     case 'PopupRound': return accessor(index, new PopupRound())! as PopupRound;
     case 'Options': return accessor(index, new Options())! as Options;
+    case 'CameraView': return accessor(index, new CameraView())! as CameraView;
     case 'EndFrame': return accessor(index, new EndFrame())! as EndFrame;
     default: return null;
   }

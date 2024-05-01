@@ -2,6 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+export { CameraView, CameraViewT } from './fbs/camera-view.js';
 export { Circle, CircleT } from './fbs/circle.js';
 export { Color, ColorT } from './fbs/color.js';
 export { Command } from './fbs/command.js';

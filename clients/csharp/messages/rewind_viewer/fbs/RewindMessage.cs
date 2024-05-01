@@ -30,6 +30,7 @@ public struct RewindMessage : IFlatbufferObject
   public rewind_viewer.fbs.Popup CommandAsPopup() { return Command<rewind_viewer.fbs.Popup>().Value; }
   public rewind_viewer.fbs.PopupRound CommandAsPopupRound() { return Command<rewind_viewer.fbs.PopupRound>().Value; }
   public rewind_viewer.fbs.Options CommandAsOptions() { return Command<rewind_viewer.fbs.Options>().Value; }
+  public rewind_viewer.fbs.CameraView CommandAsCameraView() { return Command<rewind_viewer.fbs.CameraView>().Value; }
   public rewind_viewer.fbs.EndFrame CommandAsEndFrame() { return Command<rewind_viewer.fbs.EndFrame>().Value; }
 
   public static Offset<rewind_viewer.fbs.RewindMessage> CreateRewindMessage(FlatBufferBuilder builder,
@@ -84,6 +85,9 @@ public struct RewindMessage : IFlatbufferObject
         break;
       case rewind_viewer.fbs.Command.Options:
         _o.Command.Value = this.Command<rewind_viewer.fbs.Options>().HasValue ? this.Command<rewind_viewer.fbs.Options>().Value.UnPack() : null;
+        break;
+      case rewind_viewer.fbs.Command.CameraView:
+        _o.Command.Value = this.Command<rewind_viewer.fbs.CameraView>().HasValue ? this.Command<rewind_viewer.fbs.CameraView>().Value.UnPack() : null;
         break;
       case rewind_viewer.fbs.Command.EndFrame:
         _o.Command.Value = this.Command<rewind_viewer.fbs.EndFrame>().HasValue ? this.Command<rewind_viewer.fbs.EndFrame>().Value.UnPack() : null;

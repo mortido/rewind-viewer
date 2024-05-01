@@ -14,30 +14,18 @@ void draw_pattern(rewind_viewer::RewindClient<Vec2D> &rc, const Vec2D &pos, int 
   // Not supported for permanent frames
   rc.popup_round({pos.x + 75.0, pos.y + 50.0}, 20.0, "Round popup #%d", i);
 
-  rc.triangle({pos.x + 25.0, pos.y + 50.0},
-              {pos.x + 45.0, pos.y + 15.0},
-              {pos.x + 5.0, pos.y + 15.0},
-              rewind_viewer::colors::blue::Cyan,
-              true);
-  rc.triangle({pos.x + 75.0, pos.y + 50.0},
-              {pos.x + 95.0, pos.y + 15.0},
-              {pos.x + 55.0, pos.y + 15.0},
-              rewind_viewer::colors::blue::Cyan);
-  rc.rectangle({pos.x + 10.0, pos.y + 40.0},
-               {20.0, 40.0},
-               rewind_viewer::colors::yellow::Yellow,
+  rc.triangle({pos.x + 25.0, pos.y + 50.0}, {pos.x + 45.0, pos.y + 15.0},
+              {pos.x + 5.0, pos.y + 15.0}, rewind_viewer::colors::blue::Cyan, true);
+  rc.triangle({pos.x + 75.0, pos.y + 50.0}, {pos.x + 95.0, pos.y + 15.0},
+              {pos.x + 55.0, pos.y + 15.0}, rewind_viewer::colors::blue::Cyan);
+  rc.rectangle({pos.x + 10.0, pos.y + 40.0}, {20.0, 40.0}, rewind_viewer::colors::yellow::Yellow,
                true);
-  rc.rectangle({pos.x + 60.0, pos.y + 40.0},
-               {20.0, 40.0},
-               rewind_viewer::colors::yellow::Yellow);
+  rc.rectangle({pos.x + 60.0, pos.y + 40.0}, {20.0, 40.0}, rewind_viewer::colors::yellow::Yellow);
 
   // Not supported for permanent frames
-  rc.popup({pos.x + 60.0, pos.y + 40.0},
-           {20.0, 40.0},
-           "Rectangular popup #%d", i);
+  rc.popup({pos.x + 60.0, pos.y + 40.0}, {20.0, 40.0}, "Rectangular popup #%d", i);
 
-  rc.line({pos.x + 5.0, pos.y + 5.0},
-          {pos.x + 95.0, pos.y + 95.0},
+  rc.line({pos.x + 5.0, pos.y + 5.0}, {pos.x + 95.0, pos.y + 95.0},
           rewind_viewer::colors::green::Green);
   rc.polyline({{pos.x + 5.0, pos.y + 95.0},
                {pos.x + 40.0, pos.y + 80.0},
@@ -67,11 +55,16 @@ int main(int argc, char *argv[]) {
     pattern_position.y = static_cast<int>(i / 5) * 200.0;
     draw_pattern(rewind_client, pattern_position, i);
 
+    rewind_client.camera_view("Allways Camera", pattern_position, 100.0);
+
     // Permanent layer
     rewind_client.switch_to_layer(i, true);
     pattern_position.y += 100.0;
     draw_pattern(rewind_client, pattern_position, i);
 
+    if (i % 2) {
+      rewind_client.camera_view("Odd Camera", pattern_position, 100.0);
+    }
     rewind_client.end_frame();
   }
   return EXIT_SUCCESS;

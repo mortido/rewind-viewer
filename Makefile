@@ -1,7 +1,7 @@
 FBS_DIR := $(CURDIR)/fbs
 FBS_MSG_FILE := $(FBS_DIR)/rewind_message.fbs
 
-VIEWER_OUT := $(CURDIR)/src/net/flatbuffers/messages
+VIEWER_OUT := $(CURDIR)/src/net/messages
 CPP_DIR := $(CURDIR)/clients/cpp
 CPP_CMAKE_DIR := $(CURDIR)/clients/cpp_cmake
 CSHARP_DIR := $(CURDIR)/clients/csharp

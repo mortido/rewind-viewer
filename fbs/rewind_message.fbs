@@ -48,6 +48,12 @@ table PopupRound {
   area_radius:float;
 }
 
+table CameraView {
+  name:string (required);
+  position:Vector2f (required);
+  view_radius:float;
+}
+
 table Layer {
   id:uint;
   use_permanent_frame:bool=false;
@@ -77,6 +83,7 @@ union Command {
   Popup,
   PopupRound,
   Options,
+  CameraView,
   EndFrame
 }
 

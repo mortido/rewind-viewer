@@ -9,31 +9,22 @@ else()
     add_compile_options(-Wextra)
 endif()
 
-set(Sources
+set(SOURCES
     main.cpp
+    rewind_viewer.cpp
 
-    imgui_impl/imgui_impl_glfw.cpp
-    imgui_impl/imgui_impl_opengl3.cpp
+    models/camera.cpp
+    models/frame.cpp
+    models/Popup.cpp
 
-    cgutils/Shader.cpp
-    cgutils/Camera.cpp
-    cgutils/utils.cpp
-    cgutils/ResourceManager.cpp
-    common/Spinlock.cpp
+    net/tcp_server.cpp
+    net/rewind_server.cpp
 
-    viewer/UIController.cpp
-    viewer/Scene.cpp
-    viewer/Renderer.cpp
-    viewer/Config.cpp
-    viewer/Popup.cpp
-    viewer/RenderContext.cpp
-    viewer/ShaderCollection.cpp
-    viewer/Frame.cpp
-    viewer/FrameEditor.cpp
-
-    net/NetListener.cpp
-    net/MessageHandler.cpp
-    net/flatbuffers/FlatBuffersHandler.cpp
+    render/Shader.cpp
+    render/utils.cpp
+    render/ResourceManager.cpp
+    render/RenderContext.cpp
+    render/Renderer.cpp
 )
 
 #set(MACOSX_BUNDLE_BUNDLE_NAME "MyApp")
@@ -46,13 +37,12 @@ set(Sources
 #
 #add_executable(${APP_NAME} MACOSX_BUNDLE ${Sources})
 
-add_executable(${APP_NAME} ${Sources})
+add_executable(${APP_NAME} ${SOURCES})
 target_compile_features(${APP_NAME} PUBLIC cxx_std_17)
 target_include_directories(${APP_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_definitions(${APP_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)
 
-target_link_libraries(${APP_NAME}
-    Glad glfw glm ImGui stb_image clsocket loguru flatbuffers) # flatbuffers_messages)  # exclude as it pregenerated
+target_link_libraries(${APP_NAME} Glad glfw glm ImGui stb_image clsocket loguru flatbuffers rapidyaml)
 
 set_target_properties(${APP_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 

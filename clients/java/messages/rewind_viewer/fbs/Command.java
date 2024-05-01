@@ -14,9 +14,10 @@ public final class Command {
   public static final byte Popup = 6;
   public static final byte PopupRound = 7;
   public static final byte Options = 8;
-  public static final byte EndFrame = 9;
+  public static final byte CameraView = 9;
+  public static final byte EndFrame = 10;
 
-  public static final String[] names = { "NONE", "Circle", "Rectangle", "Triangle", "Polyline", "LogText", "Popup", "PopupRound", "Options", "EndFrame", };
+  public static final String[] names = { "NONE", "Circle", "Rectangle", "Triangle", "Polyline", "LogText", "Popup", "PopupRound", "Options", "CameraView", "EndFrame", };
 
   public static String name(int e) { return names[e]; }
 }
