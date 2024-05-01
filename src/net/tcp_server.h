@@ -4,6 +4,7 @@
 
 #include <bit>
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -29,4 +30,5 @@ class TcpServer {
   void send_msg(uint8_t *buffer, uint16_t bytes_cnt);
   uint16_t get_port() const;
 };
-}  // namespace bot_arena::net
+
+}  // namespace rewind_viewer::net
