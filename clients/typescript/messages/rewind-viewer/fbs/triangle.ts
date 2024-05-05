@@ -59,7 +59,6 @@ static startPointsVector(builder:flatbuffers.Builder, numElems:number) {
 
 static endTriangle(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
-  builder.requiredField(offset, 4) // color
   builder.requiredField(offset, 6) // points
   return offset;
 }

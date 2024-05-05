@@ -2,8 +2,10 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+export { Arc, ArcT } from './fbs/arc.js';
 export { CameraView, CameraViewT } from './fbs/camera-view.js';
 export { Circle, CircleT } from './fbs/circle.js';
+export { CircleSegment, CircleSegmentT } from './fbs/circle-segment.js';
 export { Color, ColorT } from './fbs/color.js';
 export { Command } from './fbs/command.js';
 export { EndFrame, EndFrameT } from './fbs/end-frame.js';
@@ -16,5 +18,6 @@ export { Popup, PopupT } from './fbs/popup.js';
 export { PopupRound, PopupRoundT } from './fbs/popup-round.js';
 export { Rectangle, RectangleT } from './fbs/rectangle.js';
 export { RewindMessage, RewindMessageT } from './fbs/rewind-message.js';
+export { Tiles, TilesT } from './fbs/tiles.js';
 export { Triangle, TriangleT } from './fbs/triangle.js';
 export { Vector2f, Vector2fT } from './fbs/vector2f.js';

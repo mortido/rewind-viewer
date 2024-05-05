@@ -39,7 +39,6 @@ public final class Circle extends Table {
   public static void addRadius(FlatBufferBuilder builder, float radius) { builder.addFloat(2, radius, 0.0f); }
   public static int endCircle(FlatBufferBuilder builder) {
     int o = builder.endTable();
-    builder.required(o, 4);  // color
     builder.required(o, 6);  // center
     return o;
   }

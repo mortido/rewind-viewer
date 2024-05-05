@@ -10,45 +10,54 @@ import (
 type Command byte
 
 const (
-	CommandNONE       Command = 0
-	CommandCircle     Command = 1
-	CommandRectangle  Command = 2
-	CommandTriangle   Command = 3
-	CommandPolyline   Command = 4
-	CommandLogText    Command = 5
-	CommandPopup      Command = 6
-	CommandPopupRound Command = 7
-	CommandOptions    Command = 8
-	CommandCameraView Command = 9
-	CommandEndFrame   Command = 10
+	CommandNONE          Command = 0
+	CommandArc           Command = 1
+	CommandCameraView    Command = 2
+	CommandCircle        Command = 3
+	CommandCircleSegment Command = 4
+	CommandLogText       Command = 5
+	CommandOptions       Command = 6
+	CommandPolyline      Command = 7
+	CommandPopup         Command = 8
+	CommandPopupRound    Command = 9
+	CommandRectangle     Command = 10
+	CommandTiles         Command = 11
+	CommandTriangle      Command = 12
+	CommandEndFrame      Command = 13
 )
 
 var EnumNamesCommand = map[Command]string{
-	CommandNONE:       "NONE",
-	CommandCircle:     "Circle",
-	CommandRectangle:  "Rectangle",
-	CommandTriangle:   "Triangle",
-	CommandPolyline:   "Polyline",
-	CommandLogText:    "LogText",
-	CommandPopup:      "Popup",
-	CommandPopupRound: "PopupRound",
-	CommandOptions:    "Options",
-	CommandCameraView: "CameraView",
-	CommandEndFrame:   "EndFrame",
+	CommandNONE:          "NONE",
+	CommandArc:           "Arc",
+	CommandCameraView:    "CameraView",
+	CommandCircle:        "Circle",
+	CommandCircleSegment: "CircleSegment",
+	CommandLogText:       "LogText",
+	CommandOptions:       "Options",
+	CommandPolyline:      "Polyline",
+	CommandPopup:         "Popup",
+	CommandPopupRound:    "PopupRound",
+	CommandRectangle:     "Rectangle",
+	CommandTiles:         "Tiles",
+	CommandTriangle:      "Triangle",
+	CommandEndFrame:      "EndFrame",
 }
 
 var EnumValuesCommand = map[string]Command{
-	"NONE":       CommandNONE,
-	"Circle":     CommandCircle,
-	"Rectangle":  CommandRectangle,
-	"Triangle":   CommandTriangle,
-	"Polyline":   CommandPolyline,
-	"LogText":    CommandLogText,
-	"Popup":      CommandPopup,
-	"PopupRound": CommandPopupRound,
-	"Options":    CommandOptions,
-	"CameraView": CommandCameraView,
-	"EndFrame":   CommandEndFrame,
+	"NONE":          CommandNONE,
+	"Arc":           CommandArc,
+	"CameraView":    CommandCameraView,
+	"Circle":        CommandCircle,
+	"CircleSegment": CommandCircleSegment,
+	"LogText":       CommandLogText,
+	"Options":       CommandOptions,
+	"Polyline":      CommandPolyline,
+	"Popup":         CommandPopup,
+	"PopupRound":    CommandPopupRound,
+	"Rectangle":     CommandRectangle,
+	"Tiles":         CommandTiles,
+	"Triangle":      CommandTriangle,
+	"EndFrame":      CommandEndFrame,
 }
 
 func (v Command) String() string {
@@ -68,24 +77,30 @@ func (t *CommandT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 		return 0
 	}
 	switch t.Type {
+	case CommandArc:
+		return t.Value.(*ArcT).Pack(builder)
+	case CommandCameraView:
+		return t.Value.(*CameraViewT).Pack(builder)
 	case CommandCircle:
 		return t.Value.(*CircleT).Pack(builder)
-	case CommandRectangle:
-		return t.Value.(*RectangleT).Pack(builder)
-	case CommandTriangle:
-		return t.Value.(*TriangleT).Pack(builder)
-	case CommandPolyline:
-		return t.Value.(*PolylineT).Pack(builder)
+	case CommandCircleSegment:
+		return t.Value.(*CircleSegmentT).Pack(builder)
 	case CommandLogText:
 		return t.Value.(*LogTextT).Pack(builder)
+	case CommandOptions:
+		return t.Value.(*OptionsT).Pack(builder)
+	case CommandPolyline:
+		return t.Value.(*PolylineT).Pack(builder)
 	case CommandPopup:
 		return t.Value.(*PopupT).Pack(builder)
 	case CommandPopupRound:
 		return t.Value.(*PopupRoundT).Pack(builder)
-	case CommandOptions:
-		return t.Value.(*OptionsT).Pack(builder)
-	case CommandCameraView:
-		return t.Value.(*CameraViewT).Pack(builder)
+	case CommandRectangle:
+		return t.Value.(*RectangleT).Pack(builder)
+	case CommandTiles:
+		return t.Value.(*TilesT).Pack(builder)
+	case CommandTriangle:
+		return t.Value.(*TriangleT).Pack(builder)
 	case CommandEndFrame:
 		return t.Value.(*EndFrameT).Pack(builder)
 	}
@@ -94,26 +109,34 @@ func (t *CommandT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 
 func (rcv Command) UnPack(table flatbuffers.Table) *CommandT {
 	switch rcv {
+	case CommandArc:
+		var x Arc
+		x.Init(table.Bytes, table.Pos)
+		return &CommandT{Type: CommandArc, Value: x.UnPack()}
+	case CommandCameraView:
+		var x CameraView
+		x.Init(table.Bytes, table.Pos)
+		return &CommandT{Type: CommandCameraView, Value: x.UnPack()}
 	case CommandCircle:
 		var x Circle
 		x.Init(table.Bytes, table.Pos)
 		return &CommandT{Type: CommandCircle, Value: x.UnPack()}
-	case CommandRectangle:
-		var x Rectangle
+	case CommandCircleSegment:
+		var x CircleSegment
 		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandRectangle, Value: x.UnPack()}
-	case CommandTriangle:
-		var x Triangle
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandTriangle, Value: x.UnPack()}
-	case CommandPolyline:
-		var x Polyline
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandPolyline, Value: x.UnPack()}
+		return &CommandT{Type: CommandCircleSegment, Value: x.UnPack()}
 	case CommandLogText:
 		var x LogText
 		x.Init(table.Bytes, table.Pos)
 		return &CommandT{Type: CommandLogText, Value: x.UnPack()}
+	case CommandOptions:
+		var x Options
+		x.Init(table.Bytes, table.Pos)
+		return &CommandT{Type: CommandOptions, Value: x.UnPack()}
+	case CommandPolyline:
+		var x Polyline
+		x.Init(table.Bytes, table.Pos)
+		return &CommandT{Type: CommandPolyline, Value: x.UnPack()}
 	case CommandPopup:
 		var x Popup
 		x.Init(table.Bytes, table.Pos)
@@ -122,14 +145,18 @@ func (rcv Command) UnPack(table flatbuffers.Table) *CommandT {
 		var x PopupRound
 		x.Init(table.Bytes, table.Pos)
 		return &CommandT{Type: CommandPopupRound, Value: x.UnPack()}
-	case CommandOptions:
-		var x Options
+	case CommandRectangle:
+		var x Rectangle
 		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandOptions, Value: x.UnPack()}
-	case CommandCameraView:
-		var x CameraView
+		return &CommandT{Type: CommandRectangle, Value: x.UnPack()}
+	case CommandTiles:
+		var x Tiles
 		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandCameraView, Value: x.UnPack()}
+		return &CommandT{Type: CommandTiles, Value: x.UnPack()}
+	case CommandTriangle:
+		var x Triangle
+		x.Init(table.Bytes, table.Pos)
+		return &CommandT{Type: CommandTriangle, Value: x.UnPack()}
 	case CommandEndFrame:
 		var x EndFrame
 		x.Init(table.Bytes, table.Pos)

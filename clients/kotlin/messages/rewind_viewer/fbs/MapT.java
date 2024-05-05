@@ -22,8 +22,8 @@ import java.nio.ByteOrder;
 public class MapT {
   private float width;
   private float height;
-  private long xGrid;
-  private long yGrid;
+  private int xGrid;
+  private int yGrid;
 
   public float getWidth() { return width; }
 
@@ -33,20 +33,20 @@ public class MapT {
 
   public void setHeight(float height) { this.height = height; }
 
-  public long getXGrid() { return xGrid; }
+  public int getXGrid() { return xGrid; }
 
-  public void setXGrid(long xGrid) { this.xGrid = xGrid; }
+  public void setXGrid(int xGrid) { this.xGrid = xGrid; }
 
-  public long getYGrid() { return yGrid; }
+  public int getYGrid() { return yGrid; }
 
-  public void setYGrid(long yGrid) { this.yGrid = yGrid; }
+  public void setYGrid(int yGrid) { this.yGrid = yGrid; }
 
 
   public MapT() {
     this.width = 0.0f;
     this.height = 0.0f;
-    this.xGrid = 0L;
-    this.yGrid = 0L;
+    this.xGrid = 0;
+    this.yGrid = 0;
   }
 }
 

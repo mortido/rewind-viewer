@@ -9,8 +9,8 @@ import (
 type MapT struct {
 	Width float32 `json:"width"`
 	Height float32 `json:"height"`
-	XGrid uint32 `json:"x_grid"`
-	YGrid uint32 `json:"y_grid"`
+	XGrid uint16 `json:"x_grid"`
+	YGrid uint16 `json:"y_grid"`
 }
 
 func (t *MapT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -100,28 +100,28 @@ func (rcv *Map) MutateHeight(n float32) bool {
 	return rcv._tab.MutateFloat32Slot(6, n)
 }
 
-func (rcv *Map) XGrid() uint32 {
+func (rcv *Map) XGrid() uint16 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
-		return rcv._tab.GetUint32(o + rcv._tab.Pos)
+		return rcv._tab.GetUint16(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *Map) MutateXGrid(n uint32) bool {
-	return rcv._tab.MutateUint32Slot(8, n)
+func (rcv *Map) MutateXGrid(n uint16) bool {
+	return rcv._tab.MutateUint16Slot(8, n)
 }
 
-func (rcv *Map) YGrid() uint32 {
+func (rcv *Map) YGrid() uint16 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
-		return rcv._tab.GetUint32(o + rcv._tab.Pos)
+		return rcv._tab.GetUint16(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *Map) MutateYGrid(n uint32) bool {
-	return rcv._tab.MutateUint32Slot(10, n)
+func (rcv *Map) MutateYGrid(n uint16) bool {
+	return rcv._tab.MutateUint16Slot(10, n)
 }
 
 func MapStart(builder *flatbuffers.Builder) {
@@ -133,11 +133,11 @@ func MapAddWidth(builder *flatbuffers.Builder, width float32) {
 func MapAddHeight(builder *flatbuffers.Builder, height float32) {
 	builder.PrependFloat32Slot(1, height, 0.0)
 }
-func MapAddXGrid(builder *flatbuffers.Builder, xGrid uint32) {
-	builder.PrependUint32Slot(2, xGrid, 0)
+func MapAddXGrid(builder *flatbuffers.Builder, xGrid uint16) {
+	builder.PrependUint16Slot(2, xGrid, 0)
 }
-func MapAddYGrid(builder *flatbuffers.Builder, yGrid uint32) {
-	builder.PrependUint32Slot(3, yGrid, 0)
+func MapAddYGrid(builder *flatbuffers.Builder, yGrid uint16) {
+	builder.PrependUint16Slot(3, yGrid, 0)
 }
 func MapEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

@@ -40,7 +40,6 @@ public struct Circle : IFlatbufferObject
   public static void AddRadius(FlatBufferBuilder builder, float radius) { builder.AddFloat(2, radius, 0.0f); }
   public static Offset<rewind_viewer.fbs.Circle> EndCircle(FlatBufferBuilder builder) {
     int o = builder.EndTable();
-    builder.Required(o, 4);  // color
     builder.Required(o, 6);  // center
     return new Offset<rewind_viewer.fbs.Circle>(o);
   }
@@ -84,7 +83,7 @@ static public class CircleVerify
   static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
   {
     return verifier.VerifyTableStart(tablePos)
-      && verifier.VerifyTable(tablePos, 4 /*Color*/, rewind_viewer.fbs.ColorVerify.Verify, true)
+      && verifier.VerifyTable(tablePos, 4 /*Color*/, rewind_viewer.fbs.ColorVerify.Verify, false)
       && verifier.VerifyField(tablePos, 6 /*Center*/, 8 /*rewind_viewer.fbs.Vector2f*/, 4, true)
       && verifier.VerifyField(tablePos, 8 /*Radius*/, 4 /*float*/, 4, false)
       && verifier.VerifyTableEnd(tablePos);

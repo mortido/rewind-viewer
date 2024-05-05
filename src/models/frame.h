@@ -5,31 +5,31 @@
 #include <vector>
 
 #include "common/lock.h"
+#include "gl/primitives_collection.h"
 #include "models/Popup.h"
 #include "models/camera.h"
-#include "render/RenderContext.h"
 
 namespace rewind_viewer::models {
 
 class Frame {
  public:
   constexpr static size_t LAYERS_COUNT = 10;
-  using ContextCollectionT = std::array<render::RenderContext, LAYERS_COUNT>;
+  using PrimitivesT = std::array<gl::PrimitivesCollection, LAYERS_COUNT>;
 
   void transfer_from(Frame &other);
-  ScopeLockedRefWrapper<const ContextCollectionT, Spinlock> all_contexts() const;
-  ScopeLockedRefWrapper<render::RenderContext, Spinlock> get_context(size_t layer);
+  ScopeLockedRefWrapper<const PrimitivesT, Spinlock> all_primitives() const;
+  ScopeLockedRefWrapper<gl::PrimitivesCollection, Spinlock> layer_primitives(size_t layer);
 
  protected:
   mutable Spinlock mutex_;
-  ContextCollectionT contexts_;
+  PrimitivesT contexts_;
 };
 
 class UIFrame : public Frame {
  public:
   using PopupCollectionT = std::array<std::vector<Popup>, Frame::LAYERS_COUNT>;
 
-  void add_camera_view(const std::string& name, CameraView view);
+  void add_camera_view(const std::string &name, CameraView view);
   const std::map<std::string, CameraView> &get_cameras() const;
   void add_user_text(const std::string &msg);
   const std::string &get_user_message() const;

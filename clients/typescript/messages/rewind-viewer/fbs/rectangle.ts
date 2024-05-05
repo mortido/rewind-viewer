@@ -59,7 +59,6 @@ static addSize(builder:flatbuffers.Builder, sizeOffset:flatbuffers.Offset) {
 
 static endRectangle(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
-  builder.requiredField(offset, 4) // color
   builder.requiredField(offset, 6) // position
   builder.requiredField(offset, 8) // size
   return offset;

@@ -40,7 +40,6 @@ public struct Rectangle : IFlatbufferObject
   public static void AddSize(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Vector2f> sizeOffset) { builder.AddStruct(2, sizeOffset.Value, 0); }
   public static Offset<rewind_viewer.fbs.Rectangle> EndRectangle(FlatBufferBuilder builder) {
     int o = builder.EndTable();
-    builder.Required(o, 4);  // color
     builder.Required(o, 6);  // position
     builder.Required(o, 8);  // size
     return new Offset<rewind_viewer.fbs.Rectangle>(o);
@@ -85,7 +84,7 @@ static public class RectangleVerify
   static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
   {
     return verifier.VerifyTableStart(tablePos)
-      && verifier.VerifyTable(tablePos, 4 /*Color*/, rewind_viewer.fbs.ColorVerify.Verify, true)
+      && verifier.VerifyTable(tablePos, 4 /*Color*/, rewind_viewer.fbs.ColorVerify.Verify, false)
       && verifier.VerifyField(tablePos, 6 /*Position*/, 8 /*rewind_viewer.fbs.Vector2f*/, 4, true)
       && verifier.VerifyField(tablePos, 8 /*Size*/, 8 /*rewind_viewer.fbs.Vector2f*/, 4, true)
       && verifier.VerifyTableEnd(tablePos);

@@ -6,18 +6,21 @@ package rewind_viewer.fbs;
 public final class Command {
   private Command() { }
   public static final byte NONE = 0;
-  public static final byte Circle = 1;
-  public static final byte Rectangle = 2;
-  public static final byte Triangle = 3;
-  public static final byte Polyline = 4;
+  public static final byte Arc = 1;
+  public static final byte CameraView = 2;
+  public static final byte Circle = 3;
+  public static final byte CircleSegment = 4;
   public static final byte LogText = 5;
-  public static final byte Popup = 6;
-  public static final byte PopupRound = 7;
-  public static final byte Options = 8;
-  public static final byte CameraView = 9;
-  public static final byte EndFrame = 10;
+  public static final byte Options = 6;
+  public static final byte Polyline = 7;
+  public static final byte Popup = 8;
+  public static final byte PopupRound = 9;
+  public static final byte Rectangle = 10;
+  public static final byte Tiles = 11;
+  public static final byte Triangle = 12;
+  public static final byte EndFrame = 13;
 
-  public static final String[] names = { "NONE", "Circle", "Rectangle", "Triangle", "Polyline", "LogText", "Popup", "PopupRound", "Options", "CameraView", "EndFrame", };
+  public static final String[] names = { "NONE", "Arc", "CameraView", "Circle", "CircleSegment", "LogText", "Options", "Polyline", "Popup", "PopupRound", "Rectangle", "Tiles", "Triangle", "EndFrame", };
 
   public static String name(int e) { return names[e]; }
 }

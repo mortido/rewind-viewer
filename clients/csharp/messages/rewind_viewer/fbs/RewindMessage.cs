@@ -22,15 +22,18 @@ public struct RewindMessage : IFlatbufferObject
 
   public rewind_viewer.fbs.Command CommandType { get { int o = __p.__offset(4); return o != 0 ? (rewind_viewer.fbs.Command)__p.bb.Get(o + __p.bb_pos) : rewind_viewer.fbs.Command.NONE; } }
   public TTable? Command<TTable>() where TTable : struct, IFlatbufferObject { int o = __p.__offset(6); return o != 0 ? (TTable?)__p.__union<TTable>(o + __p.bb_pos) : null; }
+  public rewind_viewer.fbs.Arc CommandAsArc() { return Command<rewind_viewer.fbs.Arc>().Value; }
+  public rewind_viewer.fbs.CameraView CommandAsCameraView() { return Command<rewind_viewer.fbs.CameraView>().Value; }
   public rewind_viewer.fbs.Circle CommandAsCircle() { return Command<rewind_viewer.fbs.Circle>().Value; }
-  public rewind_viewer.fbs.Rectangle CommandAsRectangle() { return Command<rewind_viewer.fbs.Rectangle>().Value; }
-  public rewind_viewer.fbs.Triangle CommandAsTriangle() { return Command<rewind_viewer.fbs.Triangle>().Value; }
-  public rewind_viewer.fbs.Polyline CommandAsPolyline() { return Command<rewind_viewer.fbs.Polyline>().Value; }
+  public rewind_viewer.fbs.CircleSegment CommandAsCircleSegment() { return Command<rewind_viewer.fbs.CircleSegment>().Value; }
   public rewind_viewer.fbs.LogText CommandAsLogText() { return Command<rewind_viewer.fbs.LogText>().Value; }
+  public rewind_viewer.fbs.Options CommandAsOptions() { return Command<rewind_viewer.fbs.Options>().Value; }
+  public rewind_viewer.fbs.Polyline CommandAsPolyline() { return Command<rewind_viewer.fbs.Polyline>().Value; }
   public rewind_viewer.fbs.Popup CommandAsPopup() { return Command<rewind_viewer.fbs.Popup>().Value; }
   public rewind_viewer.fbs.PopupRound CommandAsPopupRound() { return Command<rewind_viewer.fbs.PopupRound>().Value; }
-  public rewind_viewer.fbs.Options CommandAsOptions() { return Command<rewind_viewer.fbs.Options>().Value; }
-  public rewind_viewer.fbs.CameraView CommandAsCameraView() { return Command<rewind_viewer.fbs.CameraView>().Value; }
+  public rewind_viewer.fbs.Rectangle CommandAsRectangle() { return Command<rewind_viewer.fbs.Rectangle>().Value; }
+  public rewind_viewer.fbs.Tiles CommandAsTiles() { return Command<rewind_viewer.fbs.Tiles>().Value; }
+  public rewind_viewer.fbs.Triangle CommandAsTriangle() { return Command<rewind_viewer.fbs.Triangle>().Value; }
   public rewind_viewer.fbs.EndFrame CommandAsEndFrame() { return Command<rewind_viewer.fbs.EndFrame>().Value; }
 
   public static Offset<rewind_viewer.fbs.RewindMessage> CreateRewindMessage(FlatBufferBuilder builder,
@@ -62,20 +65,26 @@ public struct RewindMessage : IFlatbufferObject
     _o.Command.Type = this.CommandType;
     switch (this.CommandType) {
       default: break;
+      case rewind_viewer.fbs.Command.Arc:
+        _o.Command.Value = this.Command<rewind_viewer.fbs.Arc>().HasValue ? this.Command<rewind_viewer.fbs.Arc>().Value.UnPack() : null;
+        break;
+      case rewind_viewer.fbs.Command.CameraView:
+        _o.Command.Value = this.Command<rewind_viewer.fbs.CameraView>().HasValue ? this.Command<rewind_viewer.fbs.CameraView>().Value.UnPack() : null;
+        break;
       case rewind_viewer.fbs.Command.Circle:
         _o.Command.Value = this.Command<rewind_viewer.fbs.Circle>().HasValue ? this.Command<rewind_viewer.fbs.Circle>().Value.UnPack() : null;
         break;
-      case rewind_viewer.fbs.Command.Rectangle:
-        _o.Command.Value = this.Command<rewind_viewer.fbs.Rectangle>().HasValue ? this.Command<rewind_viewer.fbs.Rectangle>().Value.UnPack() : null;
-        break;
-      case rewind_viewer.fbs.Command.Triangle:
-        _o.Command.Value = this.Command<rewind_viewer.fbs.Triangle>().HasValue ? this.Command<rewind_viewer.fbs.Triangle>().Value.UnPack() : null;
-        break;
-      case rewind_viewer.fbs.Command.Polyline:
-        _o.Command.Value = this.Command<rewind_viewer.fbs.Polyline>().HasValue ? this.Command<rewind_viewer.fbs.Polyline>().Value.UnPack() : null;
+      case rewind_viewer.fbs.Command.CircleSegment:
+        _o.Command.Value = this.Command<rewind_viewer.fbs.CircleSegment>().HasValue ? this.Command<rewind_viewer.fbs.CircleSegment>().Value.UnPack() : null;
         break;
       case rewind_viewer.fbs.Command.LogText:
         _o.Command.Value = this.Command<rewind_viewer.fbs.LogText>().HasValue ? this.Command<rewind_viewer.fbs.LogText>().Value.UnPack() : null;
+        break;
+      case rewind_viewer.fbs.Command.Options:
+        _o.Command.Value = this.Command<rewind_viewer.fbs.Options>().HasValue ? this.Command<rewind_viewer.fbs.Options>().Value.UnPack() : null;
+        break;
+      case rewind_viewer.fbs.Command.Polyline:
+        _o.Command.Value = this.Command<rewind_viewer.fbs.Polyline>().HasValue ? this.Command<rewind_viewer.fbs.Polyline>().Value.UnPack() : null;
         break;
       case rewind_viewer.fbs.Command.Popup:
         _o.Command.Value = this.Command<rewind_viewer.fbs.Popup>().HasValue ? this.Command<rewind_viewer.fbs.Popup>().Value.UnPack() : null;
@@ -83,11 +92,14 @@ public struct RewindMessage : IFlatbufferObject
       case rewind_viewer.fbs.Command.PopupRound:
         _o.Command.Value = this.Command<rewind_viewer.fbs.PopupRound>().HasValue ? this.Command<rewind_viewer.fbs.PopupRound>().Value.UnPack() : null;
         break;
-      case rewind_viewer.fbs.Command.Options:
-        _o.Command.Value = this.Command<rewind_viewer.fbs.Options>().HasValue ? this.Command<rewind_viewer.fbs.Options>().Value.UnPack() : null;
+      case rewind_viewer.fbs.Command.Rectangle:
+        _o.Command.Value = this.Command<rewind_viewer.fbs.Rectangle>().HasValue ? this.Command<rewind_viewer.fbs.Rectangle>().Value.UnPack() : null;
         break;
-      case rewind_viewer.fbs.Command.CameraView:
-        _o.Command.Value = this.Command<rewind_viewer.fbs.CameraView>().HasValue ? this.Command<rewind_viewer.fbs.CameraView>().Value.UnPack() : null;
+      case rewind_viewer.fbs.Command.Tiles:
+        _o.Command.Value = this.Command<rewind_viewer.fbs.Tiles>().HasValue ? this.Command<rewind_viewer.fbs.Tiles>().Value.UnPack() : null;
+        break;
+      case rewind_viewer.fbs.Command.Triangle:
+        _o.Command.Value = this.Command<rewind_viewer.fbs.Triangle>().HasValue ? this.Command<rewind_viewer.fbs.Triangle>().Value.UnPack() : null;
         break;
       case rewind_viewer.fbs.Command.EndFrame:
         _o.Command.Value = this.Command<rewind_viewer.fbs.EndFrame>().HasValue ? this.Command<rewind_viewer.fbs.EndFrame>().Value.UnPack() : null;

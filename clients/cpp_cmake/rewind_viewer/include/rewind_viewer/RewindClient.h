@@ -61,7 +61,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
-  void map(const Vec2T &size, uint32_t grid_x, uint32_t grid_y) {
+  void map(const Vec2T &size, uint16_t grid_x, uint16_t grid_y) {
     builder_.Clear();
     auto map_obj = fbs::CreateMap(builder_, size.x, size.y, grid_x, grid_y);
     auto command = fbs::CreateOptions(builder_, map_obj, 0);
@@ -80,6 +80,61 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  void arc(const Vec2T &center, double r, double start_angle, double end_angle, uint32_t color,
+           bool fill = false) {
+    builder_.Clear();
+    auto color_obj = fbs::CreateColor(builder_, color | opacity_, fill);
+    auto center_obj = fbs::Vector2f(static_cast<float>(center.x), static_cast<float>(center.y));
+    auto command = fbs::CreateArc(builder_, color_obj, &center_obj, static_cast<float>(r),
+                                  static_cast<float>(start_angle), static_cast<float>(end_angle));
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Arc, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
+  void mask_arc(const Vec2T &center, double r, double start_angle, double end_angle) {
+    builder_.Clear();
+    auto center_obj = fbs::Vector2f(static_cast<float>(center.x), static_cast<float>(center.y));
+    auto command = fbs::CreateArc(builder_, 0, &center_obj, static_cast<float>(r),
+                                  static_cast<float>(start_angle), static_cast<float>(end_angle));
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Arc, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
+  void circle_segment(const Vec2T &center, double r, double start_angle, double end_angle,
+                      uint32_t color, bool fill = false) {
+    builder_.Clear();
+    auto color_obj = fbs::CreateColor(builder_, color | opacity_, fill);
+    auto center_obj = fbs::Vector2f(static_cast<float>(center.x), static_cast<float>(center.y));
+    auto command =
+        fbs::CreateCircleSegment(builder_, color_obj, &center_obj, static_cast<float>(r),
+                                 static_cast<float>(start_angle), static_cast<float>(end_angle));
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_CircleSegment, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
+  void mask_circle_segment(const Vec2T &center, double r, double start_angle, double end_angle) {
+    builder_.Clear();
+    auto center_obj = fbs::Vector2f(static_cast<float>(center.x), static_cast<float>(center.y));
+    auto command =
+        fbs::CreateCircleSegment(builder_, 0, &center_obj, static_cast<float>(r),
+                                 static_cast<float>(start_angle), static_cast<float>(end_angle));
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_CircleSegment, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
+  void mask_circle(const Vec2T &center, double r) {
+    builder_.Clear();
+    auto center_obj = fbs::Vector2f(static_cast<float>(center.x), static_cast<float>(center.y));
+    auto command = fbs::CreateCircle(builder_, 0, &center_obj, static_cast<float>(r));
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Circle, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
   void line(const Vec2T &p1, const Vec2T &p2, uint32_t color) {
     builder_.Clear();
     auto color_obj = fbs::CreateColor(builder_, color | opacity_, false);
@@ -93,9 +148,9 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
-  void polyline(const std::vector<Vec2T> &points, uint32_t color) {
+  void polyline(const std::vector<Vec2T> &points, uint32_t color, bool fill = false) {
     builder_.Clear();
-    auto color_obj = fbs::CreateColor(builder_, color | opacity_, false);
+    auto color_obj = fbs::CreateColor(builder_, color | opacity_, fill);
     std::vector<fbs::Vector2f> points_obj;
     for (const auto &p : points) {
       points_obj.emplace_back(static_cast<float>(p.x), static_cast<float>(p.y));
@@ -103,6 +158,48 @@ class RewindClient {
     auto command =
         fbs::CreatePolyline(builder_, color_obj, builder_.CreateVectorOfStructs(points_obj));
     auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Polyline, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
+  void mask_polyline(const std::vector<Vec2T> &points) {
+    builder_.Clear();
+    std::vector<fbs::Vector2f> points_obj;
+    for (const auto &p : points) {
+      points_obj.emplace_back(static_cast<float>(p.x), static_cast<float>(p.y));
+    }
+    auto command = fbs::CreatePolyline(builder_, 0, builder_.CreateVectorOfStructs(points_obj));
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Polyline, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
+  /*
+   * Position specifies bottom left corner of the first cell.
+   * Colors should be stored line by line.
+   * Example:
+   * [c1, c2, c3, c4] and elements_per_row = 2 wil represent the following field
+   * | c3 | c4 |
+   * | c1 | c2 |
+   * With c1 - color on start position
+   * elements_per_row = 3:
+   * | c4 |
+   * | c1 | c2 | c3 |
+   */
+  void tiles(const Vec2T &pos, const Vec2T &cell_size, uint16_t row_size,
+             std::vector<uint32_t> *colors, bool use_global_alpha = true) {
+    if (use_global_alpha) {
+      for (auto &color : *colors) {
+        color &= 0xFFFFFF;
+        color |= opacity_;
+      }
+    }
+    builder_.Clear();
+    auto position_obj = fbs::Vector2f(static_cast<float>(pos.x), static_cast<float>(pos.y));
+    auto size_obj = fbs::Vector2f(static_cast<float>(cell_size.x), static_cast<float>(cell_size.y));
+    auto command = fbs::CreateTiles(builder_, &position_obj, &size_obj, row_size,
+                                    builder_.CreateVector(*colors));
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Tiles, command.Union());
     builder_.Finish(msg);
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
@@ -122,12 +219,34 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  void mask_triangle(const Vec2T &p1, const Vec2T &p2, const Vec2T &p3) {
+    builder_.Clear();
+    std::vector<fbs::Vector2f> points_obj;
+    points_obj.emplace_back(static_cast<float>(p1.x), static_cast<float>(p1.y));
+    points_obj.emplace_back(static_cast<float>(p2.x), static_cast<float>(p2.y));
+    points_obj.emplace_back(static_cast<float>(p3.x), static_cast<float>(p3.y));
+    auto command = fbs::CreateTriangle(builder_, 0, builder_.CreateVectorOfStructs(points_obj));
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Triangle, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
   void rectangle(const Vec2T &position, const Vec2T &size, uint32_t color, bool fill = false) {
     builder_.Clear();
     auto color_obj = fbs::CreateColor(builder_, color | opacity_, fill);
     fbs::Vector2f position_obj{static_cast<float>(position.x), static_cast<float>(position.y)};
     fbs::Vector2f size_obj{static_cast<float>(size.x), static_cast<float>(size.y)};
     auto command = fbs::CreateRectangle(builder_, color_obj, &position_obj, &size_obj);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Rectangle, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
+  void mask_rectangle(const Vec2T &position, const Vec2T &size) {
+    builder_.Clear();
+    fbs::Vector2f position_obj{static_cast<float>(position.x), static_cast<float>(position.y)};
+    fbs::Vector2f size_obj{static_cast<float>(size.x), static_cast<float>(size.y)};
+    auto command = fbs::CreateRectangle(builder_, 0, &position_obj, &size_obj);
     auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Rectangle, command.Union());
     builder_.Finish(msg);
     send(builder_.GetBufferPointer(), builder_.GetSize());
@@ -172,7 +291,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
-  void camera_view(const std::string& name,  const Vec2T &pos, double r) {
+  void camera_view(const std::string &name, const Vec2T &pos, double r) {
     builder_.Clear();
     auto name_obj = builder_.CreateString(name);
     fbs::Vector2f pos_obj{static_cast<float>(pos.x), static_cast<float>(pos.y)};
@@ -186,7 +305,7 @@ class RewindClient {
   bool is_little_endian_;
   flatbuffers::FlatBufferBuilder builder_;
   CActiveSocket socket_;
-  uint32_t opacity_{0x0};
+  uint32_t opacity_{0xFF000000};
 
   void send(const uint8_t *buf, uint64_t buf_size) {
     if (buf_size > std::numeric_limits<uint16_t>::max()) {

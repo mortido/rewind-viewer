@@ -1,10 +1,9 @@
-
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
-// #include "cgutils/opengl.h"
 #include "common/logger.h"
+#include "gl/opengl.h"
 #include "rewind_viewer.h"
 
 // #include <stb_image.h>
@@ -14,28 +13,22 @@ constexpr const char* LOG_FILENAME = "rewind-viewer.log";
 constexpr const char* WINDOW_TITLE = "Rewind Viewer [mortido remix]";
 
 GLFWwindow* create_window(const rewind_viewer::models::UIConfig& config) {
-#if defined(__APPLE__)
-  // GL 3.2 + GLSL 150
   const char* glsl_version = "#version 150";
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
-#else
-  // GL 3.0 + GLSL 130
-  const char* glsl_version = "#version 130";
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-  // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-  // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
-#endif
 
-#if defined(OPENGL_DEBUG) && !defined(__APPLE__)
+#ifdef OPENGL_DEBUG
+  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+
+#if !defined(__APPLE__)
 #if (GL_ARB_debug_output)
   LOG_INFO("OpenGL:: Debug output enabled");
   glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
   glDebugMessageCallbackARB(cg::debug_output_callback, nullptr);
   glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+#endif
 #endif
 #endif
 
@@ -45,41 +38,33 @@ GLFWwindow* create_window(const rewind_viewer::models::UIConfig& config) {
     return window;
   }
 
-//  int width;
-//  int height;
-//  int nr_channels;
-//  const std::string icon_path = "resources/icon.png";
-//  auto icon_data = stbi_load(icon_path.c_str(), &width, &height, &nr_channels, 0);
-//  if (!icon_data) {
-//    LOG_ERROR(
-//        "Cannot find application icon (%s). "
-//        "Make sure you launch viewer from directory with 'resources' folder. ",
-//        icon_path.c_str());
-//    return nullptr;
-//  }
-//  GLFWimage icon{width, height, icon_data};
-//  LOG_INFO("Setup application icon");
-//  glfwSetWindowIcon(window, 1, &icon);
-
-
+  //  int width;
+  //  int height;
+  //  int nr_channels;
+  //  const std::string icon_path = "resources/icon.png";
+  //  auto icon_data = stbi_load(icon_path.c_str(), &width, &height, &nr_channels, 0);
+  //  if (!icon_data) {
+  //    LOG_ERROR(
+  //        "Cannot find application icon (%s). "
+  //        "Make sure you launch viewer from directory with 'resources' folder. ",
+  //        icon_path.c_str());
+  //    return nullptr;
+  //  }
+  //  GLFWimage icon{width, height, icon_data};
+  //  LOG_INFO("Setup application icon");
+  //  glfwSetWindowIcon(window, 1, &icon);
 
   glfwMakeContextCurrent(window);
-//  glfwSetFramebufferSizeCallback(
-//      window, [](GLFWwindow *, int width, int height) { glViewport(0, 0, width, height); });
   LOG_INFO("Enable vsync");
   glfwSwapInterval(1);
 
   LOG_INFO("Setup Dear ImGui context");
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
-  ImGuiIO& io = ImGui::GetIO();
-  (void)io;
-//  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
 
   LOG_INFO("Setup Platform/Renderer backends");
   ImGui_ImplGlfw_InitForOpenGL(window, true);
   ImGui_ImplOpenGL3_Init(glsl_version);
-
   return window;
 }
 
@@ -119,9 +104,10 @@ int main(int argc, char** argv) {
   LOG_INFO("OpenGL %s, GLSL %s", glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
   LOG_INFO("Driver %s, Renderer %s", glGetString(GL_VENDOR), glGetString(GL_RENDERER));
 
-  rewind_viewer::RewindViewer rewind(window, config);
+  rewind_viewer::RewindViewer rewind(config);
 
   glEnable(GL_BLEND);
+//  glEnable(GL_STENCIL_TEST);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   while (!glfwWindowShouldClose(window)) {

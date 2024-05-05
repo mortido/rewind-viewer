@@ -2,13 +2,8 @@
 
 #include <imgui/fontawesome.h>
 #include <imgui/imgui.h>
-
-// TODO: clear imgui_impl_opengl3 dep?
-// #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
-// #include <imgui/imgui_stdlib.h>
 
-// #include "render/opengl.h"
 #include "version.h"
 
 namespace {
@@ -25,9 +20,8 @@ inline bool key_modifier(const ImGuiIO &io) {
 
 namespace rewind_viewer {
 
-RewindViewer::RewindViewer(GLFWwindow *window, models::Config &config)
+RewindViewer::RewindViewer(models::Config &config)
     : config_{config}
-    , window_{window}
     , scene_{std::make_shared<models::Scene>(config_.scene, config_.ui.buffered_mode)} {
   uint16_t port = config_.network.start_port;
   servers_.emplace_back(
@@ -144,15 +138,13 @@ void RewindViewer::frame_info() {
     ui_state_.frame_info_width = 0.0f;
     return;
   }
-  int width, height;
-  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
+  auto &io = ImGui::GetIO();
   ui_state_.frame_info_width = static_cast<float>(config_.ui.utility_width);
   ImGui::SetNextWindowPos(
-      {static_cast<float>(width) - ui_state_.frame_info_width, ui_state_.main_menu_height},
-      ImGuiCond_None);
+      {io.DisplaySize.x - ui_state_.frame_info_width, ui_state_.main_menu_height}, ImGuiCond_None);
   ImGui::SetNextWindowSize(
-      {ui_state_.frame_info_width, static_cast<float>(height) - ui_state_.main_menu_height -
-                                       ui_state_.playback_controls_height},
+      {ui_state_.frame_info_width,
+       io.DisplaySize.y - ui_state_.main_menu_height - ui_state_.playback_controls_height},
       ImGuiCond_None);
   static const auto wflags =
       ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
@@ -481,8 +473,7 @@ void RewindViewer::viewport() {
       ImGui::Text("(%.3f, %.3f)", mouse_game_pos.x, mouse_game_pos.y);
       ImGui::EndTooltip();
     }
-
-    scene_->show_popup(mouse_pos);
+    scene_->show_popup(mouse_game_pos);
   }
   scene_->render();
 

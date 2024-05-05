@@ -38,7 +38,6 @@ public struct Triangle : IFlatbufferObject
   public static void StartPointsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(8, numElems, 4); }
   public static Offset<rewind_viewer.fbs.Triangle> EndTriangle(FlatBufferBuilder builder) {
     int o = builder.EndTable();
-    builder.Required(o, 4);  // color
     builder.Required(o, 6);  // points
     return new Offset<rewind_viewer.fbs.Triangle>(o);
   }
@@ -85,7 +84,7 @@ static public class TriangleVerify
   static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
   {
     return verifier.VerifyTableStart(tablePos)
-      && verifier.VerifyTable(tablePos, 4 /*Color*/, rewind_viewer.fbs.ColorVerify.Verify, true)
+      && verifier.VerifyTable(tablePos, 4 /*Color*/, rewind_viewer.fbs.ColorVerify.Verify, false)
       && verifier.VerifyVectorOfData(tablePos, 6 /*Points*/, 8 /*rewind_viewer.fbs.Vector2f*/, true)
       && verifier.VerifyTableEnd(tablePos);
   }

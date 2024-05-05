@@ -67,25 +67,33 @@ public final class RewindMessage extends Table {
     _oCommand.setType(_oCommandType);
     Table _oCommandValue;
     switch (_oCommandType) {
+      case rewind_viewer.fbs.Command.Arc:
+        _oCommandValue = command(new rewind_viewer.fbs.Arc());
+        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.Arc) _oCommandValue).unpack() : null);
+        break;
+      case rewind_viewer.fbs.Command.CameraView:
+        _oCommandValue = command(new rewind_viewer.fbs.CameraView());
+        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.CameraView) _oCommandValue).unpack() : null);
+        break;
       case rewind_viewer.fbs.Command.Circle:
         _oCommandValue = command(new rewind_viewer.fbs.Circle());
         _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.Circle) _oCommandValue).unpack() : null);
         break;
-      case rewind_viewer.fbs.Command.Rectangle:
-        _oCommandValue = command(new rewind_viewer.fbs.Rectangle());
-        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.Rectangle) _oCommandValue).unpack() : null);
-        break;
-      case rewind_viewer.fbs.Command.Triangle:
-        _oCommandValue = command(new rewind_viewer.fbs.Triangle());
-        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.Triangle) _oCommandValue).unpack() : null);
-        break;
-      case rewind_viewer.fbs.Command.Polyline:
-        _oCommandValue = command(new rewind_viewer.fbs.Polyline());
-        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.Polyline) _oCommandValue).unpack() : null);
+      case rewind_viewer.fbs.Command.CircleSegment:
+        _oCommandValue = command(new rewind_viewer.fbs.CircleSegment());
+        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.CircleSegment) _oCommandValue).unpack() : null);
         break;
       case rewind_viewer.fbs.Command.LogText:
         _oCommandValue = command(new rewind_viewer.fbs.LogText());
         _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.LogText) _oCommandValue).unpack() : null);
+        break;
+      case rewind_viewer.fbs.Command.Options:
+        _oCommandValue = command(new rewind_viewer.fbs.Options());
+        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.Options) _oCommandValue).unpack() : null);
+        break;
+      case rewind_viewer.fbs.Command.Polyline:
+        _oCommandValue = command(new rewind_viewer.fbs.Polyline());
+        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.Polyline) _oCommandValue).unpack() : null);
         break;
       case rewind_viewer.fbs.Command.Popup:
         _oCommandValue = command(new rewind_viewer.fbs.Popup());
@@ -95,13 +103,17 @@ public final class RewindMessage extends Table {
         _oCommandValue = command(new rewind_viewer.fbs.PopupRound());
         _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.PopupRound) _oCommandValue).unpack() : null);
         break;
-      case rewind_viewer.fbs.Command.Options:
-        _oCommandValue = command(new rewind_viewer.fbs.Options());
-        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.Options) _oCommandValue).unpack() : null);
+      case rewind_viewer.fbs.Command.Rectangle:
+        _oCommandValue = command(new rewind_viewer.fbs.Rectangle());
+        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.Rectangle) _oCommandValue).unpack() : null);
         break;
-      case rewind_viewer.fbs.Command.CameraView:
-        _oCommandValue = command(new rewind_viewer.fbs.CameraView());
-        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.CameraView) _oCommandValue).unpack() : null);
+      case rewind_viewer.fbs.Command.Tiles:
+        _oCommandValue = command(new rewind_viewer.fbs.Tiles());
+        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.Tiles) _oCommandValue).unpack() : null);
+        break;
+      case rewind_viewer.fbs.Command.Triangle:
+        _oCommandValue = command(new rewind_viewer.fbs.Triangle());
+        _oCommand.setValue(_oCommandValue != null ? ((rewind_viewer.fbs.Triangle) _oCommandValue).unpack() : null);
         break;
       case rewind_viewer.fbs.Command.EndFrame:
         _oCommandValue = command(new rewind_viewer.fbs.EndFrame());

@@ -4,48 +4,60 @@
 
 class Command(object):
     NONE = 0
-    Circle = 1
-    Rectangle = 2
-    Triangle = 3
-    Polyline = 4
+    Arc = 1
+    CameraView = 2
+    Circle = 3
+    CircleSegment = 4
     LogText = 5
-    Popup = 6
-    PopupRound = 7
-    Options = 8
-    CameraView = 9
-    EndFrame = 10
+    Options = 6
+    Polyline = 7
+    Popup = 8
+    PopupRound = 9
+    Rectangle = 10
+    Tiles = 11
+    Triangle = 12
+    EndFrame = 13
 
 def CommandCreator(unionType, table):
     from flatbuffers.table import Table
     if not isinstance(table, Table):
         return None
+    if unionType == Command().Arc:
+        import rewind_viewer.fbs.Arc
+        return rewind_viewer.fbs.Arc.ArcT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == Command().CameraView:
+        import rewind_viewer.fbs.CameraView
+        return rewind_viewer.fbs.CameraView.CameraViewT.InitFromBuf(table.Bytes, table.Pos)
     if unionType == Command().Circle:
         import rewind_viewer.fbs.Circle
         return rewind_viewer.fbs.Circle.CircleT.InitFromBuf(table.Bytes, table.Pos)
-    if unionType == Command().Rectangle:
-        import rewind_viewer.fbs.Rectangle
-        return rewind_viewer.fbs.Rectangle.RectangleT.InitFromBuf(table.Bytes, table.Pos)
-    if unionType == Command().Triangle:
-        import rewind_viewer.fbs.Triangle
-        return rewind_viewer.fbs.Triangle.TriangleT.InitFromBuf(table.Bytes, table.Pos)
-    if unionType == Command().Polyline:
-        import rewind_viewer.fbs.Polyline
-        return rewind_viewer.fbs.Polyline.PolylineT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == Command().CircleSegment:
+        import rewind_viewer.fbs.CircleSegment
+        return rewind_viewer.fbs.CircleSegment.CircleSegmentT.InitFromBuf(table.Bytes, table.Pos)
     if unionType == Command().LogText:
         import rewind_viewer.fbs.LogText
         return rewind_viewer.fbs.LogText.LogTextT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == Command().Options:
+        import rewind_viewer.fbs.Options
+        return rewind_viewer.fbs.Options.OptionsT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == Command().Polyline:
+        import rewind_viewer.fbs.Polyline
+        return rewind_viewer.fbs.Polyline.PolylineT.InitFromBuf(table.Bytes, table.Pos)
     if unionType == Command().Popup:
         import rewind_viewer.fbs.Popup
         return rewind_viewer.fbs.Popup.PopupT.InitFromBuf(table.Bytes, table.Pos)
     if unionType == Command().PopupRound:
         import rewind_viewer.fbs.PopupRound
         return rewind_viewer.fbs.PopupRound.PopupRoundT.InitFromBuf(table.Bytes, table.Pos)
-    if unionType == Command().Options:
-        import rewind_viewer.fbs.Options
-        return rewind_viewer.fbs.Options.OptionsT.InitFromBuf(table.Bytes, table.Pos)
-    if unionType == Command().CameraView:
-        import rewind_viewer.fbs.CameraView
-        return rewind_viewer.fbs.CameraView.CameraViewT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == Command().Rectangle:
+        import rewind_viewer.fbs.Rectangle
+        return rewind_viewer.fbs.Rectangle.RectangleT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == Command().Tiles:
+        import rewind_viewer.fbs.Tiles
+        return rewind_viewer.fbs.Tiles.TilesT.InitFromBuf(table.Bytes, table.Pos)
+    if unionType == Command().Triangle:
+        import rewind_viewer.fbs.Triangle
+        return rewind_viewer.fbs.Triangle.TriangleT.InitFromBuf(table.Bytes, table.Pos)
     if unionType == Command().EndFrame:
         import rewind_viewer.fbs.EndFrame
         return rewind_viewer.fbs.EndFrame.EndFrameT.InitFromBuf(table.Bytes, table.Pos)

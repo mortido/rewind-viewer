@@ -1,11 +1,9 @@
-#include "ResourceManager.h"
-
 #include <common/logger.h>
 #include <stb_image.h>
 
-#include <utility>
+#include "gl/resource_manager.h"
 
-namespace rewind_viewer::render {
+namespace rewind_viewer::gl {
 
 ResourceManager::ResourceManager() {
   stbi_set_flip_vertically_on_load(true);
@@ -31,14 +29,14 @@ GLuint ResourceManager::gen_buffer() {
   return buf;
 }
 
-GLuint ResourceManager::load_texture(const std::string &path_to_texture, bool gen_mipmap,
+GLuint ResourceManager::load_texture(const std::filesystem::path &path, bool gen_mipmap,
                                      GLint wrap_s, GLint wrap_t, GLint flt_min, GLint flt_mag) {
   int width;
   int height;
   int nr_channels;
-  unsigned char *data = stbi_load(path_to_texture.c_str(), &width, &height, &nr_channels, 0);
+  unsigned char *data = stbi_load(path.c_str(), &width, &height, &nr_channels, 0);
   if (!data) {
-    LOG_WARN("Cannot load texture %s", path_to_texture.c_str());
+    LOG_ERROR("Cannot load texture file: '%s'", path.c_str());
     return 0;
   }
 
@@ -46,7 +44,7 @@ GLuint ResourceManager::load_texture(const std::string &path_to_texture, bool ge
   glGenTextures(1, &tex);
   textures_.push_back(tex);
 
-  GLenum format;
+  GLint format;
   if (nr_channels == 3) {
     format = GL_RGB;
   } else if (nr_channels == 4) {
@@ -74,4 +72,4 @@ GLuint ResourceManager::load_texture(const std::string &path_to_texture, bool ge
   return tex;
 }
 
-}  // namespace rewind_viewer::render
+}  // namespace rewind_viewer::gl

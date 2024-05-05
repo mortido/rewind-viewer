@@ -59,7 +59,6 @@ static addRadius(builder:flatbuffers.Builder, radius:number) {
 
 static endCircle(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
-  builder.requiredField(offset, 4) // color
   builder.requiredField(offset, 6) // center
   return offset;
 }

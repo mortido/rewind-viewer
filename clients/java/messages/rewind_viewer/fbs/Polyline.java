@@ -50,7 +50,6 @@ public final class Polyline extends Table {
   public static void startPointsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(8, numElems, 4); }
   public static int endPolyline(FlatBufferBuilder builder) {
     int o = builder.endTable();
-    builder.required(o, 4);  // color
     builder.required(o, 6);  // points
     return o;
   }

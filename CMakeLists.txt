@@ -34,6 +34,13 @@ add_subdirectory(3rdparty/imgui) # Depends from glm and GLFW
 
 
 #Project
-file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
+add_custom_target(CopyResources ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/resources
+        ${CMAKE_BINARY_DIR}/resources
+        COMMENT "Copying resources directory to build directory"
+        )
+
+#file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 # add_subdirectory(fbs)  # no need if messages pregenerated
 add_subdirectory(src)

@@ -2,12 +2,13 @@
 // Created by valdemar on 14.10.17.
 //
 
-#include "Shader.h"
+#include "shader.h"
 
 #include <common/logger.h>
 
 #include <glm/gtc/type_ptr.hpp>
 #include <stdexcept>
+#include <fstream>
 
 #ifdef __APPLE__
 #include <cerrno>
@@ -15,22 +16,12 @@
 
 namespace {
 
-std::string load_file(const std::string &file_path) {
-  FILE *fd = fopen(file_path.c_str(), "r");
-  if (!fd) {
-    char err_buf[512];
-    snprintf(err_buf, sizeof(err_buf), "Load file(%s): %s", file_path.c_str(), strerror(errno));
-    throw std::runtime_error(err_buf);
+std::string load_file(const std::filesystem::path &path) {
+  std::ifstream file(path);
+  if (!file.is_open()) {
+    throw std::runtime_error("Unable to open file: " + path.string());
   }
-
-  constexpr uint16_t CHUNK_SIZE = 256;
-  char buf[CHUNK_SIZE + 1];
-  std::string content;
-  while (size_t sz = fread(buf, 1, CHUNK_SIZE, fd)) {
-    buf[sz] = '\0';
-    content += buf;
-  }
-  return content;
+  return {(std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()};
 }
 
 bool validate_shader(GLuint shader) {
@@ -88,40 +79,31 @@ GLuint create_shader_program(GLuint vert_shader, GLuint frag_shader, GLuint geom
 
 }  // anonymous namespace
 
-namespace rewind_viewer::render {
+namespace rewind_viewer::gl {
 
-Shader::Shader(std::string shaders_dir, const std::string &vertex, const std::string &fragment,
-               const std::string &geom /*=""*/) {
-  if (shaders_dir.empty()) {
-    LOG_WARN("Empty path for shaders_dir provided");
-  }
-
-  // TODO: rewrite to filesystem
-  if (shaders_dir.back() != '/') {
-    shaders_dir += '/';
-  }
+Shader::Shader(const std::filesystem::path &vertex, const std::filesystem::path &fragment,
+               const std::filesystem::path &geom) {
   if (!geom.empty()) {
-    LOG_INFO("Start compiling shader in directory '%s': vertex=%s, fragment=%s, geometry=%s",
-             shaders_dir.c_str(), vertex.c_str(), fragment.c_str(), geom.c_str());
+    LOG_INFO("Start compiling shader: vertex=%s, fragment=%s, geometry=%s", vertex.c_str(),
+             fragment.c_str(), geom.c_str());
   } else {
-    LOG_INFO("Start compiling shader in directory '%s': vertex=%s, fragment=%s",
-             shaders_dir.c_str(), vertex.c_str(), fragment.c_str());
+    LOG_INFO("Start compiling shader : vertex=%s, fragment=%s", vertex.c_str(), fragment.c_str());
   }
 
   LOG_INFO("Load Vertex shader");
-  const auto vs_src = load_file(shaders_dir + vertex);
+  const auto vs_src = load_file(vertex);
   LOG_INFO("Compile Vertex shader");
   auto v_shader = create_shader(GL_VERTEX_SHADER, vs_src);
 
   LOG_INFO("Load Fragment shader");
-  const auto fs_src = load_file(shaders_dir + fragment);
+  const auto fs_src = load_file(fragment);
   LOG_INFO("Compile Fragment shader");
   auto f_shader = create_shader(GL_FRAGMENT_SHADER, fs_src);
 
   GLuint geom_shader = 0;
   if (!geom.empty()) {
     LOG_INFO("Load Geometry shader");
-    const auto geom_src = load_file(shaders_dir + geom);
+    const auto geom_src = load_file(geom);
     LOG_INFO("Compile Geometry shader");
     geom_shader = create_shader(GL_GEOMETRY_SHADER, geom_src);
   }
@@ -197,4 +179,4 @@ void Shader::set_uint(const std::string &name, GLuint val) const {
   glUniform1ui(uniform(name), val);
 }
 
-}  // namespace rewind_viewer::render
+}  // namespace rewind_viewer::gl

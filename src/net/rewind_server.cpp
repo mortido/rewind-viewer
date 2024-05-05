@@ -109,10 +109,50 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
         throw ParsingError{"Circle radius should be positive, got " +
                            std::to_string(circle->radius())};
       }
-
-      draw_frame->get_context(layer_id_)->add_circle(
-          {circle->center()->x(), circle->center()->y()}, circle->radius(),
-          convert_color(circle->color()->value()), circle->color()->fill());
+      if (circle->color() == nullptr) {
+        draw_frame->layer_primitives(layer_id_)->add_stencil_circle(
+            {circle->center()->x(), circle->center()->y()}, circle->radius());
+      } else {
+        draw_frame->layer_primitives(layer_id_)->add_circle(
+            {circle->center()->x(), circle->center()->y()}, circle->radius(),
+            convert_color(circle->color()->value()), circle->color()->fill());
+      }
+      break;
+    }
+    case fbs::Command_CircleSegment: {
+      LOG_V8("FlatBuffersHandler::CIRCLE_SEGMENT");
+      auto segment = message->command_as_CircleSegment();
+      if (segment->radius() <= 0.0) {
+        throw ParsingError{"Circle segment radius should be positive, got " +
+                           std::to_string(segment->radius())};
+      }
+      if (segment->color() == nullptr) {
+        draw_frame->layer_primitives(layer_id_)->add_stencil_segment(
+            {segment->center()->x(), segment->center()->y()}, segment->radius(),
+            segment->start_angle(), segment->end_angle());
+      } else {
+        draw_frame->layer_primitives(layer_id_)->add_segment(
+            {segment->center()->x(), segment->center()->y()}, segment->radius(),
+            segment->start_angle(), segment->end_angle(), convert_color(segment->color()->value()),
+            segment->color()->fill());
+      }
+      break;
+    }
+    case fbs::Command_Arc: {
+      LOG_V8("FlatBuffersHandler::ARC");
+      auto arc = message->command_as_Arc();
+      if (arc->radius() <= 0.0) {
+        throw ParsingError{"Arc radius should be positive, got " + std::to_string(arc->radius())};
+      }
+      if (arc->color() == nullptr) {
+        draw_frame->layer_primitives(layer_id_)->add_stencil_arc(
+            {arc->center()->x(), arc->center()->y()}, arc->radius(), arc->start_angle(),
+            arc->end_angle());
+      } else {
+        draw_frame->layer_primitives(layer_id_)->add_arc(
+            {arc->center()->x(), arc->center()->y()}, arc->radius(), arc->start_angle(),
+            arc->end_angle(), convert_color(arc->color()->value()), arc->color()->fill());
+      }
       break;
     }
     case fbs::Command_Triangle: {
@@ -126,9 +166,14 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
       for (auto p : *triangle->points()) {
         points.emplace_back(p->x(), p->y());
       }
-      draw_frame->get_context(layer_id_)->add_triangle(points[0], points[1], points[2],
-                                                       convert_color(triangle->color()->value()),
-                                                       triangle->color()->fill());
+      if (triangle->color() == nullptr) {
+        draw_frame->layer_primitives(layer_id_)->add_stencil_triangle(points[0], points[1],
+                                                                      points[2]);
+      } else {
+        draw_frame->layer_primitives(layer_id_)->add_triangle(
+            points[0], points[1], points[2], convert_color(triangle->color()->value()),
+            triangle->color()->fill());
+      }
       break;
     }
     case fbs::Command_Polyline: {
@@ -138,12 +183,18 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
         throw ParsingError{"Polyline expect exactly 2 or more points, got " +
                            std::to_string(polyline->points()->size())};
       }
+      if (polyline->color() == nullptr) {
+        throw ParsingError{"Polyline is not supported mask for now"};
+      }
+      if (polyline->color()->fill()) {
+        LOG_ERROR("Polyline is not supporting fill for now. Parameter ignored.");
+      }
       std::vector<glm::vec2> points;
       for (auto p : *polyline->points()) {
         points.emplace_back(p->x(), p->y());
       }
-      draw_frame->get_context(layer_id_)->add_polyline(points,
-                                                       convert_color(polyline->color()->value()));
+      draw_frame->layer_primitives(layer_id_)->add_polyline(
+          points, convert_color(polyline->color()->value()));
       break;
     }
     case fbs::Command_Rectangle: {
@@ -157,14 +208,18 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
         throw ParsingError{"Rectangle height should be positive, got " +
                            std::to_string(rectangle->size()->y())};
       }
-      // TODO: restore gradient colors feature.
+      // TODO: restore gradient colors feature?
       glm::vec2 top_left{rectangle->position()->x(), rectangle->position()->y()};
       glm::vec2 bottom_right{top_left.x + rectangle->size()->x(),
                              top_left.y + rectangle->size()->y()};
       normalize(top_left, bottom_right);
-      draw_frame->get_context(layer_id_)->add_rectangle(top_left, bottom_right,
-                                                        convert_color(rectangle->color()->value()),
-                                                        rectangle->color()->fill());
+      if (rectangle->color() == nullptr) {
+        draw_frame->layer_primitives(layer_id_)->add_stencil_rectangle(top_left, bottom_right);
+      } else {
+        draw_frame->layer_primitives(layer_id_)->add_rectangle(
+            top_left, bottom_right, convert_color(rectangle->color()->value()),
+            rectangle->color()->fill());
+      }
       break;
     }
     case fbs::Command_Popup: {
@@ -200,9 +255,8 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
       LOG_V8("FlatBuffersHandler::CAMERA_VIEW");
       auto cam_view_msg = message->command_as_CameraView();
       models::CameraView cam_view{
-          .position={cam_view_msg->position()->x(), cam_view_msg->position()->y()},
-          .viewport={cam_view_msg->view_radius()*2.0f, cam_view_msg->view_radius()*2.0f}
-      };
+          .position = {cam_view_msg->position()->x(), cam_view_msg->position()->y()},
+          .viewport = {cam_view_msg->view_radius() * 2.0f, cam_view_msg->view_radius() * 2.0f}};
       frame->add_camera_view(cam_view_msg->name()->str(), cam_view);
       break;
     }
@@ -242,6 +296,33 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
       LOG_V8("FlatBuffersHandler::END_FRAME");
       if (master_) {
         scene_->frames.commit_frame();
+      }
+      break;
+    }
+    case fbs::Command_Tiles: {
+      LOG_V8("FlatBuffersHandler::COLOR_FIELD");
+      auto tiles = message->command_as_Tiles();
+      glm::vec2 cell{tiles->cell_size()->x(), tiles->cell_size()->y()};
+      glm::vec2 position{tiles->position()->x(), tiles->position()->y()};
+      //      position -= 0.5f * cell;
+      float start_x = position.x;
+      auto row_size = tiles->row_size();
+      if (row_size == 0) {
+        throw ParsingError{"Tiles row size should be greater than 0"};
+      }
+      auto primitives = draw_frame->layer_primitives(layer_id_);
+      size_t i = 0;
+      for (auto color : *tiles->colors()) {
+        if (color & 0xFF000000) {  // Ignore transparent
+          primitives->add_rectangle(position, position + cell, convert_color(color), true);
+        }
+        if (++i == row_size) {
+          i = 0;
+          position.y += cell.y;
+          position.x = start_x;
+        } else {
+          position.x += cell.x;
+        }
       }
       break;
     }

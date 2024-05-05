@@ -6,29 +6,52 @@ struct Vector2f {
 }
 
 table Color {
-  value:uint;
+  value:uint32;
   fill:bool = false;
 }
 
 table Circle {
-  color:Color (required);
+  color:Color;
   center:Vector2f (required);
   radius:float;
 }
 
+table Arc {
+  color:Color;
+  center:Vector2f (required);
+  radius:float;
+  start_angle:float;
+  end_angle:float;
+}
+
+table CircleSegment {
+  color:Color;
+  center:Vector2f (required);
+  radius:float;
+  start_angle:float;
+  end_angle:float;
+}
+
+table Tiles {
+  position:Vector2f (required);
+  cell_size:Vector2f (required);
+  row_size:uint16;
+  colors:[uint32] (required);
+}
+
 table Rectangle {
-  color:Color (required);
+  color:Color;
   position:Vector2f (required);
   size:Vector2f (required);
 }
 
 table Triangle {
-  color:Color (required);
+  color:Color;
   points:[Vector2f] (required);
 }
 
 table Polyline {
-  color:Color (required);
+  color:Color;
   points:[Vector2f] (required);
 }
 
@@ -62,8 +85,8 @@ table Layer {
 table Map {
   width:float;
   height:float;
-  x_grid:uint;
-  y_grid:uint;
+  x_grid:uint16;
+  y_grid:uint16;
 }
 
 table Options {
@@ -75,15 +98,18 @@ table EndFrame {
 }
 
 union Command {
+  Arc,
+  CameraView,
   Circle,
-  Rectangle,
-  Triangle,
-  Polyline,
+  CircleSegment,
   LogText,
+  Options,
+  Polyline,
   Popup,
   PopupRound,
-  Options,
-  CameraView,
+  Rectangle,
+  Tiles,
+  Triangle,
   EndFrame
 }
 

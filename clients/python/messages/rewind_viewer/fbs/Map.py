@@ -42,14 +42,14 @@ class Map(object):
     def XGrid(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.Uint32Flags, o + self._tab.Pos)
+            return self._tab.Get(flatbuffers.number_types.Uint16Flags, o + self._tab.Pos)
         return 0
 
     # Map
     def YGrid(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(10))
         if o != 0:
-            return self._tab.Get(flatbuffers.number_types.Uint32Flags, o + self._tab.Pos)
+            return self._tab.Get(flatbuffers.number_types.Uint16Flags, o + self._tab.Pos)
         return 0
 
 def MapStart(builder):
@@ -71,13 +71,13 @@ def AddHeight(builder, height):
     MapAddHeight(builder, height)
 
 def MapAddXGrid(builder, xGrid):
-    builder.PrependUint32Slot(2, xGrid, 0)
+    builder.PrependUint16Slot(2, xGrid, 0)
 
 def AddXGrid(builder, xGrid):
     MapAddXGrid(builder, xGrid)
 
 def MapAddYGrid(builder, yGrid):
-    builder.PrependUint32Slot(3, yGrid, 0)
+    builder.PrependUint16Slot(3, yGrid, 0)
 
 def AddYGrid(builder, yGrid):
     MapAddYGrid(builder, yGrid)

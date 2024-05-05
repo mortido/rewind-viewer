@@ -6,25 +6,24 @@
 
 #include <glad/glad.h>
 
+#include <filesystem>
 #include <glm/glm.hpp>
 #include <string>
 
-namespace rewind_viewer::render {
+namespace rewind_viewer::gl {
 
 /**
  * Class representing ShaderProgram
  */
 class Shader {
  public:
-  Shader(std::string shaders_dir, const std::string &vertex, const std::string &fragment,
-         const std::string &geom = "");
+  Shader(const std::filesystem::path &vertex, const std::filesystem::path &fragment,
+         const std::filesystem::path &geom = std::filesystem::path());
   ~Shader();
 
   void use() const;
-
-  GLuint id() const;
-
-  GLint uniform(const std::string &name) const;
+  [[nodiscard]] GLuint id() const;
+  [[nodiscard]] GLint uniform(const std::string &name) const;
 
   void set_mat4(const std::string &name, const glm::mat4 &v) const;
   void set_mat4(const std::string &name, float *pv) const;

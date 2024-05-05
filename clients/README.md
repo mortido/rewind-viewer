@@ -17,7 +17,7 @@ Original clients [implementation](https://github.com/kswaldemar/rewind-viewer/tr
 Rewind viewer uses FlatBuffers for control message serialization. See [message schema](https://github.com/mortido/rewind-viewer/blob/develop/fbs/rewind_message.fbs) for more details.
 
 Viewer accepts the following types of commands:
-- Circle
+- ColorCircle
 - Rectangle
 - Triangle
 - Polyline
@@ -50,7 +50,7 @@ Example:
 0x000033    # dark blue
 ```
 
-### Circle
+### ColorCircle
 ```
 color:Color;        # Color (fill supported)
 center:Vector2f;    # Center position

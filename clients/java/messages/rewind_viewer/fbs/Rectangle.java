@@ -40,7 +40,6 @@ public final class Rectangle extends Table {
   public static void addSize(FlatBufferBuilder builder, int sizeOffset) { builder.addStruct(2, sizeOffset, 0); }
   public static int endRectangle(FlatBufferBuilder builder) {
     int o = builder.endTable();
-    builder.required(o, 4);  // color
     builder.required(o, 6);  // position
     builder.required(o, 8);  // size
     return o;

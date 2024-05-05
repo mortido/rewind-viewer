@@ -5,27 +5,27 @@ set(APP_NAME "rewind-viewer")
 add_compile_options(-Wall)
 if (MSVC)
     add_compile_options(/W0)
-else()
+else ()
     add_compile_options(-Wextra)
-endif()
+endif ()
 
 set(SOURCES
-    main.cpp
-    rewind_viewer.cpp
+        main.cpp
+        rewind_viewer.cpp
 
-    models/camera.cpp
-    models/frame.cpp
-    models/Popup.cpp
+        gl/primitives_collection.cpp
+        gl/renderer.cpp
+        gl/resource_manager.cpp
+        gl/shader.cpp
+        gl/utils.cpp
 
-    net/tcp_server.cpp
-    net/rewind_server.cpp
+        models/camera.cpp
+        models/frame.cpp
+        models/Popup.cpp
 
-    render/Shader.cpp
-    render/utils.cpp
-    render/ResourceManager.cpp
-    render/RenderContext.cpp
-    render/Renderer.cpp
-)
+        net/rewind_server.cpp
+        net/tcp_server.cpp
+        )
 
 #set(MACOSX_BUNDLE_BUNDLE_NAME "MyApp")
 #set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.example.myapp")
@@ -39,6 +39,7 @@ set(SOURCES
 
 add_executable(${APP_NAME} ${SOURCES})
 target_compile_features(${APP_NAME} PUBLIC cxx_std_17)
+add_dependencies(${APP_NAME} CopyResources)
 target_include_directories(${APP_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_definitions(${APP_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)
 
@@ -48,5 +49,5 @@ set_target_properties(${APP_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BI
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${APP_NAME} PRIVATE OPENGL_DEBUG)
-endif()
+endif ()
 

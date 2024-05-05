@@ -11,11 +11,11 @@ void Frame::transfer_from(Frame& other) {
   }
 }
 
-ScopeLockedRefWrapper<const Frame::ContextCollectionT, Spinlock> Frame::all_contexts() const {
+ScopeLockedRefWrapper<const Frame::PrimitivesT, Spinlock> Frame::all_primitives() const {
   return {contexts_, mutex_};
 }
 
-ScopeLockedRefWrapper<render::RenderContext, Spinlock> Frame::get_context(size_t layer) {
+ScopeLockedRefWrapper<gl::PrimitivesCollection, Spinlock> Frame::layer_primitives(size_t layer) {
   layer = std::min(layer, LAYERS_COUNT - 1ul);
   return {contexts_[layer], mutex_};
 }

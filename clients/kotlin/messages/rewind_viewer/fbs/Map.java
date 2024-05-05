@@ -29,27 +29,27 @@ public final class Map extends Table {
 
   public float width() { int o = __offset(4); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
   public float height() { int o = __offset(6); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
-  public long xGrid() { int o = __offset(8); return o != 0 ? (long)bb.getInt(o + bb_pos) & 0xFFFFFFFFL : 0L; }
-  public long yGrid() { int o = __offset(10); return o != 0 ? (long)bb.getInt(o + bb_pos) & 0xFFFFFFFFL : 0L; }
+  public int xGrid() { int o = __offset(8); return o != 0 ? bb.getShort(o + bb_pos) & 0xFFFF : 0; }
+  public int yGrid() { int o = __offset(10); return o != 0 ? bb.getShort(o + bb_pos) & 0xFFFF : 0; }
 
   public static int createMap(FlatBufferBuilder builder,
       float width,
       float height,
-      long xGrid,
-      long yGrid) {
+      int xGrid,
+      int yGrid) {
     builder.startTable(4);
-    Map.addYGrid(builder, yGrid);
-    Map.addXGrid(builder, xGrid);
     Map.addHeight(builder, height);
     Map.addWidth(builder, width);
+    Map.addYGrid(builder, yGrid);
+    Map.addXGrid(builder, xGrid);
     return Map.endMap(builder);
   }
 
   public static void startMap(FlatBufferBuilder builder) { builder.startTable(4); }
   public static void addWidth(FlatBufferBuilder builder, float width) { builder.addFloat(0, width, 0.0f); }
   public static void addHeight(FlatBufferBuilder builder, float height) { builder.addFloat(1, height, 0.0f); }
-  public static void addXGrid(FlatBufferBuilder builder, long xGrid) { builder.addInt(2, (int) xGrid, (int) 0L); }
-  public static void addYGrid(FlatBufferBuilder builder, long yGrid) { builder.addInt(3, (int) yGrid, (int) 0L); }
+  public static void addXGrid(FlatBufferBuilder builder, int xGrid) { builder.addShort(2, (short) xGrid, (short) 0); }
+  public static void addYGrid(FlatBufferBuilder builder, int yGrid) { builder.addShort(3, (short) yGrid, (short) 0); }
   public static int endMap(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;
@@ -71,9 +71,9 @@ public final class Map extends Table {
     _o.setWidth(_oWidth);
     float _oHeight = height();
     _o.setHeight(_oHeight);
-    long _oXGrid = xGrid();
+    int _oXGrid = xGrid();
     _o.setXGrid(_oXGrid);
-    long _oYGrid = yGrid();
+    int _oYGrid = yGrid();
     _o.setYGrid(_oYGrid);
   }
   public static int pack(FlatBufferBuilder builder, MapT _o) {

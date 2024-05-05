@@ -3,7 +3,6 @@
 #include <memory>
 #include <vector>
 
-#include "render/opengl.h"
 #include "models/camera.h"
 #include "models/config.h"
 #include "models/scene.h"
@@ -17,7 +16,7 @@ class RewindViewer {
   constexpr static float FONT_AWESOME_FONT_SIZE = 14.0f;
 
  public:
-  RewindViewer(GLFWwindow* window, models::Config& config);
+  RewindViewer(models::Config& config);
   ~RewindViewer() = default;
 
   void render();
@@ -25,8 +24,6 @@ class RewindViewer {
 
  private:
   models::Config& config_;
-  GLFWwindow* window_;
-
   std::shared_ptr<models::Scene> scene_;
   std::vector<std::unique_ptr<net::RewindServer>> servers_;
 

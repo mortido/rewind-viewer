@@ -24,6 +24,15 @@ struct ColorBuilder;
 struct Circle;
 struct CircleBuilder;
 
+struct Arc;
+struct ArcBuilder;
+
+struct CircleSegment;
+struct CircleSegmentBuilder;
+
+struct Tiles;
+struct TilesBuilder;
+
 struct Rectangle;
 struct RectangleBuilder;
 
@@ -62,49 +71,58 @@ struct RewindMessageBuilder;
 
 enum Command : uint8_t {
   Command_NONE = 0,
-  Command_Circle = 1,
-  Command_Rectangle = 2,
-  Command_Triangle = 3,
-  Command_Polyline = 4,
+  Command_Arc = 1,
+  Command_CameraView = 2,
+  Command_Circle = 3,
+  Command_CircleSegment = 4,
   Command_LogText = 5,
-  Command_Popup = 6,
-  Command_PopupRound = 7,
-  Command_Options = 8,
-  Command_CameraView = 9,
-  Command_EndFrame = 10,
+  Command_Options = 6,
+  Command_Polyline = 7,
+  Command_Popup = 8,
+  Command_PopupRound = 9,
+  Command_Rectangle = 10,
+  Command_Tiles = 11,
+  Command_Triangle = 12,
+  Command_EndFrame = 13,
   Command_MIN = Command_NONE,
   Command_MAX = Command_EndFrame
 };
 
-inline const Command (&EnumValuesCommand())[11] {
+inline const Command (&EnumValuesCommand())[14] {
   static const Command values[] = {
     Command_NONE,
+    Command_Arc,
+    Command_CameraView,
     Command_Circle,
-    Command_Rectangle,
-    Command_Triangle,
-    Command_Polyline,
+    Command_CircleSegment,
     Command_LogText,
+    Command_Options,
+    Command_Polyline,
     Command_Popup,
     Command_PopupRound,
-    Command_Options,
-    Command_CameraView,
+    Command_Rectangle,
+    Command_Tiles,
+    Command_Triangle,
     Command_EndFrame
   };
   return values;
 }
 
 inline const char * const *EnumNamesCommand() {
-  static const char * const names[12] = {
+  static const char * const names[15] = {
     "NONE",
+    "Arc",
+    "CameraView",
     "Circle",
-    "Rectangle",
-    "Triangle",
-    "Polyline",
+    "CircleSegment",
     "LogText",
+    "Options",
+    "Polyline",
     "Popup",
     "PopupRound",
-    "Options",
-    "CameraView",
+    "Rectangle",
+    "Tiles",
+    "Triangle",
     "EndFrame",
     nullptr
   };
@@ -121,24 +139,32 @@ template<typename T> struct CommandTraits {
   static const Command enum_value = Command_NONE;
 };
 
+template<> struct CommandTraits<rewind_viewer::fbs::Arc> {
+  static const Command enum_value = Command_Arc;
+};
+
+template<> struct CommandTraits<rewind_viewer::fbs::CameraView> {
+  static const Command enum_value = Command_CameraView;
+};
+
 template<> struct CommandTraits<rewind_viewer::fbs::Circle> {
   static const Command enum_value = Command_Circle;
 };
 
-template<> struct CommandTraits<rewind_viewer::fbs::Rectangle> {
-  static const Command enum_value = Command_Rectangle;
-};
-
-template<> struct CommandTraits<rewind_viewer::fbs::Triangle> {
-  static const Command enum_value = Command_Triangle;
-};
-
-template<> struct CommandTraits<rewind_viewer::fbs::Polyline> {
-  static const Command enum_value = Command_Polyline;
+template<> struct CommandTraits<rewind_viewer::fbs::CircleSegment> {
+  static const Command enum_value = Command_CircleSegment;
 };
 
 template<> struct CommandTraits<rewind_viewer::fbs::LogText> {
   static const Command enum_value = Command_LogText;
+};
+
+template<> struct CommandTraits<rewind_viewer::fbs::Options> {
+  static const Command enum_value = Command_Options;
+};
+
+template<> struct CommandTraits<rewind_viewer::fbs::Polyline> {
+  static const Command enum_value = Command_Polyline;
 };
 
 template<> struct CommandTraits<rewind_viewer::fbs::Popup> {
@@ -149,12 +175,16 @@ template<> struct CommandTraits<rewind_viewer::fbs::PopupRound> {
   static const Command enum_value = Command_PopupRound;
 };
 
-template<> struct CommandTraits<rewind_viewer::fbs::Options> {
-  static const Command enum_value = Command_Options;
+template<> struct CommandTraits<rewind_viewer::fbs::Rectangle> {
+  static const Command enum_value = Command_Rectangle;
 };
 
-template<> struct CommandTraits<rewind_viewer::fbs::CameraView> {
-  static const Command enum_value = Command_CameraView;
+template<> struct CommandTraits<rewind_viewer::fbs::Tiles> {
+  static const Command enum_value = Command_Tiles;
+};
+
+template<> struct CommandTraits<rewind_viewer::fbs::Triangle> {
+  static const Command enum_value = Command_Triangle;
 };
 
 template<> struct CommandTraits<rewind_viewer::fbs::EndFrame> {
@@ -256,7 +286,7 @@ struct Circle FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffsetRequired(verifier, VT_COLOR) &&
+           VerifyOffset(verifier, VT_COLOR) &&
            verifier.VerifyTable(color()) &&
            VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_CENTER, 4) &&
            VerifyField<float>(verifier, VT_RADIUS, 4) &&
@@ -284,7 +314,6 @@ struct CircleBuilder {
   ::flatbuffers::Offset<Circle> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<Circle>(end);
-    fbb_.Required(o, Circle::VT_COLOR);
     fbb_.Required(o, Circle::VT_CENTER);
     return o;
   }
@@ -300,6 +329,262 @@ inline ::flatbuffers::Offset<Circle> CreateCircle(
   builder_.add_center(center);
   builder_.add_color(color);
   return builder_.Finish();
+}
+
+struct Arc FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ArcBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_COLOR = 4,
+    VT_CENTER = 6,
+    VT_RADIUS = 8,
+    VT_START_ANGLE = 10,
+    VT_END_ANGLE = 12
+  };
+  const rewind_viewer::fbs::Color *color() const {
+    return GetPointer<const rewind_viewer::fbs::Color *>(VT_COLOR);
+  }
+  const rewind_viewer::fbs::Vector2f *center() const {
+    return GetStruct<const rewind_viewer::fbs::Vector2f *>(VT_CENTER);
+  }
+  float radius() const {
+    return GetField<float>(VT_RADIUS, 0.0f);
+  }
+  float start_angle() const {
+    return GetField<float>(VT_START_ANGLE, 0.0f);
+  }
+  float end_angle() const {
+    return GetField<float>(VT_END_ANGLE, 0.0f);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_COLOR) &&
+           verifier.VerifyTable(color()) &&
+           VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_CENTER, 4) &&
+           VerifyField<float>(verifier, VT_RADIUS, 4) &&
+           VerifyField<float>(verifier, VT_START_ANGLE, 4) &&
+           VerifyField<float>(verifier, VT_END_ANGLE, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct ArcBuilder {
+  typedef Arc Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_color(::flatbuffers::Offset<rewind_viewer::fbs::Color> color) {
+    fbb_.AddOffset(Arc::VT_COLOR, color);
+  }
+  void add_center(const rewind_viewer::fbs::Vector2f *center) {
+    fbb_.AddStruct(Arc::VT_CENTER, center);
+  }
+  void add_radius(float radius) {
+    fbb_.AddElement<float>(Arc::VT_RADIUS, radius, 0.0f);
+  }
+  void add_start_angle(float start_angle) {
+    fbb_.AddElement<float>(Arc::VT_START_ANGLE, start_angle, 0.0f);
+  }
+  void add_end_angle(float end_angle) {
+    fbb_.AddElement<float>(Arc::VT_END_ANGLE, end_angle, 0.0f);
+  }
+  explicit ArcBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Arc> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Arc>(end);
+    fbb_.Required(o, Arc::VT_CENTER);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Arc> CreateArc(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<rewind_viewer::fbs::Color> color = 0,
+    const rewind_viewer::fbs::Vector2f *center = nullptr,
+    float radius = 0.0f,
+    float start_angle = 0.0f,
+    float end_angle = 0.0f) {
+  ArcBuilder builder_(_fbb);
+  builder_.add_end_angle(end_angle);
+  builder_.add_start_angle(start_angle);
+  builder_.add_radius(radius);
+  builder_.add_center(center);
+  builder_.add_color(color);
+  return builder_.Finish();
+}
+
+struct CircleSegment FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CircleSegmentBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_COLOR = 4,
+    VT_CENTER = 6,
+    VT_RADIUS = 8,
+    VT_START_ANGLE = 10,
+    VT_END_ANGLE = 12
+  };
+  const rewind_viewer::fbs::Color *color() const {
+    return GetPointer<const rewind_viewer::fbs::Color *>(VT_COLOR);
+  }
+  const rewind_viewer::fbs::Vector2f *center() const {
+    return GetStruct<const rewind_viewer::fbs::Vector2f *>(VT_CENTER);
+  }
+  float radius() const {
+    return GetField<float>(VT_RADIUS, 0.0f);
+  }
+  float start_angle() const {
+    return GetField<float>(VT_START_ANGLE, 0.0f);
+  }
+  float end_angle() const {
+    return GetField<float>(VT_END_ANGLE, 0.0f);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_COLOR) &&
+           verifier.VerifyTable(color()) &&
+           VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_CENTER, 4) &&
+           VerifyField<float>(verifier, VT_RADIUS, 4) &&
+           VerifyField<float>(verifier, VT_START_ANGLE, 4) &&
+           VerifyField<float>(verifier, VT_END_ANGLE, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct CircleSegmentBuilder {
+  typedef CircleSegment Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_color(::flatbuffers::Offset<rewind_viewer::fbs::Color> color) {
+    fbb_.AddOffset(CircleSegment::VT_COLOR, color);
+  }
+  void add_center(const rewind_viewer::fbs::Vector2f *center) {
+    fbb_.AddStruct(CircleSegment::VT_CENTER, center);
+  }
+  void add_radius(float radius) {
+    fbb_.AddElement<float>(CircleSegment::VT_RADIUS, radius, 0.0f);
+  }
+  void add_start_angle(float start_angle) {
+    fbb_.AddElement<float>(CircleSegment::VT_START_ANGLE, start_angle, 0.0f);
+  }
+  void add_end_angle(float end_angle) {
+    fbb_.AddElement<float>(CircleSegment::VT_END_ANGLE, end_angle, 0.0f);
+  }
+  explicit CircleSegmentBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CircleSegment> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CircleSegment>(end);
+    fbb_.Required(o, CircleSegment::VT_CENTER);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CircleSegment> CreateCircleSegment(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<rewind_viewer::fbs::Color> color = 0,
+    const rewind_viewer::fbs::Vector2f *center = nullptr,
+    float radius = 0.0f,
+    float start_angle = 0.0f,
+    float end_angle = 0.0f) {
+  CircleSegmentBuilder builder_(_fbb);
+  builder_.add_end_angle(end_angle);
+  builder_.add_start_angle(start_angle);
+  builder_.add_radius(radius);
+  builder_.add_center(center);
+  builder_.add_color(color);
+  return builder_.Finish();
+}
+
+struct Tiles FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef TilesBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_POSITION = 4,
+    VT_CELL_SIZE = 6,
+    VT_ROW_SIZE = 8,
+    VT_COLORS = 10
+  };
+  const rewind_viewer::fbs::Vector2f *position() const {
+    return GetStruct<const rewind_viewer::fbs::Vector2f *>(VT_POSITION);
+  }
+  const rewind_viewer::fbs::Vector2f *cell_size() const {
+    return GetStruct<const rewind_viewer::fbs::Vector2f *>(VT_CELL_SIZE);
+  }
+  uint16_t row_size() const {
+    return GetField<uint16_t>(VT_ROW_SIZE, 0);
+  }
+  const ::flatbuffers::Vector<uint32_t> *colors() const {
+    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_COLORS);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_POSITION, 4) &&
+           VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_CELL_SIZE, 4) &&
+           VerifyField<uint16_t>(verifier, VT_ROW_SIZE, 2) &&
+           VerifyOffsetRequired(verifier, VT_COLORS) &&
+           verifier.VerifyVector(colors()) &&
+           verifier.EndTable();
+  }
+};
+
+struct TilesBuilder {
+  typedef Tiles Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_position(const rewind_viewer::fbs::Vector2f *position) {
+    fbb_.AddStruct(Tiles::VT_POSITION, position);
+  }
+  void add_cell_size(const rewind_viewer::fbs::Vector2f *cell_size) {
+    fbb_.AddStruct(Tiles::VT_CELL_SIZE, cell_size);
+  }
+  void add_row_size(uint16_t row_size) {
+    fbb_.AddElement<uint16_t>(Tiles::VT_ROW_SIZE, row_size, 0);
+  }
+  void add_colors(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> colors) {
+    fbb_.AddOffset(Tiles::VT_COLORS, colors);
+  }
+  explicit TilesBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Tiles> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Tiles>(end);
+    fbb_.Required(o, Tiles::VT_POSITION);
+    fbb_.Required(o, Tiles::VT_CELL_SIZE);
+    fbb_.Required(o, Tiles::VT_COLORS);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Tiles> CreateTiles(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const rewind_viewer::fbs::Vector2f *position = nullptr,
+    const rewind_viewer::fbs::Vector2f *cell_size = nullptr,
+    uint16_t row_size = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> colors = 0) {
+  TilesBuilder builder_(_fbb);
+  builder_.add_colors(colors);
+  builder_.add_cell_size(cell_size);
+  builder_.add_position(position);
+  builder_.add_row_size(row_size);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<Tiles> CreateTilesDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const rewind_viewer::fbs::Vector2f *position = nullptr,
+    const rewind_viewer::fbs::Vector2f *cell_size = nullptr,
+    uint16_t row_size = 0,
+    const std::vector<uint32_t> *colors = nullptr) {
+  auto colors__ = colors ? _fbb.CreateVector<uint32_t>(*colors) : 0;
+  return rewind_viewer::fbs::CreateTiles(
+      _fbb,
+      position,
+      cell_size,
+      row_size,
+      colors__);
 }
 
 struct Rectangle FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -320,7 +605,7 @@ struct Rectangle FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffsetRequired(verifier, VT_COLOR) &&
+           VerifyOffset(verifier, VT_COLOR) &&
            verifier.VerifyTable(color()) &&
            VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_POSITION, 4) &&
            VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_SIZE, 4) &&
@@ -348,7 +633,6 @@ struct RectangleBuilder {
   ::flatbuffers::Offset<Rectangle> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<Rectangle>(end);
-    fbb_.Required(o, Rectangle::VT_COLOR);
     fbb_.Required(o, Rectangle::VT_POSITION);
     fbb_.Required(o, Rectangle::VT_SIZE);
     return o;
@@ -381,7 +665,7 @@ struct Triangle FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffsetRequired(verifier, VT_COLOR) &&
+           VerifyOffset(verifier, VT_COLOR) &&
            verifier.VerifyTable(color()) &&
            VerifyOffsetRequired(verifier, VT_POINTS) &&
            verifier.VerifyVector(points()) &&
@@ -406,7 +690,6 @@ struct TriangleBuilder {
   ::flatbuffers::Offset<Triangle> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<Triangle>(end);
-    fbb_.Required(o, Triangle::VT_COLOR);
     fbb_.Required(o, Triangle::VT_POINTS);
     return o;
   }
@@ -447,7 +730,7 @@ struct Polyline FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffsetRequired(verifier, VT_COLOR) &&
+           VerifyOffset(verifier, VT_COLOR) &&
            verifier.VerifyTable(color()) &&
            VerifyOffsetRequired(verifier, VT_POINTS) &&
            verifier.VerifyVector(points()) &&
@@ -472,7 +755,6 @@ struct PolylineBuilder {
   ::flatbuffers::Offset<Polyline> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<Polyline>(end);
-    fbb_.Required(o, Polyline::VT_COLOR);
     fbb_.Required(o, Polyline::VT_POINTS);
     return o;
   }
@@ -848,18 +1130,18 @@ struct Map FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   float height() const {
     return GetField<float>(VT_HEIGHT, 0.0f);
   }
-  uint32_t x_grid() const {
-    return GetField<uint32_t>(VT_X_GRID, 0);
+  uint16_t x_grid() const {
+    return GetField<uint16_t>(VT_X_GRID, 0);
   }
-  uint32_t y_grid() const {
-    return GetField<uint32_t>(VT_Y_GRID, 0);
+  uint16_t y_grid() const {
+    return GetField<uint16_t>(VT_Y_GRID, 0);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<float>(verifier, VT_WIDTH, 4) &&
            VerifyField<float>(verifier, VT_HEIGHT, 4) &&
-           VerifyField<uint32_t>(verifier, VT_X_GRID, 4) &&
-           VerifyField<uint32_t>(verifier, VT_Y_GRID, 4) &&
+           VerifyField<uint16_t>(verifier, VT_X_GRID, 2) &&
+           VerifyField<uint16_t>(verifier, VT_Y_GRID, 2) &&
            verifier.EndTable();
   }
 };
@@ -874,11 +1156,11 @@ struct MapBuilder {
   void add_height(float height) {
     fbb_.AddElement<float>(Map::VT_HEIGHT, height, 0.0f);
   }
-  void add_x_grid(uint32_t x_grid) {
-    fbb_.AddElement<uint32_t>(Map::VT_X_GRID, x_grid, 0);
+  void add_x_grid(uint16_t x_grid) {
+    fbb_.AddElement<uint16_t>(Map::VT_X_GRID, x_grid, 0);
   }
-  void add_y_grid(uint32_t y_grid) {
-    fbb_.AddElement<uint32_t>(Map::VT_Y_GRID, y_grid, 0);
+  void add_y_grid(uint16_t y_grid) {
+    fbb_.AddElement<uint16_t>(Map::VT_Y_GRID, y_grid, 0);
   }
   explicit MapBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -895,13 +1177,13 @@ inline ::flatbuffers::Offset<Map> CreateMap(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     float width = 0.0f,
     float height = 0.0f,
-    uint32_t x_grid = 0,
-    uint32_t y_grid = 0) {
+    uint16_t x_grid = 0,
+    uint16_t y_grid = 0) {
   MapBuilder builder_(_fbb);
-  builder_.add_y_grid(y_grid);
-  builder_.add_x_grid(x_grid);
   builder_.add_height(height);
   builder_.add_width(width);
+  builder_.add_y_grid(y_grid);
+  builder_.add_x_grid(x_grid);
   return builder_.Finish();
 }
 
@@ -1000,20 +1282,26 @@ struct RewindMessage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return GetPointer<const void *>(VT_COMMAND);
   }
   template<typename T> const T *command_as() const;
+  const rewind_viewer::fbs::Arc *command_as_Arc() const {
+    return command_type() == rewind_viewer::fbs::Command_Arc ? static_cast<const rewind_viewer::fbs::Arc *>(command()) : nullptr;
+  }
+  const rewind_viewer::fbs::CameraView *command_as_CameraView() const {
+    return command_type() == rewind_viewer::fbs::Command_CameraView ? static_cast<const rewind_viewer::fbs::CameraView *>(command()) : nullptr;
+  }
   const rewind_viewer::fbs::Circle *command_as_Circle() const {
     return command_type() == rewind_viewer::fbs::Command_Circle ? static_cast<const rewind_viewer::fbs::Circle *>(command()) : nullptr;
   }
-  const rewind_viewer::fbs::Rectangle *command_as_Rectangle() const {
-    return command_type() == rewind_viewer::fbs::Command_Rectangle ? static_cast<const rewind_viewer::fbs::Rectangle *>(command()) : nullptr;
-  }
-  const rewind_viewer::fbs::Triangle *command_as_Triangle() const {
-    return command_type() == rewind_viewer::fbs::Command_Triangle ? static_cast<const rewind_viewer::fbs::Triangle *>(command()) : nullptr;
-  }
-  const rewind_viewer::fbs::Polyline *command_as_Polyline() const {
-    return command_type() == rewind_viewer::fbs::Command_Polyline ? static_cast<const rewind_viewer::fbs::Polyline *>(command()) : nullptr;
+  const rewind_viewer::fbs::CircleSegment *command_as_CircleSegment() const {
+    return command_type() == rewind_viewer::fbs::Command_CircleSegment ? static_cast<const rewind_viewer::fbs::CircleSegment *>(command()) : nullptr;
   }
   const rewind_viewer::fbs::LogText *command_as_LogText() const {
     return command_type() == rewind_viewer::fbs::Command_LogText ? static_cast<const rewind_viewer::fbs::LogText *>(command()) : nullptr;
+  }
+  const rewind_viewer::fbs::Options *command_as_Options() const {
+    return command_type() == rewind_viewer::fbs::Command_Options ? static_cast<const rewind_viewer::fbs::Options *>(command()) : nullptr;
+  }
+  const rewind_viewer::fbs::Polyline *command_as_Polyline() const {
+    return command_type() == rewind_viewer::fbs::Command_Polyline ? static_cast<const rewind_viewer::fbs::Polyline *>(command()) : nullptr;
   }
   const rewind_viewer::fbs::Popup *command_as_Popup() const {
     return command_type() == rewind_viewer::fbs::Command_Popup ? static_cast<const rewind_viewer::fbs::Popup *>(command()) : nullptr;
@@ -1021,11 +1309,14 @@ struct RewindMessage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const rewind_viewer::fbs::PopupRound *command_as_PopupRound() const {
     return command_type() == rewind_viewer::fbs::Command_PopupRound ? static_cast<const rewind_viewer::fbs::PopupRound *>(command()) : nullptr;
   }
-  const rewind_viewer::fbs::Options *command_as_Options() const {
-    return command_type() == rewind_viewer::fbs::Command_Options ? static_cast<const rewind_viewer::fbs::Options *>(command()) : nullptr;
+  const rewind_viewer::fbs::Rectangle *command_as_Rectangle() const {
+    return command_type() == rewind_viewer::fbs::Command_Rectangle ? static_cast<const rewind_viewer::fbs::Rectangle *>(command()) : nullptr;
   }
-  const rewind_viewer::fbs::CameraView *command_as_CameraView() const {
-    return command_type() == rewind_viewer::fbs::Command_CameraView ? static_cast<const rewind_viewer::fbs::CameraView *>(command()) : nullptr;
+  const rewind_viewer::fbs::Tiles *command_as_Tiles() const {
+    return command_type() == rewind_viewer::fbs::Command_Tiles ? static_cast<const rewind_viewer::fbs::Tiles *>(command()) : nullptr;
+  }
+  const rewind_viewer::fbs::Triangle *command_as_Triangle() const {
+    return command_type() == rewind_viewer::fbs::Command_Triangle ? static_cast<const rewind_viewer::fbs::Triangle *>(command()) : nullptr;
   }
   const rewind_viewer::fbs::EndFrame *command_as_EndFrame() const {
     return command_type() == rewind_viewer::fbs::Command_EndFrame ? static_cast<const rewind_viewer::fbs::EndFrame *>(command()) : nullptr;
@@ -1039,24 +1330,32 @@ struct RewindMessage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
 };
 
+template<> inline const rewind_viewer::fbs::Arc *RewindMessage::command_as<rewind_viewer::fbs::Arc>() const {
+  return command_as_Arc();
+}
+
+template<> inline const rewind_viewer::fbs::CameraView *RewindMessage::command_as<rewind_viewer::fbs::CameraView>() const {
+  return command_as_CameraView();
+}
+
 template<> inline const rewind_viewer::fbs::Circle *RewindMessage::command_as<rewind_viewer::fbs::Circle>() const {
   return command_as_Circle();
 }
 
-template<> inline const rewind_viewer::fbs::Rectangle *RewindMessage::command_as<rewind_viewer::fbs::Rectangle>() const {
-  return command_as_Rectangle();
-}
-
-template<> inline const rewind_viewer::fbs::Triangle *RewindMessage::command_as<rewind_viewer::fbs::Triangle>() const {
-  return command_as_Triangle();
-}
-
-template<> inline const rewind_viewer::fbs::Polyline *RewindMessage::command_as<rewind_viewer::fbs::Polyline>() const {
-  return command_as_Polyline();
+template<> inline const rewind_viewer::fbs::CircleSegment *RewindMessage::command_as<rewind_viewer::fbs::CircleSegment>() const {
+  return command_as_CircleSegment();
 }
 
 template<> inline const rewind_viewer::fbs::LogText *RewindMessage::command_as<rewind_viewer::fbs::LogText>() const {
   return command_as_LogText();
+}
+
+template<> inline const rewind_viewer::fbs::Options *RewindMessage::command_as<rewind_viewer::fbs::Options>() const {
+  return command_as_Options();
+}
+
+template<> inline const rewind_viewer::fbs::Polyline *RewindMessage::command_as<rewind_viewer::fbs::Polyline>() const {
+  return command_as_Polyline();
 }
 
 template<> inline const rewind_viewer::fbs::Popup *RewindMessage::command_as<rewind_viewer::fbs::Popup>() const {
@@ -1067,12 +1366,16 @@ template<> inline const rewind_viewer::fbs::PopupRound *RewindMessage::command_a
   return command_as_PopupRound();
 }
 
-template<> inline const rewind_viewer::fbs::Options *RewindMessage::command_as<rewind_viewer::fbs::Options>() const {
-  return command_as_Options();
+template<> inline const rewind_viewer::fbs::Rectangle *RewindMessage::command_as<rewind_viewer::fbs::Rectangle>() const {
+  return command_as_Rectangle();
 }
 
-template<> inline const rewind_viewer::fbs::CameraView *RewindMessage::command_as<rewind_viewer::fbs::CameraView>() const {
-  return command_as_CameraView();
+template<> inline const rewind_viewer::fbs::Tiles *RewindMessage::command_as<rewind_viewer::fbs::Tiles>() const {
+  return command_as_Tiles();
+}
+
+template<> inline const rewind_viewer::fbs::Triangle *RewindMessage::command_as<rewind_viewer::fbs::Triangle>() const {
+  return command_as_Triangle();
 }
 
 template<> inline const rewind_viewer::fbs::EndFrame *RewindMessage::command_as<rewind_viewer::fbs::EndFrame>() const {
@@ -1116,24 +1419,32 @@ inline bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Co
     case Command_NONE: {
       return true;
     }
+    case Command_Arc: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Arc *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Command_CameraView: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::CameraView *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     case Command_Circle: {
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::Circle *>(obj);
       return verifier.VerifyTable(ptr);
     }
-    case Command_Rectangle: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Rectangle *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case Command_Triangle: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Triangle *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case Command_Polyline: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Polyline *>(obj);
+    case Command_CircleSegment: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::CircleSegment *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case Command_LogText: {
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::LogText *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Command_Options: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Options *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Command_Polyline: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Polyline *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case Command_Popup: {
@@ -1144,12 +1455,16 @@ inline bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Co
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::PopupRound *>(obj);
       return verifier.VerifyTable(ptr);
     }
-    case Command_Options: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Options *>(obj);
+    case Command_Rectangle: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Rectangle *>(obj);
       return verifier.VerifyTable(ptr);
     }
-    case Command_CameraView: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::CameraView *>(obj);
+    case Command_Tiles: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Tiles *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Command_Triangle: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Triangle *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case Command_EndFrame: {

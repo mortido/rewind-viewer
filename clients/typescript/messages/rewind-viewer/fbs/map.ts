@@ -36,12 +36,12 @@ height():number {
 
 xGrid():number {
   const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+  return offset ? this.bb!.readUint16(this.bb_pos + offset) : 0;
 }
 
 yGrid():number {
   const offset = this.bb!.__offset(this.bb_pos, 10);
-  return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
+  return offset ? this.bb!.readUint16(this.bb_pos + offset) : 0;
 }
 
 static startMap(builder:flatbuffers.Builder) {
@@ -57,11 +57,11 @@ static addHeight(builder:flatbuffers.Builder, height:number) {
 }
 
 static addXGrid(builder:flatbuffers.Builder, xGrid:number) {
-  builder.addFieldInt32(2, xGrid, 0);
+  builder.addFieldInt16(2, xGrid, 0);
 }
 
 static addYGrid(builder:flatbuffers.Builder, yGrid:number) {
-  builder.addFieldInt32(3, yGrid, 0);
+  builder.addFieldInt16(3, yGrid, 0);
 }
 
 static endMap(builder:flatbuffers.Builder):flatbuffers.Offset {
