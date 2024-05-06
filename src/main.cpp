@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
   }
 
   LOG_INFO("Create main window");
-  auto window = create_window(config.ui);
+  auto window = create_window(*config.ui);
   if (!window) {
     LOG_FATAL("Cannot setup window");
     return EXIT_FAILURE;
@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
     // Poll and handle events
     glfwPollEvents();
 
-    if (!config.ui.update_unfocused && !glfwGetWindowAttrib(window, GLFW_FOCUSED)) {
+    if (!config.ui->update_unfocused && !glfwGetWindowAttrib(window, GLFW_FOCUSED)) {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       continue;
     }
@@ -130,8 +130,8 @@ int main(int argc, char** argv) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    glClearColor(config.ui.canvas_background_color.r, config.ui.canvas_background_color.g,
-                 config.ui.canvas_background_color.b, 1.0f);
+    glClearColor(config.ui->canvas_background_color.r, config.ui->canvas_background_color.g,
+                 config.ui->canvas_background_color.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     rewind.render();

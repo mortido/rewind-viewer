@@ -29,8 +29,10 @@ class RewindViewer {
   models::Config& config_;
   std::shared_ptr<models::Scene> scene_;
   std::vector<std::unique_ptr<net::RewindServer>> servers_;
+  std::shared_ptr<models::UIFrame> current_frame_;
 
   struct {
+    size_t current_frame_idx = 0ul;
     float main_menu_height = 0.0f;
     float playback_controls_height = 0.0f;
     float frame_info_width = 0.0f;

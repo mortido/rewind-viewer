@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "common/lock.h"
 
 namespace rewind_viewer::models {
 
@@ -33,6 +34,7 @@ class Camera {
   bool y_axis_up_;
   glm::mat4 projection_;     // Projection matrix
   glm::vec2 viewport_size_;  // Size of the viewport (width, height)
+  mutable Spinlock mutex_;
 };
 
 }  // namespace rewind_viewer::models

@@ -95,7 +95,7 @@ void RewindServer::network_loop() {
 
 void RewindServer::reset() {
   if (master_) {
-    scene_->reset();
+    scene_->frames.clear();
   }
   layer_id_ = DEFAULT_LAYER;
 }

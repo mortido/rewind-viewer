@@ -44,9 +44,6 @@ class Renderer {
 
   GLint stencil_ref = 1;
 
-
-
-
   void init_canvas();
   void init_grid();
   void update_canvas(const glm::vec2 &size);

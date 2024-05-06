@@ -3,6 +3,7 @@
 #include <array>
 #include <fstream>
 #include <glm/glm.hpp>
+#include <memory>
 #include <rapidyaml/ryml.hpp>
 #include <string>
 
@@ -365,9 +366,9 @@ struct NetworkConfig : public YamlConfig {
 
 class Config {
  public:
-  UIConfig ui;
-  SceneConfig scene;
-  NetworkConfig network;
+  const std::shared_ptr<UIConfig> ui;
+  const std::shared_ptr<SceneConfig> scene;
+  const std::shared_ptr<NetworkConfig> network;
 
   static Config& get_instance() {
     static Config instance;
@@ -380,9 +381,9 @@ class Config {
 
   bool validate(std::vector<std::string>& errors) const noexcept {
     bool result = true;
-    result = ui.validate(errors) && result;
-    result = scene.validate(errors) && result;
-    result = network.validate(errors) && result;
+    result = ui->validate(errors) && result;
+    result = scene->validate(errors) && result;
+    result = network->validate(errors) && result;
     return result;
   }
 
@@ -399,15 +400,15 @@ class Config {
     ryml::NodeRef root = tree.rootref();
 
     if (root.has_child("ui")) {
-      ui.parse(root["ui"]);
+      ui->parse(root["ui"]);
     }
 
     if (root.has_child("scene")) {
-      scene.parse(root["scene"]);
+      scene->parse(root["scene"]);
     }
 
     if (root.has_child("network")) {
-      network.parse(root["network"]);
+      network->parse(root["network"]);
     }
   }
 
@@ -417,9 +418,9 @@ class Config {
     ryml::NodeRef root = tree.rootref();
     root |= ryml::MAP;
 
-    ui.serialize(root["ui"]);
-    scene.serialize(root["scene"]);
-    network.serialize(root["network"]);
+    ui->serialize(root["ui"]);
+    scene->serialize(root["scene"]);
+    network->serialize(root["network"]);
 
     std::ofstream file(filename);
     if (!file.is_open()) {
@@ -430,7 +431,10 @@ class Config {
   }
 
  private:
-  Config() = default;
+  Config()
+      : ui{std::make_shared<UIConfig>()}
+      , scene{std::make_shared<SceneConfig>()}
+      , network{std::make_shared<NetworkConfig>()} {};
 };
 
 }  // namespace rewind_viewer::models

@@ -4,6 +4,8 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_opengl3.h>
 
+#include <utility>
+
 #include "version.h"
 
 namespace {
@@ -22,14 +24,14 @@ namespace rewind_viewer {
 
 RewindViewer::RewindViewer(models::Config &config)
     : config_{config}
-    , scene_{std::make_shared<models::Scene>(config_.scene, config_.ui.buffered_mode)} {
-  uint16_t port = config_.network.start_port;
+    , scene_{std::make_shared<models::Scene>(config_.scene, config_.ui->buffered_mode)} {
+  uint16_t port = config_.network->start_port;
   servers_.emplace_back(
-      std::make_unique<net::RewindServer>(scene_, config_.network.host, port++, true));
+      std::make_unique<net::RewindServer>(scene_, config_.network->host, port++, true));
 
-  for (int i = 0; i < config_.network.slave_connections; i++) {
+  for (int i = 0; i < config_.network->slave_connections; i++) {
     servers_.emplace_back(
-        std::make_unique<net::RewindServer>(scene_, config_.network.host, port++, false));
+        std::make_unique<net::RewindServer>(scene_, config_.network->host, port++, false));
   }
 
   ImGuiIO &io = ImGui::GetIO();
@@ -42,6 +44,9 @@ RewindViewer::RewindViewer(models::Config &config)
 void RewindViewer::render() {
   // Handle keyboard before anything else
   handle_keys();
+
+  auto [perma_frame, frame] = scene_->frames.get_frame(&ui_state_.current_frame_idx);
+  current_frame_ = std::move(frame);
 
   main_menu_bar();
   status_overlay();
@@ -127,7 +132,7 @@ void RewindViewer::status_overlay() {
       ImGui::TextColored(color, ICON_FA_PLUG "%u: %s", server->get_port(), strstatus.c_str());
     }
     const ImVec4 mode_color = {0.3f, 0.0f, 0.0f, 1.000f};
-    if (!config_.ui.buffered_mode) {
+    if (!config_.ui->buffered_mode) {
       ImGui::TextColored(mode_color, ICON_FA_CIRCLE_EXCLAMATION "Buffered mode disabled");
     }
     ImGui::End();
@@ -140,7 +145,7 @@ void RewindViewer::frame_info() {
     return;
   }
   auto &io = ImGui::GetIO();
-  ui_state_.frame_info_width = static_cast<float>(config_.ui.utility_width);
+  ui_state_.frame_info_width = static_cast<float>(config_.ui->utility_width);
   ImGui::SetNextWindowPos(
       {io.DisplaySize.x - ui_state_.frame_info_width, ui_state_.main_menu_height}, ImGuiCond_None);
   ImGui::SetNextWindowSize(
@@ -155,10 +160,10 @@ void RewindViewer::frame_info() {
   if (ImGui::CollapsingHeader(ICON_FA_GEARS " Settings")) {
     ImGui::TreePush("settings");
     if (ImGui::CollapsingHeader("Viewer", flags)) {
-      ImGui::Checkbox("Close window by Escape key", &config_.ui.close_with_esc);
-      ImGui::Checkbox("Update window when not in focus", &config_.ui.update_unfocused);
-      if (ImGui::Checkbox("Buffered mode", &config_.ui.buffered_mode)) {
-        scene_->frames.set_buffered_mode(config_.ui.buffered_mode);
+      ImGui::Checkbox("Close window by Escape key", &config_.ui->close_with_esc);
+      ImGui::Checkbox("Update window when not in focus", &config_.ui->update_unfocused);
+      if (ImGui::Checkbox("Buffered mode", &config_.ui->buffered_mode)) {
+        scene_->frames.set_buffered_mode(config_.ui->buffered_mode);
       }
       ImGui::SameLine();
       ImGui::TextDisabled("(?)");
@@ -171,28 +176,28 @@ void RewindViewer::frame_info() {
       }
     }
     if (ImGui::CollapsingHeader("UI", flags)) {
-      if (ImGui::Combo("Theme", (int *)&config_.ui.style, "Light\0Dark\0ImGui Classic")) {
+      if (ImGui::Combo("Theme", (int *)&config_.ui->style, "Light\0Dark\0ImGui Classic")) {
         setup_style();
       }
       ImGui::SetColorEditOptions(ImGuiColorEditFlags_NoInputs);
-      ImGui::ColorEdit3("Background", (float *)&config_.ui.canvas_background_color);
+      ImGui::ColorEdit3("Background", (float *)&config_.ui->canvas_background_color);
     }
     ImGui::TreePop();
   }
   if (ImGui::CollapsingHeader(ICON_FA_MAP " Map", flags)) {
     ImGui::SetColorEditOptions(ImGuiColorEditFlags_NoInputs);
-    ImGui::Checkbox("##show_grid", &config_.scene.show_grid);
+    ImGui::Checkbox("##show_grid", &config_.scene->show_grid);
     ImGui::SameLine();
-    ImGui::ColorEdit3("Grid", (float *)&config_.scene.grid_color);
+    ImGui::ColorEdit3("Grid", (float *)&config_.scene->grid_color);
 
-    ImGui::Checkbox("##draw_map_background", &config_.scene.show_background);
+    ImGui::Checkbox("##draw_map_background", &config_.scene->show_background);
     ImGui::SameLine();
-    ImGui::ColorEdit3("Canvas", (float *)&config_.scene.background_color);
-    ImGui::Checkbox("Show game coordinates", &config_.scene.show_game_coordinates);
+    ImGui::ColorEdit3("Canvas", (float *)&config_.scene->background_color);
+    ImGui::Checkbox("Show game coordinates", &config_.scene->show_game_coordinates);
   }
   if (ImGui::CollapsingHeader(ICON_FA_CAMERA " Camera", flags)) {
-    if (ImGui::Checkbox("Y axis up", &config_.scene.camera.y_axis_up)) {
-      scene_->camera.set_y_axis_up(config_.scene.camera.y_axis_up);
+    if (ImGui::Checkbox("Y axis up", &config_.scene->camera.y_axis_up)) {
+      scene_->camera.set_y_axis_up(config_.scene->camera.y_axis_up);
     }
     ImGui::PushItemWidth(150);
     auto temp_position = scene_->camera.get_position();
@@ -210,19 +215,19 @@ void RewindViewer::frame_info() {
     ImGui::PopItemWidth();
 
     if (ImGui::Button("Save")) {
-      config_.scene.camera.position = scene_->camera.get_position();
-      config_.scene.camera.scale = scene_->camera.get_scale();
+      config_.scene->camera.position = scene_->camera.get_position();
+      config_.scene->camera.scale = scene_->camera.get_scale();
     }
     ImGui::SameLine();
     if (ImGui::Button("Load")) {
-      scene_->camera.set_position(config_.scene.camera.position);
-      scene_->camera.set_scale(config_.scene.camera.scale);
+      scene_->camera.set_position(config_.scene->camera.position);
+      scene_->camera.set_scale(config_.scene->camera.scale);
       ui_state_.ignore_frame_camera_viewport = true;
       ui_state_.selected_camera.clear();
     }
     ImGui::SameLine();
-    ImGui::TextDisabled("(x:%.1f; y:%.1f) s:%.2f", config_.scene.camera.position.x,
-                        config_.scene.camera.position.y, 1.0f / config_.scene.camera.scale);
+    ImGui::TextDisabled("(x:%.1f; y:%.1f) s:%.2f", config_.scene->camera.position.x,
+                        config_.scene->camera.position.y, 1.0f / config_.scene->camera.scale);
 
     ImGui::Checkbox("Ignore client zoom", &ui_state_.ignore_frame_camera_viewport);
     ImGui::SameLine();
@@ -239,9 +244,10 @@ void RewindViewer::frame_info() {
       if (ImGui::Selectable("Free camera", is_selected)) {
         ui_state_.selected_camera.clear();
       }
-      auto cameras = scene_->get_cameras();
-      if (cameras) {
-        for (const auto &[name, _] : *cameras) {
+
+      if (current_frame_) {
+        const auto &cameras = current_frame_->get_cameras();
+        for (const auto &[name, _] : cameras) {
           is_selected = ui_state_.selected_camera == name;
           if (ImGui::Selectable(name.c_str(), is_selected)) {
             ui_state_.selected_camera = name;
@@ -269,7 +275,7 @@ void RewindViewer::frame_info() {
 
     ImGui::Text("Frame layers");
     size_t idx = 0;
-    for (bool &enabled : config_.scene.enabled_layers) {
+    for (bool &enabled : config_.scene->enabled_layers) {
       if (ImGui::ColorButton(tick_captions[idx], tick_button_colors[enabled],
                              ImGuiColorEditFlags_NoTooltip)) {
         enabled = !enabled;
@@ -281,7 +287,7 @@ void RewindViewer::frame_info() {
 
     ImGui::Text("Permanent layers");
     idx = 0;
-    for (bool &enabled : config_.scene.enabled_permanent_layers) {
+    for (bool &enabled : config_.scene->enabled_permanent_layers) {
       if (ImGui::ColorButton(permanent_captions[idx], permanent_button_colors[enabled],
                              ImGuiColorEditFlags_NoTooltip)) {
         enabled = !enabled;
@@ -293,11 +299,13 @@ void RewindViewer::frame_info() {
   }
   if (ImGui::CollapsingHeader(ICON_FA_COMMENT " Frame message", flags)) {
     ImGui::BeginChild("FrameMsg", {0, 0}, true);
-    ImGui::TextWrapped("%s", scene_->get_user_text().c_str());
+    if (current_frame_) {
+      ImGui::TextWrapped("%s", current_frame_->get_user_message().c_str());
+    }
     ImGui::EndChild();
   }
 
-  config_.ui.utility_width = static_cast<int>(ImGui::GetWindowWidth());
+  config_.ui->utility_width = static_cast<int>(ImGui::GetWindowWidth());
 
   ImGui::End();
 }
@@ -320,13 +328,19 @@ void RewindViewer::playback_controls() {
     ImGui::BeginGroup();
     if (ImGui::Button(ICON_FA_BACKWARD_FAST "##fastprev", button_size)) {
       //    if (ImGui::IsItemActive()) { in case if long press will be needed
-      scene_->backward_frames(config_.ui.fast_skip_speed);
+      if (ui_state_.current_frame_idx > config_.ui->fast_skip_speed) {
+        ui_state_.current_frame_idx -= config_.ui->fast_skip_speed;
+      } else {
+        ui_state_.current_frame_idx = 0;
+      }
       ui_state_.autoplay = false;
     }
 
     ImGui::SameLine(0.0f, buttons_spacing);
     if (ImGui::Button(ICON_FA_BACKWARD "##prev", button_size)) {
-      scene_->backward_frames(1ul);
+      if (ui_state_.current_frame_idx > 0) {
+        ui_state_.current_frame_idx--;
+      }
       ui_state_.autoplay = false;
     }
 
@@ -339,33 +353,35 @@ void RewindViewer::playback_controls() {
 
     ImGui::SameLine(0.0f, buttons_spacing);
     if (ImGui::Button(ICON_FA_FORWARD "##next", button_size)) {
-      scene_->forward_frames(1ul);
+      ui_state_.current_frame_idx++;
       ui_state_.autoplay = false;
     }
 
     ImGui::SameLine(0.0f, buttons_spacing);
     if (ImGui::Button(ICON_FA_FORWARD_FAST "##fastnext", button_size)) {
-      scene_->forward_frames(config_.ui.fast_skip_speed);
+      ui_state_.current_frame_idx += config_.ui->fast_skip_speed;
       ui_state_.autoplay = false;
     }
 
     if (ui_state_.autoplay) {
-      scene_->forward_frames(1ul);
+      ui_state_.current_frame_idx++;
     }
 
     ImGui::SameLine();
     // Tick is one indexed
-    int tick = static_cast<int>(scene_->get_frame_index()) + 1;
-    const int frames_cnt = static_cast<int>(scene_->frames.size());
-    if (frames_cnt > 0) {
-      tick = cg::clamp(tick, 1, frames_cnt);
+    const size_t frames_cnt = scene_->frames.size();
+    if (frames_cnt > 0ul) {
+      ui_state_.current_frame_idx =
+          std::max(0ul, std::min(frames_cnt, ui_state_.current_frame_idx));
       ImGui::PushItemWidth(-1);
+      const int frames_max = static_cast<int>(frames_cnt) - 1;
+      int frame = static_cast<int>(ui_state_.current_frame_idx) + 1;
       const std::string slider_fmt = "%5d/" + std::to_string(frames_cnt);
-      if (ImGui::SliderInt("##empty", &tick, 1, frames_cnt, slider_fmt.data(),
+      if (ImGui::SliderInt("##empty", &frame, 1, frames_max, slider_fmt.data(),
                            ImGuiSliderFlags_AlwaysClamp)) {
+        ui_state_.current_frame_idx = frame - 1;
         ui_state_.autoplay = false;
       }
-      scene_->set_frame_index(tick - 1);
       ImGui::PopItemWidth();
     } else {
       ImGui::Text("Frame list empty");
@@ -388,12 +404,12 @@ void RewindViewer::shortcuts_help() {
   ImGui::BulletText(ICON_FA_ARROW_LEFT ", " ICON_FA_ARROW_RIGHT
                                        " - manually change frames\n"
                                        "press with [Ctrl/Cmd] to change faster");
-  if (config_.ui.close_with_esc) {
+  if (config_.ui->close_with_esc) {
     ImGui::BulletText("Esc - close application");
   }
   ImGui::BulletText("[Ctrl/Cmd] + R - Clear frame data");
   ImGui::BulletText("G - Toggle grid draw state");
-//  ImGui::BulletText("C - Switch between cameras");
+  //  ImGui::BulletText("C - Switch between cameras");
   ImGui::BulletText("B - Toggle buffered draw mode");
   ImGui::BulletText("P - Show tooltip with cursor world coordinates");
   ImGui::BulletText("1-0 - Toggle layers visibility");
@@ -431,7 +447,7 @@ void RewindViewer::viewport() {
   bool set_camera = !ui_state_.selected_camera.empty();
   if (!io.WantCaptureMouse) {
     if (io.MouseWheel != 0.0f) {
-      float zoom_factor = std::exp(-io.MouseWheel * config_.scene.camera.zoom_speed);
+      float zoom_factor = std::exp(-io.MouseWheel * config_.scene->camera.zoom_speed);
       scene_->camera.zoom(zoom_factor, mouse_pos);
       ui_state_.ignore_frame_camera_viewport = true;
     }
@@ -448,10 +464,10 @@ void RewindViewer::viewport() {
   }
   if (set_camera) {
     // TODO: cleean up logic...
-    auto cameras = scene_->get_cameras();
-    if (cameras) {
-      auto it = cameras->find(ui_state_.selected_camera);
-      if (it != cameras->end()) {
+    if (current_frame_) {
+      const auto &cameras = current_frame_->get_cameras();
+      auto it = cameras.find(ui_state_.selected_camera);
+      if (it != cameras.end()) {
         scene_->camera.set_view(it->second, ui_state_.ignore_frame_camera_viewport);
       }
     }
@@ -460,14 +476,28 @@ void RewindViewer::viewport() {
 
   if (!io.WantCaptureMouse) {
     auto mouse_game_pos = scene_->camera.screen_to_game(mouse_pos);
-    if (config_.scene.show_game_coordinates) {
+    if (config_.scene->show_game_coordinates) {
       ImGui::BeginTooltip();
       ImGui::Text("(%.3f, %.3f)", mouse_game_pos.x, mouse_game_pos.y);
       ImGui::EndTooltip();
     }
-    scene_->show_popup(mouse_game_pos);
+    if (current_frame_) {
+      auto popups = current_frame_->get_popups();
+      for (size_t idx = 0; idx < popups->size(); ++idx) {
+        if (!config_.scene->enabled_layers[idx]) {
+          continue;
+        }
+        for (const auto &popup : (*popups)[idx]) {
+          if (popup.hit_test(mouse_game_pos)) {
+            ImGui::BeginTooltip();
+            ImGui::Text("%s", popup.text());
+            ImGui::EndTooltip();
+          }
+        }
+      }
+    }
   }
-  scene_->render();
+  scene_->render(ui_state_.current_frame_idx);
 
   // Cleanup opengl state
   glBindVertexArray(0);
@@ -480,17 +510,23 @@ void RewindViewer::handle_keys() {
   if (!io.WantTextInput) {
     if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_LeftArrow)) {
       if (key_modifier(io)) {
-        scene_->backward_frames(config_.ui.fast_skip_speed);
+        if (ui_state_.current_frame_idx > config_.ui->fast_skip_speed) {
+          ui_state_.current_frame_idx -= config_.ui->fast_skip_speed;
+        } else {
+          ui_state_.current_frame_idx = 0;
+        }
       } else {
-        scene_->backward_frames(1ul);
+        if (ui_state_.current_frame_idx > 0) {
+          ui_state_.current_frame_idx--;
+        }
       }
       ui_state_.autoplay = false;
     }
     if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
       if (key_modifier(io)) {
-        scene_->forward_frames(config_.ui.fast_skip_speed);
+        ui_state_.current_frame_idx += config_.ui->fast_skip_speed;
       } else {
-        scene_->forward_frames(1ul);
+        ui_state_.current_frame_idx++;
       }
       ui_state_.autoplay = false;
     }
@@ -498,17 +534,16 @@ void RewindViewer::handle_keys() {
       ui_state_.autoplay = !ui_state_.autoplay;
     }
     if (ImGui::IsKeyPressed(ImGuiKey_G)) {
-      config_.scene.show_grid = !config_.scene.show_grid;
+      config_.scene->show_grid = !config_.scene->show_grid;
     }
     if (ImGui::IsKeyPressed(ImGuiKey_B)) {
-      config_.ui.buffered_mode = !config_.ui.buffered_mode;
-      // TODO: via scene?
-      scene_->frames.set_buffered_mode(config_.ui.buffered_mode);
+      config_.ui->buffered_mode = !config_.ui->buffered_mode;
+      scene_->frames.set_buffered_mode(config_.ui->buffered_mode);
     }
     if (ImGui::IsKeyPressed(ImGuiKey_P)) {
-      config_.scene.show_game_coordinates = !config_.scene.show_game_coordinates;
+      config_.scene->show_game_coordinates = !config_.scene->show_game_coordinates;
     }
-    if (config_.ui.close_with_esc && ImGui::IsKeyPressed(ImGuiKey_Escape)) {
+    if (config_.ui->close_with_esc && ImGui::IsKeyPressed(ImGuiKey_Escape)) {
       // TODO: should we call glfwSetWindowShouldClose(window, true); here or avoid extra deps?...
       ui_state_.close_requested = true;
     }
@@ -516,11 +551,11 @@ void RewindViewer::handle_keys() {
       ui_state_.developer_mode = true;
     }
     if (ImGui::IsKeyChordPressed(ImGuiKey_R | ImGuiMod_Shortcut)) {
-      scene_->reset();
+      scene_->frames.clear();
     }
 
     // Layer toggle shortcuts
-    auto &enabled_layers = config_.scene.enabled_layers;
+    auto &enabled_layers = config_.scene->enabled_layers;
     static const std::array<ImGuiKey, models::SceneConfig::LAYERS_COUNT> layer_shortcuts = {
         ImGuiKey_0, ImGuiKey_1, ImGuiKey_2, ImGuiKey_3, ImGuiKey_4,
         ImGuiKey_5, ImGuiKey_6, ImGuiKey_7, ImGuiKey_8, ImGuiKey_9,
@@ -578,7 +613,7 @@ void RewindViewer::setup_fonts() {
   icons_config.PixelSnapH = true;
   icons_config.GlyphMinAdvanceX = FONT_AWESOME_FONT_SIZE * scale_factor;
   icons_config.GlyphOffset = ImVec2{0, 2.0};
-  for (const auto &font_file : config_.ui.font_files) {
+  for (const auto &font_file : config_.ui->font_files) {
     io.Fonts->AddFontFromFileTTF(font_file.c_str(), FONT_AWESOME_FONT_SIZE * scale_factor,
                                  &icons_config, icons_range);
   }
@@ -589,7 +624,7 @@ void RewindViewer::setup_fonts() {
 }
 
 void RewindViewer::setup_style() {
-  switch (config_.ui.style) {
+  switch (config_.ui->style) {
     case models::UIStyle::light: {
       ImGui::StyleColorsLight();
       break;

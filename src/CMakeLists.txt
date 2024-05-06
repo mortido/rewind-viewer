@@ -23,6 +23,7 @@ set(SOURCES
         models/frame.cpp
         models/frames_sequence.cpp
         models/popup.cpp
+        models/scene.cpp
 
         net/rewind_server.cpp
         net/tcp_server.cpp
