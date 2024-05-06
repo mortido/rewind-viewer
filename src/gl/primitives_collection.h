@@ -24,7 +24,6 @@ class PrimitivesCollection {
   void add_rectangle(glm::vec2 top_left, glm::vec2 bottom_right, glm::vec4 color, bool fill);
   void add_polyline(const std::vector<glm::vec2> &points, glm::vec4 color);
 
-  // Versions with gradient support
   void add_triangle(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, const TriangleColors &colors,
                     bool fill);
   void add_rectangle(glm::vec2 top_left, glm::vec2 bottom_right, const RectangleColors &colors,
@@ -36,7 +35,6 @@ class PrimitivesCollection {
   void add_stencil_triangle(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3);
   void add_stencil_rectangle(glm::vec2 top_left, glm::vec2 bottom_right);
 
-  // TODO: transfer from?
   void update_from(const PrimitivesCollection &other);
   void clear();
 

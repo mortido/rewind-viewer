@@ -3,13 +3,12 @@
 [![MIT License](https://img.shields.io/github/license/mortido/rewind-viewer.svg?style=flat-square)](./LICENSE)
 [![C++ standard](https://img.shields.io/badge/C++-17-blue.svg?style=flat-square)](https://isocpp.org/)
 [![OpenGL](https://img.shields.io/badge/OpenGL-3.3-green.svg?style=flat-square)](https://www.khronos.org/opengl/)
+[![GitHub Releases](https://img.shields.io/github/release/mortido/rewind-viewer.svg?style=flat-square)](https://github.com/mortido/rewind-viewer/releases)
 
-[//]: # ([![GitHub Releases]&#40;https://img.shields.io/github/release/mortido/rewind-viewer.svg?style=flat-square&#41;]&#40;https://github.com/kswaldemar/rewind-viewer/releases&#41;)
-
-Remix of great tool for visualization for bot competitions.
+Remix of great tool for visualization via TCP.
 Original Rewind Viewer writen by Vladimir Kiselev (aka kswaldemar) is located [here](https://github.com/kswaldemar/rewind-viewer).
 
-![](https://user-images.githubusercontent.com/10009947/101282773-06be3080-37e8-11eb-9edd-47e30e58e2a0.png)
+![](https://github.com/mortido/rewind-viewer/assets/6057462/5dd166e5-9cfc-4ff0-b329-d6978d2e286d)
 
 ## Overview
 
@@ -106,12 +105,13 @@ Project sources distributed under [MIT license](https://github.com/mortido/rewin
 Project created with help of many great libraries:
  - [glad](https://github.com/Dav1dde/glad) for loading OpenGL functions
  - [glm](https://glm.g-truc.net/0.9.8/index.html) math library for OpenGL
- - [glfw](http://www.glfw.org/) for creating window and crossplatform context handling
+ - [glfw](http://www.glfw.org/) for creating window and cross-platform context handling
  - [ImGui](https://github.com/ocornut/imgui) for UI widgets inside application
  - [clsocket](https://github.com/DFHack/clsocket) for network interaction
  - [flatbuffers](https://github.com/google/flatbuffers) for binary messages
  - [stb_image](https://github.com/nothings/stb) for images processing
  - [loguru](https://github.com/emilk/loguru) for logging support
+ - [rapidyaml](https://github.com/biojppm/rapidyaml) for yaml configuration file
 
 Resources: 
  - [fontawesome](http://fontawesome.io/) icon font, embedded inside text in many UI elements

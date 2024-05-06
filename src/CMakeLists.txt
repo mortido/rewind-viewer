@@ -21,7 +21,8 @@ set(SOURCES
 
         models/camera.cpp
         models/frame.cpp
-        models/Popup.cpp
+        models/frames_sequence.cpp
+        models/popup.cpp
 
         net/rewind_server.cpp
         net/tcp_server.cpp

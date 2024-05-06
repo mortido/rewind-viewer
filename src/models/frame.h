@@ -6,8 +6,8 @@
 
 #include "common/lock.h"
 #include "gl/primitives_collection.h"
-#include "models/Popup.h"
 #include "models/camera.h"
+#include "models/popup.h"
 
 namespace rewind_viewer::models {
 

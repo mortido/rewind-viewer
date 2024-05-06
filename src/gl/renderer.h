@@ -21,7 +21,7 @@ class Renderer {
   void render_grid(glm::vec3 color);
   void render_primitives(const PrimitivesCollection &primitives);
 
-  // todo: add position
+  // TODO: support position for canvas
   void set_canvas(const glm::vec2 &size, const glm::u16vec2 &grid);
 
  private:

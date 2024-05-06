@@ -4,4 +4,4 @@
 
 #pragma once
 
-constexpr const char *APP_VERSION = "3.0-dev";
+constexpr const char *APP_VERSION = "3.1";

@@ -11,7 +11,7 @@
 #include "gl/renderer.h"
 #include "models/camera.h"
 #include "models/config.h"
-#include "models/film.h"
+#include "models/frames_sequence.h"
 
 namespace rewind_viewer::models {
 
@@ -129,7 +129,7 @@ class Scene {
 
  public:
   models::Camera camera;
-  Film frames;
+  FramesSequence frames;
 
  private:
   const SceneConfig &config_;

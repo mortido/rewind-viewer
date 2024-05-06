@@ -21,6 +21,9 @@ class RewindViewer {
 
   void render();
   void stop();
+  bool close_requested() {
+    return ui_state_.close_requested;
+  }
 
  private:
   models::Config& config_;
@@ -29,24 +32,23 @@ class RewindViewer {
 
   struct {
     float main_menu_height = 0.0f;
-    bool show_status_overlay = true;
-    bool show_playback_controls = true;
     float playback_controls_height = 0.0f;
-    bool show_frame_info = true;
     float frame_info_width = 0.0f;
 
+    bool show_status_overlay = true;
+    bool show_frame_info = true;
+    bool show_playback_controls = true;
     bool show_shortcuts_help = false;
-    bool show_mouse_pos_tooltip = true;
 
-    bool developer_mode = true;
+    bool developer_mode = false;
     bool show_ui_help = false;
     bool show_metrics = false;
     bool show_style_editor = false;
 
     bool autoplay = false;
-
     bool ignore_frame_camera_viewport = false;
-    std::string selected_camera = "";
+    bool close_requested = false;
+    std::string selected_camera;
   } ui_state_;
 
   void main_menu_bar();
@@ -54,15 +56,11 @@ class RewindViewer {
   void playback_controls();
   void frame_info();
   void shortcuts_help();
-
   void viewport();
-
-  void handle_keys(); // todo: move up
-
+  void handle_keys();
   void style_editor();
   void ui_help();
   void metrics();
-
   void setup_fonts();
   void setup_style();
 };

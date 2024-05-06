@@ -1,7 +1,7 @@
 //
 // Created by Vladimir A. Kiselev on 06.11.2020.
 //
-#include "models/Popup.h"
+#include "models/popup.h"
 
 #include <glm/glm.hpp>
 

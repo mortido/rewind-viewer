@@ -1,5 +1,7 @@
 #include "net/rewind_server.h"
 
+#include <stdexcept>
+
 #include "common/logger.h"
 
 namespace {
@@ -170,6 +172,7 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
         draw_frame->layer_primitives(layer_id_)->add_stencil_triangle(points[0], points[1],
                                                                       points[2]);
       } else {
+        // TODO: support for gradient colors
         draw_frame->layer_primitives(layer_id_)->add_triangle(
             points[0], points[1], points[2], convert_color(triangle->color()->value()),
             triangle->color()->fill());
@@ -208,7 +211,6 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
         throw ParsingError{"Rectangle height should be positive, got " +
                            std::to_string(rectangle->size()->y())};
       }
-      // TODO: restore gradient colors feature?
       glm::vec2 top_left{rectangle->position()->x(), rectangle->position()->y()};
       glm::vec2 bottom_right{top_left.x + rectangle->size()->x(),
                              top_left.y + rectangle->size()->y()};
@@ -216,6 +218,7 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
       if (rectangle->color() == nullptr) {
         draw_frame->layer_primitives(layer_id_)->add_stencil_rectangle(top_left, bottom_right);
       } else {
+        // TODO: support for gradient colors
         draw_frame->layer_primitives(layer_id_)->add_rectangle(
             top_left, bottom_right, convert_color(rectangle->color()->value()),
             rectangle->color()->fill());

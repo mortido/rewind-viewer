@@ -1,3 +1,5 @@
+#include <random>
+
 #include "rewind_viewer/RewindClient.h"
 #include "rewind_viewer/colors.h"
 
@@ -9,10 +11,10 @@ struct Vec2D {
 
 void draw_pattern(rewind_viewer::RewindClient<Vec2D> &rc, const Vec2D &pos, int i) {
   rc.mask_circle({pos.x + 15.0, pos.y + 75.0}, 6.0);
-  rc.mask_circle_segment({pos.x + 15.0, pos.y + 68.0}, 6.0, 2.443, 3.84);
-  rc.mask_circle_segment({pos.x + 15.0, pos.y + 68.0}, 6.0, -1.745, 1.745);
-  rc.mask_arc({pos.x + 15.0, pos.y + 61.0}, 6.0, 2.443, 3.84);
-  rc.mask_arc({pos.x + 15.0, pos.y + 61.0}, 6.0, -1.745, 1.745);
+  rc.mask_circle_segment({pos.x + 15.0, pos.y + 61.0}, 6.0, 2.443, 3.84);
+  rc.mask_circle_segment({pos.x + 15.0, pos.y + 61.0}, 6.0, -1.745, 1.745);
+  rc.mask_arc({pos.x + 15.0, pos.y + 47.0}, 6.0, 2.443, 3.84);
+  rc.mask_arc({pos.x + 15.0, pos.y + 47.0}, 6.0, -1.745, 1.745);
 
   rc.mask_triangle({pos.x + 25.0, pos.y + 40.0}, {pos.x + 35.0, pos.y + 20.0},
                    {pos.x + 15.0, pos.y + 20.0});
@@ -65,8 +67,12 @@ int main(int argc, char *argv[]) {
   // Assume rewind viewer is started on the same host with default port.
   rewind_viewer::RewindClient<Vec2D> rewind_client("127.0.0.1", 9111);
 
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> distrib(0, 23);
+
   Vec2D map_size{500.0, 400.0};
-  rewind_client.map(map_size, 5, 4);
+  rewind_client.map(map_size, 5, 40);
   std::vector<uint32_t> field_colors;
 
   Vec2D cell_size{5.0, 10.0};
@@ -77,7 +83,7 @@ int main(int argc, char *argv[]) {
     pos.x = start_pos.x;
     while (pos.x < map_size.x) {
       uint32_t color = 127;
-      if (static_cast<int>(pos.x + pos.y) % 17 != 4) {
+      if (pos.x < map_size.x * 0.5 || distrib(gen) != 4) {
         color |= static_cast<uint32_t>(255.0 * (pos.y / map_size.y)) << 24;
       }
       color |= static_cast<uint32_t>(255.0 * (pos.y / map_size.y)) << 8;

@@ -40,6 +40,9 @@ RewindViewer::RewindViewer(models::Config &config)
 }
 
 void RewindViewer::render() {
+  // Handle keyboard before anything else
+  handle_keys();
+
   main_menu_bar();
   status_overlay();
   playback_controls();
@@ -48,8 +51,6 @@ void RewindViewer::render() {
   style_editor();
   ui_help();
   metrics();
-
-  handle_keys();
 
   // Set viewport after all other windows size is known
   viewport();
@@ -187,6 +188,7 @@ void RewindViewer::frame_info() {
     ImGui::Checkbox("##draw_map_background", &config_.scene.show_background);
     ImGui::SameLine();
     ImGui::ColorEdit3("Canvas", (float *)&config_.scene.background_color);
+    ImGui::Checkbox("Show game coordinates", &config_.scene.show_game_coordinates);
   }
   if (ImGui::CollapsingHeader(ICON_FA_CAMERA " Camera", flags)) {
     if (ImGui::Checkbox("Y axis up", &config_.scene.camera.y_axis_up)) {
@@ -265,7 +267,7 @@ void RewindViewer::frame_info() {
         permanent_captions = {"##p_layer0", "##p_layer1", "##p_layer2", "##p_layer3", "##p_layer4",
                               "##p_layer5", "##p_layer6", "##p_layer7", "##p_layer8", "##p_layer9"};
 
-    ImGui::Text("Tick layers");
+    ImGui::Text("Frame layers");
     size_t idx = 0;
     for (bool &enabled : config_.scene.enabled_layers) {
       if (ImGui::ColorButton(tick_captions[idx], tick_button_colors[enabled],
@@ -316,57 +318,44 @@ void RewindViewer::playback_controls() {
       ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
   if (ImGui::Begin("Playback control", &ui_state_.show_playback_controls, flags)) {
     ImGui::BeginGroup();
-
-    // Tick is one indexed
-    int tick = scene_->get_frame_index() + 1;
-
-    if (!io.WantTextInput) {
-      int prev_tick = tick;
-      //      if (key_modifier(io)) {
-      //        tick -= key_pressed_once(GLFW_KEY_LEFT);
-      //        tick += key_pressed_once(GLFW_KEY_RIGHT);
-      //      } else {
-      //        tick -= io.KeysData[GLFW_KEY_LEFT].Down;
-      //        tick += io.KeysData[GLFW_KEY_RIGHT].Down;
-      //      }
-
-      if (prev_tick != tick) {
-        // Manually changed
-        ui_state_.autoplay = false;
-      }
+    if (ImGui::Button(ICON_FA_BACKWARD_FAST "##fastprev", button_size)) {
+      //    if (ImGui::IsItemActive()) { in case if long press will be needed
+      scene_->backward_frames(config_.ui.fast_skip_speed);
+      ui_state_.autoplay = false;
     }
 
-    ImGui::Button(ICON_FA_BACKWARD_FAST "##fastprev", button_size);
-    if (ImGui::IsItemActive()) {
-      tick -= config_.ui.fast_skip_speed;
-    }
     ImGui::SameLine(0.0f, buttons_spacing);
-
     if (ImGui::Button(ICON_FA_BACKWARD "##prev", button_size)) {
-      --tick;
+      scene_->backward_frames(1ul);
+      ui_state_.autoplay = false;
     }
-    ImGui::SameLine(0.0f, buttons_spacing);
 
+    ImGui::SameLine(0.0f, buttons_spacing);
     if (ui_state_.autoplay) {
       ui_state_.autoplay = !ImGui::Button(ICON_FA_PAUSE "##pause", button_size);
     } else {
       ui_state_.autoplay = ImGui::Button(ICON_FA_PLAY "##play", button_size);
     }
-    ImGui::SameLine(0.0f, buttons_spacing);
 
+    ImGui::SameLine(0.0f, buttons_spacing);
     if (ImGui::Button(ICON_FA_FORWARD "##next", button_size)) {
-      ++tick;
+      scene_->forward_frames(1ul);
+      ui_state_.autoplay = false;
     }
+
     ImGui::SameLine(0.0f, buttons_spacing);
-
-    ImGui::Button(ICON_FA_FORWARD_FAST "##fastnext", button_size);
-    if (ImGui::IsItemActive()) {
-      tick += config_.ui.fast_skip_speed;
+    if (ImGui::Button(ICON_FA_FORWARD_FAST "##fastnext", button_size)) {
+      scene_->forward_frames(config_.ui.fast_skip_speed);
+      ui_state_.autoplay = false;
     }
+
+    if (ui_state_.autoplay) {
+      scene_->forward_frames(1ul);
+    }
+
     ImGui::SameLine();
-
-    tick += ui_state_.autoplay;
-
+    // Tick is one indexed
+    int tick = static_cast<int>(scene_->get_frame_index()) + 1;
     const int frames_cnt = static_cast<int>(scene_->frames.size());
     if (frames_cnt > 0) {
       tick = cg::clamp(tick, 1, frames_cnt);
@@ -398,11 +387,15 @@ void RewindViewer::shortcuts_help() {
   ImGui::BulletText("Space - play/stop frame playback");
   ImGui::BulletText(ICON_FA_ARROW_LEFT ", " ICON_FA_ARROW_RIGHT
                                        " - manually change frames\n"
-                                       "press with modkey to change slowly");
-  ImGui::BulletText("Esc - close application");
-  ImGui::BulletText("g - Toggle grid draw state");
-  ImGui::BulletText("i - Toggle immediate send mode");
-  ImGui::BulletText("p - Show tooltip with cursor world coordinates");
+                                       "press with [Ctrl/Cmd] to change faster");
+  if (config_.ui.close_with_esc) {
+    ImGui::BulletText("Esc - close application");
+  }
+  ImGui::BulletText("[Ctrl/Cmd] + R - Clear frame data");
+  ImGui::BulletText("G - Toggle grid draw state");
+//  ImGui::BulletText("C - Switch between cameras");
+  ImGui::BulletText("B - Toggle buffered draw mode");
+  ImGui::BulletText("P - Show tooltip with cursor world coordinates");
   ImGui::BulletText("1-0 - Toggle layers visibility");
   ImGui::End();
 }
@@ -437,7 +430,6 @@ void RewindViewer::viewport() {
   scene_->camera.set_viewport_size(viewport_size);
   bool set_camera = !ui_state_.selected_camera.empty();
   if (!io.WantCaptureMouse) {
-    // TODO: fix for minimized window
     if (io.MouseWheel != 0.0f) {
       float zoom_factor = std::exp(-io.MouseWheel * config_.scene.camera.zoom_speed);
       scene_->camera.zoom(zoom_factor, mouse_pos);
@@ -468,7 +460,7 @@ void RewindViewer::viewport() {
 
   if (!io.WantCaptureMouse) {
     auto mouse_game_pos = scene_->camera.screen_to_game(mouse_pos);
-    if (ui_state_.show_mouse_pos_tooltip) {
+    if (config_.scene.show_game_coordinates) {
       ImGui::BeginTooltip();
       ImGui::Text("(%.3f, %.3f)", mouse_game_pos.x, mouse_game_pos.y);
       ImGui::EndTooltip();
@@ -485,48 +477,60 @@ void RewindViewer::viewport() {
 void RewindViewer::handle_keys() {
   const auto &io = ImGui::GetIO();
 
-  //  glfwSetWindowShouldClose(window, true);
-  //  ImGui::IsKeyPressed('S')
-  // Checking hotkeys
-  //  if (!io.WantTextInput) {
-  //    if (key_pressed_once(GLFW_KEY_SPACE)) {
-  //      autoplay_scene_ = !autoplay_scene_;
-  //    }
-  //    if (io.KeysData[GLFW_KEY_LEFT].Down) {
-  //      autoplay_scene_ = false;
-  //    }
-  //    if (key_pressed_once(GLFW_KEY_G) && !key_modifier(io)) {
-  //      config_->scene.show_grid = !config_->scene.show_grid;
-  //    }
-  //    if (key_pressed_once(GLFW_KEY_I)) {
-  //      immediate_send_mode_ = !immediate_send_mode_;
-  //    }
-  //    if (key_pressed_once(GLFW_KEY_P)) {
-  //      wnd_->show_mouse_pos_tooltip = !wnd_->show_mouse_pos_tooltip;
-  //    }
-  //    if (io.KeysData[GLFW_KEY_D].Down && key_modifier(io)) {
-  //      developer_mode_ = true;
-  //    }
-  //
-  //    // Layer toggle shortcuts
-  //    auto &enabled_layers = config_->scene.enabled_layers;
-  //    static const std::array<int, CanvasFrame::LAYERS_COUNT> layer_shortcuts = {
-  //        GLFW_KEY_1, GLFW_KEY_2, GLFW_KEY_3, GLFW_KEY_4, GLFW_KEY_5,
-  //        GLFW_KEY_6, GLFW_KEY_7, GLFW_KEY_8, GLFW_KEY_9, GLFW_KEY_0,
-  //    };
-  //    for (size_t i = 0; i < layer_shortcuts.size(); ++i) {
-  //      if (key_pressed_once(layer_shortcuts[i])) {
-  //        enabled_layers[i] = !enabled_layers[i];
-  //      }
-  //    }
-  //
-  //    // TODO: remove or document
-  //    //    if (scene->has_data() && io.KeysDown[GLFW_KEY_R] && key_modifier(io)) {
-  //    //      scene->clear_data();
-  //    //    }
-  //  }
+  if (!io.WantTextInput) {
+    if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_LeftArrow)) {
+      if (key_modifier(io)) {
+        scene_->backward_frames(config_.ui.fast_skip_speed);
+      } else {
+        scene_->backward_frames(1ul);
+      }
+      ui_state_.autoplay = false;
+    }
+    if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
+      if (key_modifier(io)) {
+        scene_->forward_frames(config_.ui.fast_skip_speed);
+      } else {
+        scene_->forward_frames(1ul);
+      }
+      ui_state_.autoplay = false;
+    }
+    if (ImGui::IsKeyPressed(ImGuiKey_Space)) {
+      ui_state_.autoplay = !ui_state_.autoplay;
+    }
+    if (ImGui::IsKeyPressed(ImGuiKey_G)) {
+      config_.scene.show_grid = !config_.scene.show_grid;
+    }
+    if (ImGui::IsKeyPressed(ImGuiKey_B)) {
+      config_.ui.buffered_mode = !config_.ui.buffered_mode;
+      // TODO: via scene?
+      scene_->frames.set_buffered_mode(config_.ui.buffered_mode);
+    }
+    if (ImGui::IsKeyPressed(ImGuiKey_P)) {
+      config_.scene.show_game_coordinates = !config_.scene.show_game_coordinates;
+    }
+    if (config_.ui.close_with_esc && ImGui::IsKeyPressed(ImGuiKey_Escape)) {
+      // TODO: should we call glfwSetWindowShouldClose(window, true); here or avoid extra deps?...
+      ui_state_.close_requested = true;
+    }
+    if (ImGui::IsKeyChordPressed(ImGuiKey_D | ImGuiMod_Shortcut)) {
+      ui_state_.developer_mode = true;
+    }
+    if (ImGui::IsKeyChordPressed(ImGuiKey_R | ImGuiMod_Shortcut)) {
+      scene_->reset();
+    }
 
-  //  request_exit_ = config_->ui.close_with_esc && io.KeysData[GLFW_KEY_ESCAPE].Down;
+    // Layer toggle shortcuts
+    auto &enabled_layers = config_.scene.enabled_layers;
+    static const std::array<ImGuiKey, models::SceneConfig::LAYERS_COUNT> layer_shortcuts = {
+        ImGuiKey_0, ImGuiKey_1, ImGuiKey_2, ImGuiKey_3, ImGuiKey_4,
+        ImGuiKey_5, ImGuiKey_6, ImGuiKey_7, ImGuiKey_8, ImGuiKey_9,
+    };
+    for (size_t i = 0; i < layer_shortcuts.size(); ++i) {
+      if (ImGui::IsKeyPressed(layer_shortcuts[i], false)) {
+        enabled_layers[i] = !enabled_layers[i];
+      }
+    }
+  }
 }
 
 void RewindViewer::style_editor() {
@@ -574,10 +578,10 @@ void RewindViewer::setup_fonts() {
   icons_config.PixelSnapH = true;
   icons_config.GlyphMinAdvanceX = FONT_AWESOME_FONT_SIZE * scale_factor;
   icons_config.GlyphOffset = ImVec2{0, 2.0};
-  io.Fonts->AddFontFromFileTTF(config_.ui.font_file.c_str(), FONT_AWESOME_FONT_SIZE * scale_factor,
-                               &icons_config, icons_range);
-  io.Fonts->AddFontFromFileTTF(config_.ui.font_file2.c_str(), FONT_AWESOME_FONT_SIZE * scale_factor,
-                               &icons_config, icons_range);
+  for (const auto &font_file : config_.ui.font_files) {
+    io.Fonts->AddFontFromFileTTF(font_file.c_str(), FONT_AWESOME_FONT_SIZE * scale_factor,
+                                 &icons_config, icons_range);
+  }
 
   io.FontGlobalScale = 1.0f / scale_factor;
   // Need to call it here, otherwise fontawesome glyph ranges would be corrupted on Windows
@@ -611,19 +615,5 @@ void RewindViewer::setup_style() {
   style.GrabRounding = 2;
   style.WindowBorderSize = 0.0f;
 }
-
-// bool UIController::key_pressed_once(int key_desc) {
-//   const auto &io = ImGui::GetIO();
-//
-//   if (io.KeysData[key_desc].Down) {
-//     if (!key_pressed_[key_desc]) {
-//       key_pressed_[key_desc] = true;
-//       return true;
-//     }
-//   } else {
-//     key_pressed_[key_desc] = false;
-//   }
-//   return false;
-// }
 
 }  // namespace rewind_viewer

@@ -22,18 +22,18 @@ using rewind_viewer::gl::PrimitivesCollection;
     to.add_polyline({{0, 0}, {100, 10}, {10, 100}, {50, 50}, {40, 30}}, color_red);
     to.add_polyline({{10, 0}, {30, 15}, {40, 60}, {10, 90}, {5, 25}}, color_blue);
 
-    //    for (int i = 0; i < 1200; i += 5) {
-    //      for (int j = 0; j < 800; j += 5) {
-    //        to.add_circle({i, j}, 5, {i / 1200.0, j / 800.0, 0.5, 1.0}, false);
-    //      }
-    //    }
+    for (int i = 0; i < 1200; i += 5) {
+      for (int j = 0; j < 800; j += 5) {
+        to.add_circle({i, j}, 5, {i / 1200.0, j / 800.0, 0.5, 1.0}, false);
+      }
+    }
 
     to.add_rectangle({5, 5}, {45, 35}, {1.0, 1.0, 0.0, 0.7}, true);
     to.add_triangle({10, 10}, {60, 30}, {10, 40}, {0.0, 1.0, 1.0, 0.8}, true);
 
-    //    to.add_circle({8, 8}, 8, color_red, true);
-    //    to.add_circle({20, 10}, 8, color_green, true);
-    //    to.add_circle({10, 20}, 8, color_blue, false);
+    to.add_circle({8, 8}, 8, color_red, true);
+    to.add_circle({20, 10}, 8, color_green, true);
+    to.add_circle({10, 20}, 8, color_blue, false);
   }
 
   return context.get();
@@ -50,8 +50,6 @@ namespace rewind_viewer::gl {
 
 Renderer::Renderer(const std::string &shaders_dir, glm::u32vec2 area_size, glm::u16vec2 grid_cells)
     : context_{resources_}, shaders_{shaders_dir} {
-  // TODO: Logger scope for pretty printing
-
   LOG_INFO("Initialize canvas");
   init_canvas();
   update_canvas(area_size);
@@ -207,8 +205,7 @@ void Renderer::render_primitives(const PrimitivesCollection &primitives) {
                primitives.vertexes.data(), GL_DYNAMIC_DRAW);
 
   glBindBuffer(GL_ARRAY_BUFFER, context_.circle_vbo);
-  glBufferData(GL_ARRAY_BUFFER,
-               static_cast<GLsizeiptr>(primitives.circles.size() * sizeof(Circle)),
+  glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(primitives.circles.size() * sizeof(Circle)),
                primitives.circles.data(), GL_DYNAMIC_DRAW);
 
   // Stencil drawings
@@ -271,8 +268,6 @@ void Renderer::render_primitives(const PrimitivesCollection &primitives) {
   load_indices(primitives.filled_segment_indices);
   glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.filled_segment_indices.size()),
                  GL_UNSIGNED_INT, nullptr);
-
-
 
   // glLineWidth(1);
   // glDisable(GL_LINE_SMOOTH);

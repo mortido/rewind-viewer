@@ -2,6 +2,8 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
+#include <filesystem>
+
 #include "common/logger.h"
 #include "gl/opengl.h"
 #include "rewind_viewer.h"
@@ -79,7 +81,11 @@ int main(int argc, char** argv) {
 
   LOG_INFO("Load configuration from %s", CONFIG_FILENAME);
   auto& config = rewind_viewer::models::Config::get_instance();
-  // TODO: config.load_from_file(CONFIG_FILENAME);
+  if (std::filesystem::exists(CONFIG_FILENAME)) {
+    config.load_from_file(CONFIG_FILENAME);
+  } else {
+    LOG_WARN("Configuration file %s does not exist", CONFIG_FILENAME);
+  }
 
   glfwSetErrorCallback(glfw_error_callback);
   LOG_INFO("Initialize GLFW");
@@ -107,12 +113,17 @@ int main(int argc, char** argv) {
   rewind_viewer::RewindViewer rewind(config);
 
   glEnable(GL_BLEND);
-//  glEnable(GL_STENCIL_TEST);
+  //  glEnable(GL_STENCIL_TEST);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   while (!glfwWindowShouldClose(window)) {
     // Poll and handle events
     glfwPollEvents();
+
+    if (!config.ui.update_unfocused && !glfwGetWindowAttrib(window, GLFW_FOCUSED)) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      continue;
+    }
 
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
@@ -128,10 +139,17 @@ int main(int argc, char** argv) {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(window);
+
+    if (rewind.close_requested()) {
+      glfwSetWindowShouldClose(window, true);
+    }
   }
 
   LOG_INFO("Stop rewind");
   rewind.stop();
+
+  LOG_INFO("Save config");
+  config.save_to_file(CONFIG_FILENAME);
 
   LOG_INFO("Clean up");
   ImGui_ImplOpenGL3_Shutdown();
