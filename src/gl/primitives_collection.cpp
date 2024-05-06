@@ -1,6 +1,7 @@
 #include "gl/primitives_collection.h"
 
 #include <glm/gtc/constants.hpp>
+#include <stdexcept>
 
 namespace {
 

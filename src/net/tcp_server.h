@@ -25,7 +25,7 @@ class TcpServer {
  public:
   TcpServer(std::string address, uint16_t port);
   void initialize();
-  void accept_connection();
+  bool accept_connection();
   uint16_t read_msg(uint8_t *buffer, uint16_t max_size);
   void send_msg(uint8_t *buffer, uint16_t bytes_cnt);
   uint16_t get_port() const;

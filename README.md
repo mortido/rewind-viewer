@@ -13,14 +13,14 @@ Original Rewind Viewer writen by Vladimir Kiselev (aka kswaldemar) is located [h
 ## Overview
 
 Key differences with original rewind viewer:
- - binary protocol for faster communication and more primitives per frame
- - slaves client connections (can draw but can't finish frame)
- - camera views
- - updated API (e.g. map size option)
- - updated versions of some 3rd party libs
- - yaml configuration
- - ui updates
- - bugfixes
+ - Binary protocol - for faster communication and more primitives per frame;
+ - Slaves client connections - can draw but can't finish frame;
+ - Camera views;
+ - More primitives and API methods;
+ - YAML configuration;
+ - UI updates;
+ - Updated 3rd party libs;
+ - Bugfixes.
 
 Original features:
  - All figures are drawn using your video adapter, so no more problems with slow drawing

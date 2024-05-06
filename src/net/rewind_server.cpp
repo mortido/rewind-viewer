@@ -1,7 +1,5 @@
 #include "net/rewind_server.h"
 
-#include <stdexcept>
-
 #include "common/logger.h"
 
 namespace {
@@ -71,7 +69,10 @@ void RewindServer::network_loop() {
   while (state_.load(std::memory_order_relaxed) != State::closed) {
     // It is ok to crash thread on accept connection error
     LOG_INFO("Waiting new connection...");
-    tcp_server_.accept_connection();
+    // TODO: handle app exit better
+    if (!tcp_server_.accept_connection()) {
+      return;
+    }
     State expected = State::wait;
     if (state_.compare_exchange_strong(expected, State::established)) {
       reset();

@@ -60,7 +60,7 @@ void TcpServer::initialize() {
   LOG_INFO("Start listening on %s:%u", address_.c_str(), port_);
 }
 
-void TcpServer::accept_connection() {
+bool TcpServer::accept_connection() {
   do {
     if (!socket_->IsSocketValid()) {
       throw std::runtime_error(
@@ -68,7 +68,9 @@ void TcpServer::accept_connection() {
     }
     client_.reset(socket_->Accept());
     if (client_ == nullptr) {
-      LOG_ERROR("Got null connection, continue listening on %s:%u", address_.c_str(), port_);
+//      LOG_ERROR("Got null connection, continue listening on %s:%u", address_.c_str(), port_);
+      LOG_ERROR("Got null connection");
+      return false;
     } else {
       LOG_INFO("Got connection from %s:%u", client_->GetClientAddr(), client_->GetClientPort());
 
@@ -88,6 +90,7 @@ void TcpServer::accept_connection() {
       }
     }
   } while (client_ == nullptr);
+  return true;
 }
 
 uint16_t TcpServer::read_msg(uint8_t *buffer, uint16_t max_size) {
