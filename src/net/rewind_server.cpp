@@ -259,8 +259,8 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
       LOG_V8("FlatBuffersHandler::CAMERA_VIEW");
       auto cam_view_msg = message->command_as_CameraView();
       models::CameraView cam_view{
-          .position = {cam_view_msg->position()->x(), cam_view_msg->position()->y()},
-          .viewport = {cam_view_msg->view_radius() * 2.0f, cam_view_msg->view_radius() * 2.0f}};
+          {cam_view_msg->position()->x(), cam_view_msg->position()->y()},
+          {cam_view_msg->view_radius() * 2.0f, cam_view_msg->view_radius() * 2.0f}};
       frame->add_camera_view(cam_view_msg->name()->str(), cam_view);
       break;
     }

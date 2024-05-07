@@ -373,8 +373,7 @@ void RewindViewer::playback_controls() {
     // Tick is one indexed
     const size_t frames_cnt = scene_->frames.size();
     if (frames_cnt > 0ul) {
-      ui_state_.current_frame_idx =
-          std::max(0ul, std::min(frames_cnt, ui_state_.current_frame_idx));
+      ui_state_.current_frame_idx = std::min(frames_cnt, ui_state_.current_frame_idx);
       ImGui::PushItemWidth(-1);
       int frame = static_cast<int>(ui_state_.current_frame_idx) + 1;
       const std::string slider_fmt = "%5d/" + std::to_string(frames_cnt);

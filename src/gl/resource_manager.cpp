@@ -34,7 +34,7 @@ GLuint ResourceManager::load_texture(const std::filesystem::path &path, bool gen
   int width;
   int height;
   int nr_channels;
-  unsigned char *data = stbi_load(path.c_str(), &width, &height, &nr_channels, 0);
+  unsigned char *data = stbi_load(path.string().c_str(), &width, &height, &nr_channels, 0);
   if (!data) {
     LOG_ERROR("Cannot load texture file: '%s'", path.c_str());
     return 0;

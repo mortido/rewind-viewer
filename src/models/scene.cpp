@@ -40,10 +40,7 @@ void Scene::render(size_t frame_idx) {
 
 void Scene::set_canvas_config(const glm::vec2& position, const glm::vec2& size,
                               const glm::u16vec2& grid) {
-  CameraView view{
-      .position = position + size * 0.5f,
-      .viewport = size * 1.25f,
-  };
+  CameraView view{position + size * 0.5f, size * 1.25f};
   camera.set_view(view);
   renderer_.update_canvas(position, size, grid);
 }
