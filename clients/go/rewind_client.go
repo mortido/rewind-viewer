@@ -14,7 +14,6 @@ const (
 type RewindClient struct {
 	conn      net.Conn
 	builder   *flatbuffers.Builder
-	isLittleEndian bool
 	opacity   uint32
 }
 
@@ -30,7 +29,6 @@ func NewRewindClient(host string, port int) (*RewindClient, error) {
 	client := &RewindClient{
 		conn:      conn,
 		builder:   flatbuffers.NewBuilder(0),
-		isLittleEndian: binary.LittleEndian == binary.ByteOrder(binary.LittleEndian),
 		opacity:   0xFF000000,
 	}
 
@@ -59,9 +57,6 @@ func (c *RewindClient) Close() {
 func (c *RewindClient) sendProtocolVersion() {
 	buffer := make([]byte, 2)
 	binary.LittleEndian.PutUint16(buffer, messageSchemaVersion)
-	if !c.isLittleEndian {
-		reverse(buffer)
-	}
 	c.conn.Write(buffer)
 }
 
@@ -71,9 +66,6 @@ func (c *RewindClient) send(buf []byte) {
 	}
 	header := make([]byte, 4)
 	binary.LittleEndian.PutUint32(header, uint32(len(buf)))
-	if !c.isLittleEndian {
-		reverse(header)
-	}
 	c.conn.Write(header)
 	c.conn.Write(buf)
 }
