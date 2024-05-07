@@ -53,23 +53,5 @@ public final class Color extends Table {
     public Color get(int j) { return get(new Color(), j); }
     public Color get(Color obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
-  public ColorT unpack() {
-    ColorT _o = new ColorT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(ColorT _o) {
-    long _oValue = value();
-    _o.setValue(_oValue);
-    boolean _oFill = fill();
-    _o.setFill(_oFill);
-  }
-  public static int pack(FlatBufferBuilder builder, ColorT _o) {
-    if (_o == null) return 0;
-    return createColor(
-      builder,
-      _o.getValue(),
-      _o.getFill());
-  }
 }
 

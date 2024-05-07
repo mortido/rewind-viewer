@@ -4,3 +4,4 @@ cmake-build-*
 lib/
 out
 .DS_Store
+venv/

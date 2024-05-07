@@ -71,8 +71,9 @@ int main(int argc, char *argv[]) {
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> distrib(0, 23);
 
+  Vec2D map_pos{0.0, 0.0};
   Vec2D map_size{500.0, 400.0};
-  rewind_client.map(map_size, 5, 40);
+  rewind_client.map(map_pos, map_size, 5, 40);
   std::vector<uint32_t> field_colors;
 
   Vec2D cell_size{5.0, 10.0};

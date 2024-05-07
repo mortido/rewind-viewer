@@ -4,9 +4,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-
-
-export class LogText implements flatbuffers.IUnpackableObject<LogTextT> {
+export class LogText {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):LogText {
@@ -49,31 +47,5 @@ static createLogText(builder:flatbuffers.Builder, textOffset:flatbuffers.Offset)
   LogText.startLogText(builder);
   LogText.addText(builder, textOffset);
   return LogText.endLogText(builder);
-}
-
-unpack(): LogTextT {
-  return new LogTextT(
-    this.text()
-  );
-}
-
-
-unpackTo(_o: LogTextT): void {
-  _o.text = this.text();
-}
-}
-
-export class LogTextT implements flatbuffers.IGeneratedObject {
-constructor(
-  public text: string|Uint8Array|null = null
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  const text = (this.text !== null ? builder.createString(this.text!) : 0);
-
-  return LogText.createLogText(builder,
-    text
-  );
 }
 }

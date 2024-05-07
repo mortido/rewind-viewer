@@ -6,35 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type LayerT struct {
-	Id uint32 `json:"id"`
-	UsePermanentFrame bool `json:"use_permanent_frame"`
-}
-
-func (t *LayerT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	LayerStart(builder)
-	LayerAddId(builder, t.Id)
-	LayerAddUsePermanentFrame(builder, t.UsePermanentFrame)
-	return LayerEnd(builder)
-}
-
-func (rcv *Layer) UnPackTo(t *LayerT) {
-	t.Id = rcv.Id()
-	t.UsePermanentFrame = rcv.UsePermanentFrame()
-}
-
-func (rcv *Layer) UnPack() *LayerT {
-	if rcv == nil {
-		return nil
-	}
-	t := &LayerT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type Layer struct {
 	_tab flatbuffers.Table
 }

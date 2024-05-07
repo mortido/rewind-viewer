@@ -26,7 +26,7 @@ cpp_client:
 	@rm -rf $(CPP_CMAKE_DIR)/rewind_viewer/include/rewind_viewer/messages/*
 	@mkdir -p $(CPP_CMAKE_DIR)/rewind_viewer/include/rewind_viewer/messages
 	@echo "Compiling FlatBuffers schemas to C++ client..."
-	@flatc --cpp -o $(CPP_CMAKE_DIR)/rewind_viewer/include/rewind_viewer/messages --gen-object-api --filename-suffix ".fbs" -I $(FBS_DIR) $(FBS_MSG_FILE)
+	@flatc --cpp -o $(CPP_CMAKE_DIR)/rewind_viewer/include/rewind_viewer/messages --filename-suffix ".fbs" -I $(FBS_DIR) $(FBS_MSG_FILE)
 	@echo "Copying clsocket..."
 	@rm -rf $(CPP_CMAKE_DIR)/clsocket
 	@cp -r $(CURDIR)/3rdparty/clsocket $(CPP_CMAKE_DIR)
@@ -49,49 +49,49 @@ csharp_client:
 	@rm -rf $(CSHARP_DIR)/messages
 	@mkdir -p $(CSHARP_DIR)/messages
 	@echo "Compiling FlatBuffers schemas to C#..."
-	@flatc --csharp -o $(CSHARP_DIR)/messages --gen-object-api -I $(FBS_DIR) $(FBS_MSG_FILE)
+	@flatc --csharp -o $(CSHARP_DIR)/messages -I $(FBS_DIR) $(FBS_MSG_FILE)
 
 java_client:
 	@echo "Cleaning $(JAVA_DIR)/messages..."
 	@rm -rf $(JAVA_DIR)/messages
 	@mkdir -p $(JAVA_DIR)/messages
 	@echo "Compiling FlatBuffers schemas to Java..."
-	@flatc --java -o $(JAVA_DIR)/messages --gen-object-api -I $(FBS_DIR) $(FBS_MSG_FILE)
+	@flatc --java -o $(JAVA_DIR)/messages -I $(FBS_DIR) $(FBS_MSG_FILE)
 
 kotlin_client:
 	@echo "Cleaning $(KOTLIN_DIR)/messages..."
 	@rm -rf $(KOTLIN_DIR)/messages
 	@mkdir -p $(KOTLIN_DIR)/messages
 	@echo "Compiling FlatBuffers schemas to KOTLIN..."
-	@flatc --java -o $(KOTLIN_DIR)/messages --gen-object-api -I $(FBS_DIR) $(FBS_MSG_FILE)
+	@flatc --java -o $(KOTLIN_DIR)/messages -I $(FBS_DIR) $(FBS_MSG_FILE)
 
 go_client:
 	@echo "Cleaning $(GO_DIR)/messages..."
 	@rm -rf $(GO_DIR)/messages
 	@mkdir -p $(GO_DIR)/messages
 	@echo "Compiling FlatBuffers schemas to Go..."
-	@flatc --go -o $(GO_DIR)/messages --gen-object-api -I $(FBS_DIR) $(FBS_MSG_FILE)
+	@flatc --go -o $(GO_DIR)/messages -I $(FBS_DIR) $(FBS_MSG_FILE)
 
 python_client:
-	@echo "Cleaning $(PYTHON_DIR)/messages..."
-	@rm -rf $(PYTHON_DIR)/messages
-	@mkdir -p $(PYTHON_DIR)/messages
+	@echo "Cleaning $(PYTHON_DIR)/rewind_viewer/fbs..."
+	@rm -rf $(PYTHON_DIR)/rewind_viewer/fbs
+	@mkdir -p $(PYTHON_DIR)/rewind_viewer/fbs
 	@echo "Compiling FlatBuffers schemas to Python..."
-	@flatc --python -o $(PYTHON_DIR)/messages --gen-object-api -I $(FBS_DIR) $(FBS_MSG_FILE)
+	@flatc --python -o $(PYTHON_DIR) -I $(FBS_DIR) $(FBS_MSG_FILE)
 
 ts_client:
 	@echo "Cleaning $(TS_DIR)/messages..."
 	@rm -rf $(TS_DIR)/messages
 	@mkdir -p $(TS_DIR)/messages
 	@echo "Compiling FlatBuffers schemas to TypeScript..."
-	@flatc --ts -o $(TS_DIR)/messages --gen-object-api -I $(FBS_DIR) $(FBS_MSG_FILE)
+	@flatc --ts -o $(TS_DIR)/messages -I $(FBS_DIR) $(FBS_MSG_FILE)
 
 rust_client:
 	@echo "Cleaning $(RUST_DIR)/messages..."
 	@rm -rf $(RUST_DIR)/messages
 	@mkdir -p $(RUST_DIR)/messages
 	@echo "Compiling FlatBuffers schemas to Rust..."
-	@flatc --rust -o $(RUST_DIR)/messages --gen-object-api --filename-suffix ".fbs" -I $(FBS_DIR) $(FBS_MSG_FILE)
+	@flatc --rust -o $(RUST_DIR)/messages --filename-suffix ".fbs" -I $(FBS_DIR) $(FBS_MSG_FILE)
 
 
 .PHONY: all viewer cpp_client csharp_client java_client kotlin_client go_client python_client ts_client rust_client

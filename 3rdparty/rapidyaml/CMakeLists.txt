@@ -9,6 +9,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
 target_include_directories(${PROJECT_NAME} PRIVATE include/rapidyaml)
 
+if (MSVC)
+    target_compile_options(${PROJECT_NAME} PUBLIC "/Zc:__cplusplus")
+endif()
+
 # adjustments for shared library
 if(BUILD_SHARED_LIBS)
     # RYML_SHARED should be propagated to targets consuming ryml

@@ -4,11 +4,11 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Color, ColorT } from '../../rewind-viewer/fbs/color.js';
-import { Vector2f, Vector2fT } from '../../rewind-viewer/fbs/vector2f.js';
+import { Color } from '../../rewind-viewer/fbs/color.js';
+import { Vector2f } from '../../rewind-viewer/fbs/vector2f.js';
 
 
-export class Rectangle implements flatbuffers.IUnpackableObject<RectangleT> {
+export class Rectangle {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):Rectangle {
@@ -64,39 +64,4 @@ static endRectangle(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-
-unpack(): RectangleT {
-  return new RectangleT(
-    (this.color() !== null ? this.color()!.unpack() : null),
-    (this.position() !== null ? this.position()!.unpack() : null),
-    (this.size() !== null ? this.size()!.unpack() : null)
-  );
-}
-
-
-unpackTo(_o: RectangleT): void {
-  _o.color = (this.color() !== null ? this.color()!.unpack() : null);
-  _o.position = (this.position() !== null ? this.position()!.unpack() : null);
-  _o.size = (this.size() !== null ? this.size()!.unpack() : null);
-}
-}
-
-export class RectangleT implements flatbuffers.IGeneratedObject {
-constructor(
-  public color: ColorT|null = null,
-  public position: Vector2fT|null = null,
-  public size: Vector2fT|null = null
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  const color = (this.color !== null ? this.color!.pack(builder) : 0);
-
-  Rectangle.startRectangle(builder);
-  Rectangle.addColor(builder, color);
-  Rectangle.addPosition(builder, (this.position !== null ? this.position!.pack(builder) : 0));
-  Rectangle.addSize(builder, (this.size !== null ? this.size!.pack(builder) : 0));
-
-  return Rectangle.endRectangle(builder);
-}
 }

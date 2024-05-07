@@ -161,341 +161,6 @@ impl<'a> flatbuffers::Verifiable for Command {
 impl flatbuffers::SimpleToVerifyInSlice for Command {}
 pub struct CommandUnionTableOffset {}
 
-#[allow(clippy::upper_case_acronyms)]
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub enum CommandT {
-  NONE,
-  Arc(Box<ArcT>),
-  CameraView(Box<CameraViewT>),
-  Circle(Box<CircleT>),
-  CircleSegment(Box<CircleSegmentT>),
-  LogText(Box<LogTextT>),
-  Options(Box<OptionsT>),
-  Polyline(Box<PolylineT>),
-  Popup(Box<PopupT>),
-  PopupRound(Box<PopupRoundT>),
-  Rectangle(Box<RectangleT>),
-  Tiles(Box<TilesT>),
-  Triangle(Box<TriangleT>),
-  EndFrame(Box<EndFrameT>),
-}
-impl Default for CommandT {
-  fn default() -> Self {
-    Self::NONE
-  }
-}
-impl CommandT {
-  pub fn command_type(&self) -> Command {
-    match self {
-      Self::NONE => Command::NONE,
-      Self::Arc(_) => Command::Arc,
-      Self::CameraView(_) => Command::CameraView,
-      Self::Circle(_) => Command::Circle,
-      Self::CircleSegment(_) => Command::CircleSegment,
-      Self::LogText(_) => Command::LogText,
-      Self::Options(_) => Command::Options,
-      Self::Polyline(_) => Command::Polyline,
-      Self::Popup(_) => Command::Popup,
-      Self::PopupRound(_) => Command::PopupRound,
-      Self::Rectangle(_) => Command::Rectangle,
-      Self::Tiles(_) => Command::Tiles,
-      Self::Triangle(_) => Command::Triangle,
-      Self::EndFrame(_) => Command::EndFrame,
-    }
-  }
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(&self, fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>) -> Option<flatbuffers::WIPOffset<flatbuffers::UnionWIPOffset>> {
-    match self {
-      Self::NONE => None,
-      Self::Arc(v) => Some(v.pack(fbb).as_union_value()),
-      Self::CameraView(v) => Some(v.pack(fbb).as_union_value()),
-      Self::Circle(v) => Some(v.pack(fbb).as_union_value()),
-      Self::CircleSegment(v) => Some(v.pack(fbb).as_union_value()),
-      Self::LogText(v) => Some(v.pack(fbb).as_union_value()),
-      Self::Options(v) => Some(v.pack(fbb).as_union_value()),
-      Self::Polyline(v) => Some(v.pack(fbb).as_union_value()),
-      Self::Popup(v) => Some(v.pack(fbb).as_union_value()),
-      Self::PopupRound(v) => Some(v.pack(fbb).as_union_value()),
-      Self::Rectangle(v) => Some(v.pack(fbb).as_union_value()),
-      Self::Tiles(v) => Some(v.pack(fbb).as_union_value()),
-      Self::Triangle(v) => Some(v.pack(fbb).as_union_value()),
-      Self::EndFrame(v) => Some(v.pack(fbb).as_union_value()),
-    }
-  }
-  /// If the union variant matches, return the owned ArcT, setting the union to NONE.
-  pub fn take_arc(&mut self) -> Option<Box<ArcT>> {
-    if let Self::Arc(_) = self {
-      let v = core::mem::replace(self, Self::NONE);
-      if let Self::Arc(w) = v {
-        Some(w)
-      } else {
-        unreachable!()
-      }
-    } else {
-      None
-    }
-  }
-  /// If the union variant matches, return a reference to the ArcT.
-  pub fn as_arc(&self) -> Option<&ArcT> {
-    if let Self::Arc(v) = self { Some(v.as_ref()) } else { None }
-  }
-  /// If the union variant matches, return a mutable reference to the ArcT.
-  pub fn as_arc_mut(&mut self) -> Option<&mut ArcT> {
-    if let Self::Arc(v) = self { Some(v.as_mut()) } else { None }
-  }
-  /// If the union variant matches, return the owned CameraViewT, setting the union to NONE.
-  pub fn take_camera_view(&mut self) -> Option<Box<CameraViewT>> {
-    if let Self::CameraView(_) = self {
-      let v = core::mem::replace(self, Self::NONE);
-      if let Self::CameraView(w) = v {
-        Some(w)
-      } else {
-        unreachable!()
-      }
-    } else {
-      None
-    }
-  }
-  /// If the union variant matches, return a reference to the CameraViewT.
-  pub fn as_camera_view(&self) -> Option<&CameraViewT> {
-    if let Self::CameraView(v) = self { Some(v.as_ref()) } else { None }
-  }
-  /// If the union variant matches, return a mutable reference to the CameraViewT.
-  pub fn as_camera_view_mut(&mut self) -> Option<&mut CameraViewT> {
-    if let Self::CameraView(v) = self { Some(v.as_mut()) } else { None }
-  }
-  /// If the union variant matches, return the owned CircleT, setting the union to NONE.
-  pub fn take_circle(&mut self) -> Option<Box<CircleT>> {
-    if let Self::Circle(_) = self {
-      let v = core::mem::replace(self, Self::NONE);
-      if let Self::Circle(w) = v {
-        Some(w)
-      } else {
-        unreachable!()
-      }
-    } else {
-      None
-    }
-  }
-  /// If the union variant matches, return a reference to the CircleT.
-  pub fn as_circle(&self) -> Option<&CircleT> {
-    if let Self::Circle(v) = self { Some(v.as_ref()) } else { None }
-  }
-  /// If the union variant matches, return a mutable reference to the CircleT.
-  pub fn as_circle_mut(&mut self) -> Option<&mut CircleT> {
-    if let Self::Circle(v) = self { Some(v.as_mut()) } else { None }
-  }
-  /// If the union variant matches, return the owned CircleSegmentT, setting the union to NONE.
-  pub fn take_circle_segment(&mut self) -> Option<Box<CircleSegmentT>> {
-    if let Self::CircleSegment(_) = self {
-      let v = core::mem::replace(self, Self::NONE);
-      if let Self::CircleSegment(w) = v {
-        Some(w)
-      } else {
-        unreachable!()
-      }
-    } else {
-      None
-    }
-  }
-  /// If the union variant matches, return a reference to the CircleSegmentT.
-  pub fn as_circle_segment(&self) -> Option<&CircleSegmentT> {
-    if let Self::CircleSegment(v) = self { Some(v.as_ref()) } else { None }
-  }
-  /// If the union variant matches, return a mutable reference to the CircleSegmentT.
-  pub fn as_circle_segment_mut(&mut self) -> Option<&mut CircleSegmentT> {
-    if let Self::CircleSegment(v) = self { Some(v.as_mut()) } else { None }
-  }
-  /// If the union variant matches, return the owned LogTextT, setting the union to NONE.
-  pub fn take_log_text(&mut self) -> Option<Box<LogTextT>> {
-    if let Self::LogText(_) = self {
-      let v = core::mem::replace(self, Self::NONE);
-      if let Self::LogText(w) = v {
-        Some(w)
-      } else {
-        unreachable!()
-      }
-    } else {
-      None
-    }
-  }
-  /// If the union variant matches, return a reference to the LogTextT.
-  pub fn as_log_text(&self) -> Option<&LogTextT> {
-    if let Self::LogText(v) = self { Some(v.as_ref()) } else { None }
-  }
-  /// If the union variant matches, return a mutable reference to the LogTextT.
-  pub fn as_log_text_mut(&mut self) -> Option<&mut LogTextT> {
-    if let Self::LogText(v) = self { Some(v.as_mut()) } else { None }
-  }
-  /// If the union variant matches, return the owned OptionsT, setting the union to NONE.
-  pub fn take_options(&mut self) -> Option<Box<OptionsT>> {
-    if let Self::Options(_) = self {
-      let v = core::mem::replace(self, Self::NONE);
-      if let Self::Options(w) = v {
-        Some(w)
-      } else {
-        unreachable!()
-      }
-    } else {
-      None
-    }
-  }
-  /// If the union variant matches, return a reference to the OptionsT.
-  pub fn as_options(&self) -> Option<&OptionsT> {
-    if let Self::Options(v) = self { Some(v.as_ref()) } else { None }
-  }
-  /// If the union variant matches, return a mutable reference to the OptionsT.
-  pub fn as_options_mut(&mut self) -> Option<&mut OptionsT> {
-    if let Self::Options(v) = self { Some(v.as_mut()) } else { None }
-  }
-  /// If the union variant matches, return the owned PolylineT, setting the union to NONE.
-  pub fn take_polyline(&mut self) -> Option<Box<PolylineT>> {
-    if let Self::Polyline(_) = self {
-      let v = core::mem::replace(self, Self::NONE);
-      if let Self::Polyline(w) = v {
-        Some(w)
-      } else {
-        unreachable!()
-      }
-    } else {
-      None
-    }
-  }
-  /// If the union variant matches, return a reference to the PolylineT.
-  pub fn as_polyline(&self) -> Option<&PolylineT> {
-    if let Self::Polyline(v) = self { Some(v.as_ref()) } else { None }
-  }
-  /// If the union variant matches, return a mutable reference to the PolylineT.
-  pub fn as_polyline_mut(&mut self) -> Option<&mut PolylineT> {
-    if let Self::Polyline(v) = self { Some(v.as_mut()) } else { None }
-  }
-  /// If the union variant matches, return the owned PopupT, setting the union to NONE.
-  pub fn take_popup(&mut self) -> Option<Box<PopupT>> {
-    if let Self::Popup(_) = self {
-      let v = core::mem::replace(self, Self::NONE);
-      if let Self::Popup(w) = v {
-        Some(w)
-      } else {
-        unreachable!()
-      }
-    } else {
-      None
-    }
-  }
-  /// If the union variant matches, return a reference to the PopupT.
-  pub fn as_popup(&self) -> Option<&PopupT> {
-    if let Self::Popup(v) = self { Some(v.as_ref()) } else { None }
-  }
-  /// If the union variant matches, return a mutable reference to the PopupT.
-  pub fn as_popup_mut(&mut self) -> Option<&mut PopupT> {
-    if let Self::Popup(v) = self { Some(v.as_mut()) } else { None }
-  }
-  /// If the union variant matches, return the owned PopupRoundT, setting the union to NONE.
-  pub fn take_popup_round(&mut self) -> Option<Box<PopupRoundT>> {
-    if let Self::PopupRound(_) = self {
-      let v = core::mem::replace(self, Self::NONE);
-      if let Self::PopupRound(w) = v {
-        Some(w)
-      } else {
-        unreachable!()
-      }
-    } else {
-      None
-    }
-  }
-  /// If the union variant matches, return a reference to the PopupRoundT.
-  pub fn as_popup_round(&self) -> Option<&PopupRoundT> {
-    if let Self::PopupRound(v) = self { Some(v.as_ref()) } else { None }
-  }
-  /// If the union variant matches, return a mutable reference to the PopupRoundT.
-  pub fn as_popup_round_mut(&mut self) -> Option<&mut PopupRoundT> {
-    if let Self::PopupRound(v) = self { Some(v.as_mut()) } else { None }
-  }
-  /// If the union variant matches, return the owned RectangleT, setting the union to NONE.
-  pub fn take_rectangle(&mut self) -> Option<Box<RectangleT>> {
-    if let Self::Rectangle(_) = self {
-      let v = core::mem::replace(self, Self::NONE);
-      if let Self::Rectangle(w) = v {
-        Some(w)
-      } else {
-        unreachable!()
-      }
-    } else {
-      None
-    }
-  }
-  /// If the union variant matches, return a reference to the RectangleT.
-  pub fn as_rectangle(&self) -> Option<&RectangleT> {
-    if let Self::Rectangle(v) = self { Some(v.as_ref()) } else { None }
-  }
-  /// If the union variant matches, return a mutable reference to the RectangleT.
-  pub fn as_rectangle_mut(&mut self) -> Option<&mut RectangleT> {
-    if let Self::Rectangle(v) = self { Some(v.as_mut()) } else { None }
-  }
-  /// If the union variant matches, return the owned TilesT, setting the union to NONE.
-  pub fn take_tiles(&mut self) -> Option<Box<TilesT>> {
-    if let Self::Tiles(_) = self {
-      let v = core::mem::replace(self, Self::NONE);
-      if let Self::Tiles(w) = v {
-        Some(w)
-      } else {
-        unreachable!()
-      }
-    } else {
-      None
-    }
-  }
-  /// If the union variant matches, return a reference to the TilesT.
-  pub fn as_tiles(&self) -> Option<&TilesT> {
-    if let Self::Tiles(v) = self { Some(v.as_ref()) } else { None }
-  }
-  /// If the union variant matches, return a mutable reference to the TilesT.
-  pub fn as_tiles_mut(&mut self) -> Option<&mut TilesT> {
-    if let Self::Tiles(v) = self { Some(v.as_mut()) } else { None }
-  }
-  /// If the union variant matches, return the owned TriangleT, setting the union to NONE.
-  pub fn take_triangle(&mut self) -> Option<Box<TriangleT>> {
-    if let Self::Triangle(_) = self {
-      let v = core::mem::replace(self, Self::NONE);
-      if let Self::Triangle(w) = v {
-        Some(w)
-      } else {
-        unreachable!()
-      }
-    } else {
-      None
-    }
-  }
-  /// If the union variant matches, return a reference to the TriangleT.
-  pub fn as_triangle(&self) -> Option<&TriangleT> {
-    if let Self::Triangle(v) = self { Some(v.as_ref()) } else { None }
-  }
-  /// If the union variant matches, return a mutable reference to the TriangleT.
-  pub fn as_triangle_mut(&mut self) -> Option<&mut TriangleT> {
-    if let Self::Triangle(v) = self { Some(v.as_mut()) } else { None }
-  }
-  /// If the union variant matches, return the owned EndFrameT, setting the union to NONE.
-  pub fn take_end_frame(&mut self) -> Option<Box<EndFrameT>> {
-    if let Self::EndFrame(_) = self {
-      let v = core::mem::replace(self, Self::NONE);
-      if let Self::EndFrame(w) = v {
-        Some(w)
-      } else {
-        unreachable!()
-      }
-    } else {
-      None
-    }
-  }
-  /// If the union variant matches, return a reference to the EndFrameT.
-  pub fn as_end_frame(&self) -> Option<&EndFrameT> {
-    if let Self::EndFrame(v) = self { Some(v.as_ref()) } else { None }
-  }
-  /// If the union variant matches, return a mutable reference to the EndFrameT.
-  pub fn as_end_frame_mut(&mut self) -> Option<&mut EndFrameT> {
-    if let Self::EndFrame(v) = self { Some(v.as_mut()) } else { None }
-  }
-}
 // struct Vector2f, aligned to 4
 #[repr(transparent)]
 #[derive(Clone, Copy, PartialEq)]
@@ -618,26 +283,6 @@ impl<'a> Vector2f {
     }
   }
 
-  pub fn unpack(&self) -> Vector2fT {
-    Vector2fT {
-      x: self.x(),
-      y: self.y(),
-    }
-  }
-}
-
-#[derive(Debug, Clone, PartialEq, Default)]
-pub struct Vector2fT {
-  pub x: f32,
-  pub y: f32,
-}
-impl Vector2fT {
-  pub fn pack(&self) -> Vector2f {
-    Vector2f::new(
-      self.x,
-      self.y,
-    )
-  }
 }
 
 pub enum ColorOffset {}
@@ -674,14 +319,6 @@ impl<'a> Color<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> ColorT {
-    let value = self.value();
-    let fill = self.fill();
-    ColorT {
-      value,
-      fill,
-    }
-  }
 
   #[inline]
   pub fn value(&self) -> u32 {
@@ -762,33 +399,6 @@ impl core::fmt::Debug for Color<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct ColorT {
-  pub value: u32,
-  pub fill: bool,
-}
-impl Default for ColorT {
-  fn default() -> Self {
-    Self {
-      value: 0,
-      fill: false,
-    }
-  }
-}
-impl ColorT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<Color<'b>> {
-    let value = self.value;
-    let fill = self.fill;
-    Color::create(_fbb, &ColorArgs{
-      value,
-      fill,
-    })
-  }
-}
 pub enum CircleOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -825,21 +435,6 @@ impl<'a> Circle<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> CircleT {
-    let color = self.color().map(|x| {
-      Box::new(x.unpack())
-    });
-    let center = {
-      let x = self.center();
-      x.unpack()
-    };
-    let radius = self.radius();
-    CircleT {
-      color,
-      center,
-      radius,
-    }
-  }
 
   #[inline]
   pub fn color(&self) -> Option<Color<'a>> {
@@ -936,40 +531,6 @@ impl core::fmt::Debug for Circle<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct CircleT {
-  pub color: Option<Box<ColorT>>,
-  pub center: Vector2fT,
-  pub radius: f32,
-}
-impl Default for CircleT {
-  fn default() -> Self {
-    Self {
-      color: None,
-      center: Default::default(),
-      radius: 0.0,
-    }
-  }
-}
-impl CircleT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<Circle<'b>> {
-    let color = self.color.as_ref().map(|x|{
-      x.pack(_fbb)
-    });
-    let center_tmp = Some(self.center.pack());
-    let center = center_tmp.as_ref();
-    let radius = self.radius;
-    Circle::create(_fbb, &CircleArgs{
-      color,
-      center,
-      radius,
-    })
-  }
-}
 pub enum ArcOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -1010,25 +571,6 @@ impl<'a> Arc<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> ArcT {
-    let color = self.color().map(|x| {
-      Box::new(x.unpack())
-    });
-    let center = {
-      let x = self.center();
-      x.unpack()
-    };
-    let radius = self.radius();
-    let start_angle = self.start_angle();
-    let end_angle = self.end_angle();
-    ArcT {
-      color,
-      center,
-      radius,
-      start_angle,
-      end_angle,
-    }
-  }
 
   #[inline]
   pub fn color(&self) -> Option<Color<'a>> {
@@ -1155,48 +697,6 @@ impl core::fmt::Debug for Arc<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct ArcT {
-  pub color: Option<Box<ColorT>>,
-  pub center: Vector2fT,
-  pub radius: f32,
-  pub start_angle: f32,
-  pub end_angle: f32,
-}
-impl Default for ArcT {
-  fn default() -> Self {
-    Self {
-      color: None,
-      center: Default::default(),
-      radius: 0.0,
-      start_angle: 0.0,
-      end_angle: 0.0,
-    }
-  }
-}
-impl ArcT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<Arc<'b>> {
-    let color = self.color.as_ref().map(|x|{
-      x.pack(_fbb)
-    });
-    let center_tmp = Some(self.center.pack());
-    let center = center_tmp.as_ref();
-    let radius = self.radius;
-    let start_angle = self.start_angle;
-    let end_angle = self.end_angle;
-    Arc::create(_fbb, &ArcArgs{
-      color,
-      center,
-      radius,
-      start_angle,
-      end_angle,
-    })
-  }
-}
 pub enum CircleSegmentOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -1237,25 +737,6 @@ impl<'a> CircleSegment<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> CircleSegmentT {
-    let color = self.color().map(|x| {
-      Box::new(x.unpack())
-    });
-    let center = {
-      let x = self.center();
-      x.unpack()
-    };
-    let radius = self.radius();
-    let start_angle = self.start_angle();
-    let end_angle = self.end_angle();
-    CircleSegmentT {
-      color,
-      center,
-      radius,
-      start_angle,
-      end_angle,
-    }
-  }
 
   #[inline]
   pub fn color(&self) -> Option<Color<'a>> {
@@ -1382,48 +863,6 @@ impl core::fmt::Debug for CircleSegment<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct CircleSegmentT {
-  pub color: Option<Box<ColorT>>,
-  pub center: Vector2fT,
-  pub radius: f32,
-  pub start_angle: f32,
-  pub end_angle: f32,
-}
-impl Default for CircleSegmentT {
-  fn default() -> Self {
-    Self {
-      color: None,
-      center: Default::default(),
-      radius: 0.0,
-      start_angle: 0.0,
-      end_angle: 0.0,
-    }
-  }
-}
-impl CircleSegmentT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<CircleSegment<'b>> {
-    let color = self.color.as_ref().map(|x|{
-      x.pack(_fbb)
-    });
-    let center_tmp = Some(self.center.pack());
-    let center = center_tmp.as_ref();
-    let radius = self.radius;
-    let start_angle = self.start_angle;
-    let end_angle = self.end_angle;
-    CircleSegment::create(_fbb, &CircleSegmentArgs{
-      color,
-      center,
-      radius,
-      start_angle,
-      end_angle,
-    })
-  }
-}
 pub enum TilesOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -1462,27 +901,6 @@ impl<'a> Tiles<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> TilesT {
-    let position = {
-      let x = self.position();
-      x.unpack()
-    };
-    let cell_size = {
-      let x = self.cell_size();
-      x.unpack()
-    };
-    let row_size = self.row_size();
-    let colors = {
-      let x = self.colors();
-      x.into_iter().collect()
-    };
-    TilesT {
-      position,
-      cell_size,
-      row_size,
-      colors,
-    }
-  }
 
   #[inline]
   pub fn position(&self) -> &'a Vector2f {
@@ -1596,46 +1014,6 @@ impl core::fmt::Debug for Tiles<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct TilesT {
-  pub position: Vector2fT,
-  pub cell_size: Vector2fT,
-  pub row_size: u16,
-  pub colors: Vec<u32>,
-}
-impl Default for TilesT {
-  fn default() -> Self {
-    Self {
-      position: Default::default(),
-      cell_size: Default::default(),
-      row_size: 0,
-      colors: Default::default(),
-    }
-  }
-}
-impl TilesT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<Tiles<'b>> {
-    let position_tmp = Some(self.position.pack());
-    let position = position_tmp.as_ref();
-    let cell_size_tmp = Some(self.cell_size.pack());
-    let cell_size = cell_size_tmp.as_ref();
-    let row_size = self.row_size;
-    let colors = Some({
-      let x = &self.colors;
-      _fbb.create_vector(x)
-    });
-    Tiles::create(_fbb, &TilesArgs{
-      position,
-      cell_size,
-      row_size,
-      colors,
-    })
-  }
-}
 pub enum RectangleOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -1672,24 +1050,6 @@ impl<'a> Rectangle<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> RectangleT {
-    let color = self.color().map(|x| {
-      Box::new(x.unpack())
-    });
-    let position = {
-      let x = self.position();
-      x.unpack()
-    };
-    let size_ = {
-      let x = self.size_();
-      x.unpack()
-    };
-    RectangleT {
-      color,
-      position,
-      size_,
-    }
-  }
 
   #[inline]
   pub fn color(&self) -> Option<Color<'a>> {
@@ -1787,41 +1147,6 @@ impl core::fmt::Debug for Rectangle<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct RectangleT {
-  pub color: Option<Box<ColorT>>,
-  pub position: Vector2fT,
-  pub size_: Vector2fT,
-}
-impl Default for RectangleT {
-  fn default() -> Self {
-    Self {
-      color: None,
-      position: Default::default(),
-      size_: Default::default(),
-    }
-  }
-}
-impl RectangleT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<Rectangle<'b>> {
-    let color = self.color.as_ref().map(|x|{
-      x.pack(_fbb)
-    });
-    let position_tmp = Some(self.position.pack());
-    let position = position_tmp.as_ref();
-    let size__tmp = Some(self.size_.pack());
-    let size_ = size__tmp.as_ref();
-    Rectangle::create(_fbb, &RectangleArgs{
-      color,
-      position,
-      size_,
-    })
-  }
-}
 pub enum TriangleOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -1856,19 +1181,6 @@ impl<'a> Triangle<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> TriangleT {
-    let color = self.color().map(|x| {
-      Box::new(x.unpack())
-    });
-    let points = {
-      let x = self.points();
-      x.iter().map(|t| t.unpack()).collect()
-    };
-    TriangleT {
-      color,
-      points,
-    }
-  }
 
   #[inline]
   pub fn color(&self) -> Option<Color<'a>> {
@@ -1950,38 +1262,6 @@ impl core::fmt::Debug for Triangle<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct TriangleT {
-  pub color: Option<Box<ColorT>>,
-  pub points: Vec<Vector2fT>,
-}
-impl Default for TriangleT {
-  fn default() -> Self {
-    Self {
-      color: None,
-      points: Default::default(),
-    }
-  }
-}
-impl TriangleT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<Triangle<'b>> {
-    let color = self.color.as_ref().map(|x|{
-      x.pack(_fbb)
-    });
-    let points = Some({
-      let x = &self.points;
-      let w: Vec<_> = x.iter().map(|t| t.pack()).collect();_fbb.create_vector(&w)
-    });
-    Triangle::create(_fbb, &TriangleArgs{
-      color,
-      points,
-    })
-  }
-}
 pub enum PolylineOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -2016,19 +1296,6 @@ impl<'a> Polyline<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> PolylineT {
-    let color = self.color().map(|x| {
-      Box::new(x.unpack())
-    });
-    let points = {
-      let x = self.points();
-      x.iter().map(|t| t.unpack()).collect()
-    };
-    PolylineT {
-      color,
-      points,
-    }
-  }
 
   #[inline]
   pub fn color(&self) -> Option<Color<'a>> {
@@ -2110,38 +1377,6 @@ impl core::fmt::Debug for Polyline<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct PolylineT {
-  pub color: Option<Box<ColorT>>,
-  pub points: Vec<Vector2fT>,
-}
-impl Default for PolylineT {
-  fn default() -> Self {
-    Self {
-      color: None,
-      points: Default::default(),
-    }
-  }
-}
-impl PolylineT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<Polyline<'b>> {
-    let color = self.color.as_ref().map(|x|{
-      x.pack(_fbb)
-    });
-    let points = Some({
-      let x = &self.points;
-      let w: Vec<_> = x.iter().map(|t| t.pack()).collect();_fbb.create_vector(&w)
-    });
-    Polyline::create(_fbb, &PolylineArgs{
-      color,
-      points,
-    })
-  }
-}
 pub enum LogTextOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -2174,15 +1409,6 @@ impl<'a> LogText<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> LogTextT {
-    let text = {
-      let x = self.text();
-      x.to_string()
-    };
-    LogTextT {
-      text,
-    }
-  }
 
   #[inline]
   pub fn text(&self) -> &'a str {
@@ -2249,32 +1475,6 @@ impl core::fmt::Debug for LogText<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct LogTextT {
-  pub text: String,
-}
-impl Default for LogTextT {
-  fn default() -> Self {
-    Self {
-      text: "".to_string(),
-    }
-  }
-}
-impl LogTextT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<LogText<'b>> {
-    let text = Some({
-      let x = &self.text;
-      _fbb.create_string(x)
-    });
-    LogText::create(_fbb, &LogTextArgs{
-      text,
-    })
-  }
-}
 pub enum PopupOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -2311,25 +1511,6 @@ impl<'a> Popup<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> PopupT {
-    let text = {
-      let x = self.text();
-      x.to_string()
-    };
-    let area_position = {
-      let x = self.area_position();
-      x.unpack()
-    };
-    let area_size = {
-      let x = self.area_size();
-      x.unpack()
-    };
-    PopupT {
-      text,
-      area_position,
-      area_size,
-    }
-  }
 
   #[inline]
   pub fn text(&self) -> &'a str {
@@ -2428,42 +1609,6 @@ impl core::fmt::Debug for Popup<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct PopupT {
-  pub text: String,
-  pub area_position: Vector2fT,
-  pub area_size: Vector2fT,
-}
-impl Default for PopupT {
-  fn default() -> Self {
-    Self {
-      text: "".to_string(),
-      area_position: Default::default(),
-      area_size: Default::default(),
-    }
-  }
-}
-impl PopupT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<Popup<'b>> {
-    let text = Some({
-      let x = &self.text;
-      _fbb.create_string(x)
-    });
-    let area_position_tmp = Some(self.area_position.pack());
-    let area_position = area_position_tmp.as_ref();
-    let area_size_tmp = Some(self.area_size.pack());
-    let area_size = area_size_tmp.as_ref();
-    Popup::create(_fbb, &PopupArgs{
-      text,
-      area_position,
-      area_size,
-    })
-  }
-}
 pub enum PopupRoundOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -2500,22 +1645,6 @@ impl<'a> PopupRound<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> PopupRoundT {
-    let text = {
-      let x = self.text();
-      x.to_string()
-    };
-    let area_center = {
-      let x = self.area_center();
-      x.unpack()
-    };
-    let area_radius = self.area_radius();
-    PopupRoundT {
-      text,
-      area_center,
-      area_radius,
-    }
-  }
 
   #[inline]
   pub fn text(&self) -> &'a str {
@@ -2613,41 +1742,6 @@ impl core::fmt::Debug for PopupRound<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct PopupRoundT {
-  pub text: String,
-  pub area_center: Vector2fT,
-  pub area_radius: f32,
-}
-impl Default for PopupRoundT {
-  fn default() -> Self {
-    Self {
-      text: "".to_string(),
-      area_center: Default::default(),
-      area_radius: 0.0,
-    }
-  }
-}
-impl PopupRoundT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<PopupRound<'b>> {
-    let text = Some({
-      let x = &self.text;
-      _fbb.create_string(x)
-    });
-    let area_center_tmp = Some(self.area_center.pack());
-    let area_center = area_center_tmp.as_ref();
-    let area_radius = self.area_radius;
-    PopupRound::create(_fbb, &PopupRoundArgs{
-      text,
-      area_center,
-      area_radius,
-    })
-  }
-}
 pub enum CameraViewOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -2684,22 +1778,6 @@ impl<'a> CameraView<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> CameraViewT {
-    let name = {
-      let x = self.name();
-      x.to_string()
-    };
-    let position = {
-      let x = self.position();
-      x.unpack()
-    };
-    let view_radius = self.view_radius();
-    CameraViewT {
-      name,
-      position,
-      view_radius,
-    }
-  }
 
   #[inline]
   pub fn name(&self) -> &'a str {
@@ -2797,41 +1875,6 @@ impl core::fmt::Debug for CameraView<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct CameraViewT {
-  pub name: String,
-  pub position: Vector2fT,
-  pub view_radius: f32,
-}
-impl Default for CameraViewT {
-  fn default() -> Self {
-    Self {
-      name: "".to_string(),
-      position: Default::default(),
-      view_radius: 0.0,
-    }
-  }
-}
-impl CameraViewT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<CameraView<'b>> {
-    let name = Some({
-      let x = &self.name;
-      _fbb.create_string(x)
-    });
-    let position_tmp = Some(self.position.pack());
-    let position = position_tmp.as_ref();
-    let view_radius = self.view_radius;
-    CameraView::create(_fbb, &CameraViewArgs{
-      name,
-      position,
-      view_radius,
-    })
-  }
-}
 pub enum LayerOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -2866,14 +1909,6 @@ impl<'a> Layer<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> LayerT {
-    let id = self.id();
-    let use_permanent_frame = self.use_permanent_frame();
-    LayerT {
-      id,
-      use_permanent_frame,
-    }
-  }
 
   #[inline]
   pub fn id(&self) -> u32 {
@@ -2954,33 +1989,6 @@ impl core::fmt::Debug for Layer<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct LayerT {
-  pub id: u32,
-  pub use_permanent_frame: bool,
-}
-impl Default for LayerT {
-  fn default() -> Self {
-    Self {
-      id: 0,
-      use_permanent_frame: false,
-    }
-  }
-}
-impl LayerT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<Layer<'b>> {
-    let id = self.id;
-    let use_permanent_frame = self.use_permanent_frame;
-    Layer::create(_fbb, &LayerArgs{
-      id,
-      use_permanent_frame,
-    })
-  }
-}
 pub enum MapOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -2997,8 +2005,8 @@ impl<'a> flatbuffers::Follow<'a> for Map<'a> {
 }
 
 impl<'a> Map<'a> {
-  pub const VT_WIDTH: flatbuffers::VOffsetT = 4;
-  pub const VT_HEIGHT: flatbuffers::VOffsetT = 6;
+  pub const VT_POSITION: flatbuffers::VOffsetT = 4;
+  pub const VT_SIZE_: flatbuffers::VOffsetT = 6;
   pub const VT_X_GRID: flatbuffers::VOffsetT = 8;
   pub const VT_Y_GRID: flatbuffers::VOffsetT = 10;
 
@@ -3009,42 +2017,30 @@ impl<'a> Map<'a> {
   #[allow(unused_mut)]
   pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
     _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args MapArgs
+    args: &'args MapArgs<'args>
   ) -> flatbuffers::WIPOffset<Map<'bldr>> {
     let mut builder = MapBuilder::new(_fbb);
-    builder.add_height(args.height);
-    builder.add_width(args.width);
+    if let Some(x) = args.size_ { builder.add_size_(x); }
+    if let Some(x) = args.position { builder.add_position(x); }
     builder.add_y_grid(args.y_grid);
     builder.add_x_grid(args.x_grid);
     builder.finish()
   }
 
-  pub fn unpack(&self) -> MapT {
-    let width = self.width();
-    let height = self.height();
-    let x_grid = self.x_grid();
-    let y_grid = self.y_grid();
-    MapT {
-      width,
-      height,
-      x_grid,
-      y_grid,
-    }
-  }
 
   #[inline]
-  pub fn width(&self) -> f32 {
+  pub fn position(&self) -> &'a Vector2f {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(Map::VT_WIDTH, Some(0.0)).unwrap()}
+    unsafe { self._tab.get::<Vector2f>(Map::VT_POSITION, None).unwrap()}
   }
   #[inline]
-  pub fn height(&self) -> f32 {
+  pub fn size_(&self) -> &'a Vector2f {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(Map::VT_HEIGHT, Some(0.0)).unwrap()}
+    unsafe { self._tab.get::<Vector2f>(Map::VT_SIZE_, None).unwrap()}
   }
   #[inline]
   pub fn x_grid(&self) -> u16 {
@@ -3069,26 +2065,26 @@ impl flatbuffers::Verifiable for Map<'_> {
   ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
     use self::flatbuffers::Verifiable;
     v.visit_table(pos)?
-     .visit_field::<f32>("width", Self::VT_WIDTH, false)?
-     .visit_field::<f32>("height", Self::VT_HEIGHT, false)?
+     .visit_field::<Vector2f>("position", Self::VT_POSITION, true)?
+     .visit_field::<Vector2f>("size_", Self::VT_SIZE_, true)?
      .visit_field::<u16>("x_grid", Self::VT_X_GRID, false)?
      .visit_field::<u16>("y_grid", Self::VT_Y_GRID, false)?
      .finish();
     Ok(())
   }
 }
-pub struct MapArgs {
-    pub width: f32,
-    pub height: f32,
+pub struct MapArgs<'a> {
+    pub position: Option<&'a Vector2f>,
+    pub size_: Option<&'a Vector2f>,
     pub x_grid: u16,
     pub y_grid: u16,
 }
-impl<'a> Default for MapArgs {
+impl<'a> Default for MapArgs<'a> {
   #[inline]
   fn default() -> Self {
     MapArgs {
-      width: 0.0,
-      height: 0.0,
+      position: None, // required field
+      size_: None, // required field
       x_grid: 0,
       y_grid: 0,
     }
@@ -3101,12 +2097,12 @@ pub struct MapBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
 }
 impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> MapBuilder<'a, 'b, A> {
   #[inline]
-  pub fn add_width(&mut self, width: f32) {
-    self.fbb_.push_slot::<f32>(Map::VT_WIDTH, width, 0.0);
+  pub fn add_position(&mut self, position: &Vector2f) {
+    self.fbb_.push_slot_always::<&Vector2f>(Map::VT_POSITION, position);
   }
   #[inline]
-  pub fn add_height(&mut self, height: f32) {
-    self.fbb_.push_slot::<f32>(Map::VT_HEIGHT, height, 0.0);
+  pub fn add_size_(&mut self, size_: &Vector2f) {
+    self.fbb_.push_slot_always::<&Vector2f>(Map::VT_SIZE_, size_);
   }
   #[inline]
   pub fn add_x_grid(&mut self, x_grid: u16) {
@@ -3127,6 +2123,8 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> MapBuilder<'a, 'b, A> {
   #[inline]
   pub fn finish(self) -> flatbuffers::WIPOffset<Map<'a>> {
     let o = self.fbb_.end_table(self.start_);
+    self.fbb_.required(o, Map::VT_POSITION,"position");
+    self.fbb_.required(o, Map::VT_SIZE_,"size_");
     flatbuffers::WIPOffset::new(o.value())
   }
 }
@@ -3134,46 +2132,11 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> MapBuilder<'a, 'b, A> {
 impl core::fmt::Debug for Map<'_> {
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
     let mut ds = f.debug_struct("Map");
-      ds.field("width", &self.width());
-      ds.field("height", &self.height());
+      ds.field("position", &self.position());
+      ds.field("size_", &self.size_());
       ds.field("x_grid", &self.x_grid());
       ds.field("y_grid", &self.y_grid());
       ds.finish()
-  }
-}
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct MapT {
-  pub width: f32,
-  pub height: f32,
-  pub x_grid: u16,
-  pub y_grid: u16,
-}
-impl Default for MapT {
-  fn default() -> Self {
-    Self {
-      width: 0.0,
-      height: 0.0,
-      x_grid: 0,
-      y_grid: 0,
-    }
-  }
-}
-impl MapT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<Map<'b>> {
-    let width = self.width;
-    let height = self.height;
-    let x_grid = self.x_grid;
-    let y_grid = self.y_grid;
-    Map::create(_fbb, &MapArgs{
-      width,
-      height,
-      x_grid,
-      y_grid,
-    })
   }
 }
 pub enum OptionsOffset {}
@@ -3210,18 +2173,6 @@ impl<'a> Options<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> OptionsT {
-    let map = self.map().map(|x| {
-      Box::new(x.unpack())
-    });
-    let layer = self.layer().map(|x| {
-      Box::new(x.unpack())
-    });
-    OptionsT {
-      map,
-      layer,
-    }
-  }
 
   #[inline]
   pub fn map(&self) -> Option<Map<'a>> {
@@ -3302,37 +2253,6 @@ impl core::fmt::Debug for Options<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct OptionsT {
-  pub map: Option<Box<MapT>>,
-  pub layer: Option<Box<LayerT>>,
-}
-impl Default for OptionsT {
-  fn default() -> Self {
-    Self {
-      map: None,
-      layer: None,
-    }
-  }
-}
-impl OptionsT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<Options<'b>> {
-    let map = self.map.as_ref().map(|x|{
-      x.pack(_fbb)
-    });
-    let layer = self.layer.as_ref().map(|x|{
-      x.pack(_fbb)
-    });
-    Options::create(_fbb, &OptionsArgs{
-      map,
-      layer,
-    })
-  }
-}
 pub enum EndFrameOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -3363,10 +2283,6 @@ impl<'a> EndFrame<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> EndFrameT {
-    EndFrameT {
-    }
-  }
 }
 
 impl flatbuffers::Verifiable for EndFrame<'_> {
@@ -3416,25 +2332,6 @@ impl core::fmt::Debug for EndFrame<'_> {
       ds.finish()
   }
 }
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct EndFrameT {
-}
-impl Default for EndFrameT {
-  fn default() -> Self {
-    Self {
-    }
-  }
-}
-impl EndFrameT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<EndFrame<'b>> {
-    EndFrame::create(_fbb, &EndFrameArgs{
-    })
-  }
-}
 pub enum RewindMessageOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -3469,80 +2366,6 @@ impl<'a> RewindMessage<'a> {
     builder.finish()
   }
 
-  pub fn unpack(&self) -> RewindMessageT {
-    let command = match self.command_type() {
-      Command::NONE => CommandT::NONE,
-      Command::Arc => CommandT::Arc(Box::new(
-        self.command_as_arc()
-            .expect("Invalid union table, expected `Command::Arc`.")
-            .unpack()
-      )),
-      Command::CameraView => CommandT::CameraView(Box::new(
-        self.command_as_camera_view()
-            .expect("Invalid union table, expected `Command::CameraView`.")
-            .unpack()
-      )),
-      Command::Circle => CommandT::Circle(Box::new(
-        self.command_as_circle()
-            .expect("Invalid union table, expected `Command::Circle`.")
-            .unpack()
-      )),
-      Command::CircleSegment => CommandT::CircleSegment(Box::new(
-        self.command_as_circle_segment()
-            .expect("Invalid union table, expected `Command::CircleSegment`.")
-            .unpack()
-      )),
-      Command::LogText => CommandT::LogText(Box::new(
-        self.command_as_log_text()
-            .expect("Invalid union table, expected `Command::LogText`.")
-            .unpack()
-      )),
-      Command::Options => CommandT::Options(Box::new(
-        self.command_as_options()
-            .expect("Invalid union table, expected `Command::Options`.")
-            .unpack()
-      )),
-      Command::Polyline => CommandT::Polyline(Box::new(
-        self.command_as_polyline()
-            .expect("Invalid union table, expected `Command::Polyline`.")
-            .unpack()
-      )),
-      Command::Popup => CommandT::Popup(Box::new(
-        self.command_as_popup()
-            .expect("Invalid union table, expected `Command::Popup`.")
-            .unpack()
-      )),
-      Command::PopupRound => CommandT::PopupRound(Box::new(
-        self.command_as_popup_round()
-            .expect("Invalid union table, expected `Command::PopupRound`.")
-            .unpack()
-      )),
-      Command::Rectangle => CommandT::Rectangle(Box::new(
-        self.command_as_rectangle()
-            .expect("Invalid union table, expected `Command::Rectangle`.")
-            .unpack()
-      )),
-      Command::Tiles => CommandT::Tiles(Box::new(
-        self.command_as_tiles()
-            .expect("Invalid union table, expected `Command::Tiles`.")
-            .unpack()
-      )),
-      Command::Triangle => CommandT::Triangle(Box::new(
-        self.command_as_triangle()
-            .expect("Invalid union table, expected `Command::Triangle`.")
-            .unpack()
-      )),
-      Command::EndFrame => CommandT::EndFrame(Box::new(
-        self.command_as_end_frame()
-            .expect("Invalid union table, expected `Command::EndFrame`.")
-            .unpack()
-      )),
-      _ => CommandT::NONE,
-    };
-    RewindMessageT {
-      command,
-    }
-  }
 
   #[inline]
   pub fn command_type(&self) -> Command {
@@ -3916,31 +2739,6 @@ impl core::fmt::Debug for RewindMessage<'_> {
         },
       };
       ds.finish()
-  }
-}
-#[non_exhaustive]
-#[derive(Debug, Clone, PartialEq)]
-pub struct RewindMessageT {
-  pub command: CommandT,
-}
-impl Default for RewindMessageT {
-  fn default() -> Self {
-    Self {
-      command: CommandT::NONE,
-    }
-  }
-}
-impl RewindMessageT {
-  pub fn pack<'b, A: flatbuffers::Allocator + 'b>(
-    &self,
-    _fbb: &mut flatbuffers::FlatBufferBuilder<'b, A>
-  ) -> flatbuffers::WIPOffset<RewindMessage<'b>> {
-    let command_type = self.command.command_type();
-    let command = self.command.pack(_fbb);
-    RewindMessage::create(_fbb, &RewindMessageArgs{
-      command_type,
-      command,
-    })
   }
 }
 #[inline]

@@ -6,43 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type PopupRoundT struct {
-	Text string `json:"text"`
-	AreaCenter *Vector2fT `json:"area_center"`
-	AreaRadius float32 `json:"area_radius"`
-}
-
-func (t *PopupRoundT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	textOffset := flatbuffers.UOffsetT(0)
-	if t.Text != "" {
-		textOffset = builder.CreateString(t.Text)
-	}
-	PopupRoundStart(builder)
-	PopupRoundAddText(builder, textOffset)
-	areaCenterOffset := t.AreaCenter.Pack(builder)
-	PopupRoundAddAreaCenter(builder, areaCenterOffset)
-	PopupRoundAddAreaRadius(builder, t.AreaRadius)
-	return PopupRoundEnd(builder)
-}
-
-func (rcv *PopupRound) UnPackTo(t *PopupRoundT) {
-	t.Text = string(rcv.Text())
-	t.AreaCenter = rcv.AreaCenter(nil).UnPack()
-	t.AreaRadius = rcv.AreaRadius()
-}
-
-func (rcv *PopupRound) UnPack() *PopupRoundT {
-	if rcv == nil {
-		return nil
-	}
-	t := &PopupRoundT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type PopupRound struct {
 	_tab flatbuffers.Table
 }

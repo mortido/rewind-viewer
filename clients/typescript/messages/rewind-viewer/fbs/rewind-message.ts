@@ -4,23 +4,10 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Arc, ArcT } from '../../rewind-viewer/fbs/arc.js';
-import { CameraView, CameraViewT } from '../../rewind-viewer/fbs/camera-view.js';
-import { Circle, CircleT } from '../../rewind-viewer/fbs/circle.js';
-import { CircleSegment, CircleSegmentT } from '../../rewind-viewer/fbs/circle-segment.js';
 import { Command, unionToCommand, unionListToCommand } from '../../rewind-viewer/fbs/command.js';
-import { EndFrame, EndFrameT } from '../../rewind-viewer/fbs/end-frame.js';
-import { LogText, LogTextT } from '../../rewind-viewer/fbs/log-text.js';
-import { Options, OptionsT } from '../../rewind-viewer/fbs/options.js';
-import { Polyline, PolylineT } from '../../rewind-viewer/fbs/polyline.js';
-import { Popup, PopupT } from '../../rewind-viewer/fbs/popup.js';
-import { PopupRound, PopupRoundT } from '../../rewind-viewer/fbs/popup-round.js';
-import { Rectangle, RectangleT } from '../../rewind-viewer/fbs/rectangle.js';
-import { Tiles, TilesT } from '../../rewind-viewer/fbs/tiles.js';
-import { Triangle, TriangleT } from '../../rewind-viewer/fbs/triangle.js';
 
 
-export class RewindMessage implements flatbuffers.IUnpackableObject<RewindMessageT> {
+export class RewindMessage {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):RewindMessage {
@@ -79,43 +66,5 @@ static createRewindMessage(builder:flatbuffers.Builder, commandType:Command, com
   RewindMessage.addCommandType(builder, commandType);
   RewindMessage.addCommand(builder, commandOffset);
   return RewindMessage.endRewindMessage(builder);
-}
-
-unpack(): RewindMessageT {
-  return new RewindMessageT(
-    this.commandType(),
-    (() => {
-      const temp = unionToCommand(this.commandType(), this.command.bind(this));
-      if(temp === null) { return null; }
-      return temp.unpack()
-  })()
-  );
-}
-
-
-unpackTo(_o: RewindMessageT): void {
-  _o.commandType = this.commandType();
-  _o.command = (() => {
-      const temp = unionToCommand(this.commandType(), this.command.bind(this));
-      if(temp === null) { return null; }
-      return temp.unpack()
-  })();
-}
-}
-
-export class RewindMessageT implements flatbuffers.IGeneratedObject {
-constructor(
-  public commandType: Command = Command.NONE,
-  public command: ArcT|CameraViewT|CircleSegmentT|CircleT|EndFrameT|LogTextT|OptionsT|PolylineT|PopupRoundT|PopupT|RectangleT|TilesT|TriangleT|null = null
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  const command = builder.createObjectOffset(this.command);
-
-  return RewindMessage.createRewindMessage(builder,
-    this.commandType,
-    command
-  );
 }
 }

@@ -6,41 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type MapT struct {
-	Width float32 `json:"width"`
-	Height float32 `json:"height"`
-	XGrid uint16 `json:"x_grid"`
-	YGrid uint16 `json:"y_grid"`
-}
-
-func (t *MapT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	MapStart(builder)
-	MapAddWidth(builder, t.Width)
-	MapAddHeight(builder, t.Height)
-	MapAddXGrid(builder, t.XGrid)
-	MapAddYGrid(builder, t.YGrid)
-	return MapEnd(builder)
-}
-
-func (rcv *Map) UnPackTo(t *MapT) {
-	t.Width = rcv.Width()
-	t.Height = rcv.Height()
-	t.XGrid = rcv.XGrid()
-	t.YGrid = rcv.YGrid()
-}
-
-func (rcv *Map) UnPack() *MapT {
-	if rcv == nil {
-		return nil
-	}
-	t := &MapT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type Map struct {
 	_tab flatbuffers.Table
 }
@@ -76,28 +41,30 @@ func (rcv *Map) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *Map) Width() float32 {
+func (rcv *Map) Position(obj *Vector2f) *Vector2f {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
-		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
+		x := o + rcv._tab.Pos
+		if obj == nil {
+			obj = new(Vector2f)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
 	}
-	return 0.0
+	return nil
 }
 
-func (rcv *Map) MutateWidth(n float32) bool {
-	return rcv._tab.MutateFloat32Slot(4, n)
-}
-
-func (rcv *Map) Height() float32 {
+func (rcv *Map) Size(obj *Vector2f) *Vector2f {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
-		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
+		x := o + rcv._tab.Pos
+		if obj == nil {
+			obj = new(Vector2f)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
 	}
-	return 0.0
-}
-
-func (rcv *Map) MutateHeight(n float32) bool {
-	return rcv._tab.MutateFloat32Slot(6, n)
+	return nil
 }
 
 func (rcv *Map) XGrid() uint16 {
@@ -127,11 +94,11 @@ func (rcv *Map) MutateYGrid(n uint16) bool {
 func MapStart(builder *flatbuffers.Builder) {
 	builder.StartObject(4)
 }
-func MapAddWidth(builder *flatbuffers.Builder, width float32) {
-	builder.PrependFloat32Slot(0, width, 0.0)
+func MapAddPosition(builder *flatbuffers.Builder, position flatbuffers.UOffsetT) {
+	builder.PrependStructSlot(0, flatbuffers.UOffsetT(position), 0)
 }
-func MapAddHeight(builder *flatbuffers.Builder, height float32) {
-	builder.PrependFloat32Slot(1, height, 0.0)
+func MapAddSize(builder *flatbuffers.Builder, size flatbuffers.UOffsetT) {
+	builder.PrependStructSlot(1, flatbuffers.UOffsetT(size), 0)
 }
 func MapAddXGrid(builder *flatbuffers.Builder, xGrid uint16) {
 	builder.PrependUint16Slot(2, xGrid, 0)

@@ -6,56 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type TilesT struct {
-	Position *Vector2fT `json:"position"`
-	CellSize *Vector2fT `json:"cell_size"`
-	RowSize uint16 `json:"row_size"`
-	Colors []uint32 `json:"colors"`
-}
-
-func (t *TilesT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	colorsOffset := flatbuffers.UOffsetT(0)
-	if t.Colors != nil {
-		colorsLength := len(t.Colors)
-		TilesStartColorsVector(builder, colorsLength)
-		for j := colorsLength - 1; j >= 0; j-- {
-			builder.PrependUint32(t.Colors[j])
-		}
-		colorsOffset = builder.EndVector(colorsLength)
-	}
-	TilesStart(builder)
-	positionOffset := t.Position.Pack(builder)
-	TilesAddPosition(builder, positionOffset)
-	cellSizeOffset := t.CellSize.Pack(builder)
-	TilesAddCellSize(builder, cellSizeOffset)
-	TilesAddRowSize(builder, t.RowSize)
-	TilesAddColors(builder, colorsOffset)
-	return TilesEnd(builder)
-}
-
-func (rcv *Tiles) UnPackTo(t *TilesT) {
-	t.Position = rcv.Position(nil).UnPack()
-	t.CellSize = rcv.CellSize(nil).UnPack()
-	t.RowSize = rcv.RowSize()
-	colorsLength := rcv.ColorsLength()
-	t.Colors = make([]uint32, colorsLength)
-	for j := 0; j < colorsLength; j++ {
-		t.Colors[j] = rcv.Colors(j)
-	}
-}
-
-func (rcv *Tiles) UnPack() *TilesT {
-	if rcv == nil {
-		return nil
-	}
-	t := &TilesT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type Tiles struct {
 	_tab flatbuffers.Table
 }

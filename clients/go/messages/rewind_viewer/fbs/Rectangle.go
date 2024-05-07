@@ -6,41 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type RectangleT struct {
-	Color *ColorT `json:"color"`
-	Position *Vector2fT `json:"position"`
-	Size *Vector2fT `json:"size"`
-}
-
-func (t *RectangleT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	colorOffset := t.Color.Pack(builder)
-	RectangleStart(builder)
-	RectangleAddColor(builder, colorOffset)
-	positionOffset := t.Position.Pack(builder)
-	RectangleAddPosition(builder, positionOffset)
-	sizeOffset := t.Size.Pack(builder)
-	RectangleAddSize(builder, sizeOffset)
-	return RectangleEnd(builder)
-}
-
-func (rcv *Rectangle) UnPackTo(t *RectangleT) {
-	t.Color = rcv.Color(nil).UnPack()
-	t.Position = rcv.Position(nil).UnPack()
-	t.Size = rcv.Size(nil).UnPack()
-}
-
-func (rcv *Rectangle) UnPack() *RectangleT {
-	if rcv == nil {
-		return nil
-	}
-	t := &RectangleT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type Rectangle struct {
 	_tab flatbuffers.Table
 }

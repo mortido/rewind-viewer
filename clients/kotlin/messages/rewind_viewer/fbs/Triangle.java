@@ -60,33 +60,5 @@ public final class Triangle extends Table {
     public Triangle get(int j) { return get(new Triangle(), j); }
     public Triangle get(Triangle obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
-  public TriangleT unpack() {
-    TriangleT _o = new TriangleT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(TriangleT _o) {
-    if (color() != null) _o.setColor(color().unpack());
-    else _o.setColor(null);
-    rewind_viewer.fbs.Vector2fT[] _oPoints = new rewind_viewer.fbs.Vector2fT[pointsLength()];
-    for (int _j = 0; _j < pointsLength(); ++_j) {_oPoints[_j] = (points(_j) != null ? points(_j).unpack() : null);}
-    _o.setPoints(_oPoints);
-  }
-  public static int pack(FlatBufferBuilder builder, TriangleT _o) {
-    if (_o == null) return 0;
-    int _color = _o.getColor() == null ? 0 : rewind_viewer.fbs.Color.pack(builder, _o.getColor());
-    int _points = 0;
-    rewind_viewer.fbs.Vector2fT[] _oPoints = _o.getPoints();
-    if (_oPoints != null) {
-      int _unused_offset = 0;
-      startPointsVector(builder, _oPoints.length);
-      for (int _j = _oPoints.length - 1; _j >=0; _j--) { _unused_offset = rewind_viewer.fbs.Vector2f.pack(builder, _oPoints[_j]);}
-      _points = builder.endVector();
-    }
-    return createTriangle(
-      builder,
-      _color,
-      _points);
-  }
 }
 

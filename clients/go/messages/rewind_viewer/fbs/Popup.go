@@ -6,44 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type PopupT struct {
-	Text string `json:"text"`
-	AreaPosition *Vector2fT `json:"area_position"`
-	AreaSize *Vector2fT `json:"area_size"`
-}
-
-func (t *PopupT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	textOffset := flatbuffers.UOffsetT(0)
-	if t.Text != "" {
-		textOffset = builder.CreateString(t.Text)
-	}
-	PopupStart(builder)
-	PopupAddText(builder, textOffset)
-	areaPositionOffset := t.AreaPosition.Pack(builder)
-	PopupAddAreaPosition(builder, areaPositionOffset)
-	areaSizeOffset := t.AreaSize.Pack(builder)
-	PopupAddAreaSize(builder, areaSizeOffset)
-	return PopupEnd(builder)
-}
-
-func (rcv *Popup) UnPackTo(t *PopupT) {
-	t.Text = string(rcv.Text())
-	t.AreaPosition = rcv.AreaPosition(nil).UnPack()
-	t.AreaSize = rcv.AreaSize(nil).UnPack()
-}
-
-func (rcv *Popup) UnPack() *PopupT {
-	if rcv == nil {
-		return nil
-	}
-	t := &PopupT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type Popup struct {
 	_tab flatbuffers.Table
 }

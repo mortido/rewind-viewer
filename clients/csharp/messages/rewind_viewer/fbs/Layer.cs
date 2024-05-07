@@ -38,33 +38,6 @@ public struct Layer : IFlatbufferObject
     int o = builder.EndTable();
     return new Offset<rewind_viewer.fbs.Layer>(o);
   }
-  public LayerT UnPack() {
-    var _o = new LayerT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(LayerT _o) {
-    _o.Id = this.Id;
-    _o.UsePermanentFrame = this.UsePermanentFrame;
-  }
-  public static Offset<rewind_viewer.fbs.Layer> Pack(FlatBufferBuilder builder, LayerT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.Layer>);
-    return CreateLayer(
-      builder,
-      _o.Id,
-      _o.UsePermanentFrame);
-  }
-}
-
-public class LayerT
-{
-  public uint Id { get; set; }
-  public bool UsePermanentFrame { get; set; }
-
-  public LayerT() {
-    this.Id = 0;
-    this.UsePermanentFrame = false;
-  }
 }
 
 

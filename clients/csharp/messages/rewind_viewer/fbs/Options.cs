@@ -38,35 +38,6 @@ public struct Options : IFlatbufferObject
     int o = builder.EndTable();
     return new Offset<rewind_viewer.fbs.Options>(o);
   }
-  public OptionsT UnPack() {
-    var _o = new OptionsT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(OptionsT _o) {
-    _o.Map = this.Map.HasValue ? this.Map.Value.UnPack() : null;
-    _o.Layer = this.Layer.HasValue ? this.Layer.Value.UnPack() : null;
-  }
-  public static Offset<rewind_viewer.fbs.Options> Pack(FlatBufferBuilder builder, OptionsT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.Options>);
-    var _map = _o.Map == null ? default(Offset<rewind_viewer.fbs.Map>) : rewind_viewer.fbs.Map.Pack(builder, _o.Map);
-    var _layer = _o.Layer == null ? default(Offset<rewind_viewer.fbs.Layer>) : rewind_viewer.fbs.Layer.Pack(builder, _o.Layer);
-    return CreateOptions(
-      builder,
-      _map,
-      _layer);
-  }
-}
-
-public class OptionsT
-{
-  public rewind_viewer.fbs.MapT Map { get; set; }
-  public rewind_viewer.fbs.LayerT Layer { get; set; }
-
-  public OptionsT() {
-    this.Map = null;
-    this.Layer = null;
-  }
 }
 
 

@@ -48,13 +48,12 @@ void load_indices(const std::vector<GLuint> &indices) {
 
 namespace rewind_viewer::gl {
 
-Renderer::Renderer(const std::string &shaders_dir, glm::u32vec2 area_size, glm::u16vec2 grid_cells)
+Renderer::Renderer(const std::string &shaders_dir, const glm::vec2 &canvas_position,
+                   const glm::vec2 &canvas_size, const glm::u16vec2 &grid_cells)
     : context_{resources_}, shaders_{shaders_dir} {
   LOG_INFO("Initialize canvas");
   init_canvas();
-  update_canvas(area_size);
-  init_grid();
-  update_grid(area_size, grid_cells);
+  update_canvas(canvas_position, canvas_size, grid_cells);
 
   // Uniform buffer
   LOG_INFO("Create Uniform buffer");
@@ -79,7 +78,7 @@ void Renderer::init_canvas() {
   canvas_vbo = resources_.gen_buffer();
   //@formatter:off
   const float points[] = {
-      -1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+      0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
   };
   //@formatter:on
   glBindVertexArray(canvas_vao);
@@ -88,9 +87,7 @@ void Renderer::init_canvas() {
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
   glEnableVertexAttribArray(0);
   glBindVertexArray(0);
-}
 
-void Renderer::init_grid() {
   grid_vao = resources_.gen_vertex_array();
   grid_vbo = resources_.gen_buffer();
 
@@ -101,13 +98,13 @@ void Renderer::init_grid() {
   glBindVertexArray(0);
 }
 
-void Renderer::update_canvas(const glm::vec2 &size) {
-  canvas_model = glm::scale(glm::mat4(1.0f), {size * 0.5f, 1.0f});
-  canvas_model = glm::translate(canvas_model, {1.0f, 1.0f, -0.2f});
-}
+void Renderer::update_canvas([[maybe_unused]] const glm::vec2 &position, const glm::vec2 &size,
+                             const glm::u16vec2 &cells) {
+  std::lock_guard<Spinlock> lock(canvas_mutex_);
 
-void Renderer::update_grid(const glm::vec2 &canvas_size, const glm::u16vec2 &cells) {
-  grid_model = glm::scale(glm::mat4{1.0}, {canvas_size.x, canvas_size.y, 0.0f});
+  // TODO: support position for canvas model
+  canvas_model = glm::scale(glm::mat4(1.0f), {size, 1.0f});
+
   grid.clear();
   const float step_x = 1.0f / static_cast<float>(cells.x);
   for (size_t i = 0; i <= cells.x; ++i) {
@@ -176,7 +173,7 @@ void Renderer::render_grid(glm::vec3 color) {
   }
 
   shaders_.uniform_color_model.use();
-  shaders_.uniform_color_model.set_mat4("model", grid_model);
+  shaders_.uniform_color_model.set_mat4("model", canvas_model);
   shaders_.uniform_color_model.set_vec4("color", glm::vec4{color, 1.0f});
   glBindVertexArray(grid_vao);
   glDrawArrays(GL_LINES, 0, grid_vertex_count);
@@ -275,12 +272,6 @@ void Renderer::render_primitives(const PrimitivesCollection &primitives) {
   stencil_ref++;
   glBindVertexArray(0);
   glCheckError();
-}
-
-void Renderer::set_canvas(const glm::vec2 &size, const glm::u16vec2 &grid) {
-  std::lock_guard<Spinlock> lock(canvas_mutex_);
-  update_canvas(size);
-  update_grid(size, grid);
 }
 
 }  // namespace rewind_viewer::gl

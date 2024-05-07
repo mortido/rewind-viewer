@@ -271,15 +271,18 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
         LOG_V8("FlatBuffersHandler::OPTIONS->MAP");
         if (master_) {
           auto map = options->map();
-          if (map->width() <= 0.0) {
-            throw ParsingError{"Map width should be positive, got " + std::to_string(map->width())};
+          if (map->size()->x() <= 0.0) {
+            throw ParsingError{"Map width should be positive, got " +
+                               std::to_string(map->size()->x())};
           }
-          if (map->height() <= 0.0) {
+          if (map->size()->y() <= 0.0) {
             throw ParsingError{"Map height should be positive, got " +
-                               std::to_string(map->height())};
+                               std::to_string(map->size()->y())};
           }
           reset();
-          scene_->set_canvas_config({map->width(), map->height()}, {map->x_grid(), map->y_grid()});
+          scene_->set_canvas_config({map->position()->x(), map->position()->y()},
+                                    {map->size()->x(), map->size()->y()},
+                                    {map->x_grid(), map->y_grid()});
         }
       }
       if (options->layer() != nullptr) {

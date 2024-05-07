@@ -29,17 +29,6 @@ public struct CameraView : IFlatbufferObject
   public rewind_viewer.fbs.Vector2f? Position { get { int o = __p.__offset(6); return o != 0 ? (rewind_viewer.fbs.Vector2f?)(new rewind_viewer.fbs.Vector2f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
   public float ViewRadius { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
 
-  public static Offset<rewind_viewer.fbs.CameraView> CreateCameraView(FlatBufferBuilder builder,
-      StringOffset nameOffset = default(StringOffset),
-      rewind_viewer.fbs.Vector2fT position = null,
-      float view_radius = 0.0f) {
-    builder.StartTable(3);
-    CameraView.AddViewRadius(builder, view_radius);
-    CameraView.AddPosition(builder, rewind_viewer.fbs.Vector2f.Pack(builder, position));
-    CameraView.AddName(builder, nameOffset);
-    return CameraView.EndCameraView(builder);
-  }
-
   public static void StartCameraView(FlatBufferBuilder builder) { builder.StartTable(3); }
   public static void AddName(FlatBufferBuilder builder, StringOffset nameOffset) { builder.AddOffset(0, nameOffset.Value, 0); }
   public static void AddPosition(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Vector2f> positionOffset) { builder.AddStruct(1, positionOffset.Value, 0); }
@@ -49,38 +38,6 @@ public struct CameraView : IFlatbufferObject
     builder.Required(o, 4);  // name
     builder.Required(o, 6);  // position
     return new Offset<rewind_viewer.fbs.CameraView>(o);
-  }
-  public CameraViewT UnPack() {
-    var _o = new CameraViewT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(CameraViewT _o) {
-    _o.Name = this.Name;
-    _o.Position = this.Position.HasValue ? this.Position.Value.UnPack() : null;
-    _o.ViewRadius = this.ViewRadius;
-  }
-  public static Offset<rewind_viewer.fbs.CameraView> Pack(FlatBufferBuilder builder, CameraViewT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.CameraView>);
-    var _name = _o.Name == null ? default(StringOffset) : builder.CreateString(_o.Name);
-    return CreateCameraView(
-      builder,
-      _name,
-      _o.Position,
-      _o.ViewRadius);
-  }
-}
-
-public class CameraViewT
-{
-  public string Name { get; set; }
-  public rewind_viewer.fbs.Vector2fT Position { get; set; }
-  public float ViewRadius { get; set; }
-
-  public CameraViewT() {
-    this.Name = null;
-    this.Position = new rewind_viewer.fbs.Vector2fT();
-    this.ViewRadius = 0.0f;
   }
 }
 

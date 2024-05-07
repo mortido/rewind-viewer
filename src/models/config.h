@@ -234,7 +234,8 @@ struct CameraConfig : public YamlConfig {
 struct SceneConfig : public YamlConfig {
   constexpr static size_t LAYERS_COUNT = 10;
 
-  glm::vec2 size = {1024.0f, 1024.0f};
+  glm::vec2 canvas_position = {0.0f, 0.0f};
+  glm::vec2 canvas_size = {1024.0f, 1024.0f};
   glm::u16vec2 grid_cells = {32, 32};
   glm::vec4 grid_color = {0.3219f, 0.336f, 0.392f, 1.0f};
   glm::vec4 background_color = {0.757f, 0.856f, 0.882f, 1.0f};
@@ -249,8 +250,11 @@ struct SceneConfig : public YamlConfig {
   CameraConfig camera;
 
   void parse(ryml::ConstNodeRef node) override {
-    if (node.has_child("size")) {
-      read("Scene:size", node["size"], size);
+    if (node.has_child("canvas_position")) {
+      read("Scene:canvas_position", node["canvas_position"], canvas_position);
+    }
+    if (node.has_child("canvas_size")) {
+      read("Scene:canvas_size", node["canvas_size"], canvas_size);
     }
     if (node.has_child("grid_cells")) {
       read("Scene:grid_cells", node["grid_cells"], grid_cells);
@@ -283,7 +287,8 @@ struct SceneConfig : public YamlConfig {
 
   void serialize(ryml::NodeRef node) const noexcept override {
     node |= ryml::MAP;
-    write(node["size"], size);
+    write(node["canvas_position"], canvas_position);
+    write(node["canvas_size"], canvas_size);
     write(node["grid_cells"], grid_cells);
     write(node["grid_color"], grid_color);
     write(node["background_color"], background_color);
@@ -298,8 +303,8 @@ struct SceneConfig : public YamlConfig {
   bool validate(std::vector<std::string>& errors) const noexcept override {
     bool is_valid = true;
 
-    if (size.x <= 0.0f || size.y <= 0.0f) {
-      errors.emplace_back("Scene size dimensions must be positive");
+    if (canvas_size.x <= 0.0f || canvas_size.y <= 0.0f) {
+      errors.emplace_back("Scene canvas_size dimensions must be positive");
       is_valid = false;
     }
     if (grid_cells.x == 0 || grid_cells.y == 0) {

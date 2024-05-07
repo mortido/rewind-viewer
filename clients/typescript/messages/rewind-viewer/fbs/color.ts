@@ -4,9 +4,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-
-
-export class Color implements flatbuffers.IUnpackableObject<ColorT> {
+export class Color {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):Color {
@@ -56,33 +54,5 @@ static createColor(builder:flatbuffers.Builder, value:number, fill:boolean):flat
   Color.addValue(builder, value);
   Color.addFill(builder, fill);
   return Color.endColor(builder);
-}
-
-unpack(): ColorT {
-  return new ColorT(
-    this.value(),
-    this.fill()
-  );
-}
-
-
-unpackTo(_o: ColorT): void {
-  _o.value = this.value();
-  _o.fill = this.fill();
-}
-}
-
-export class ColorT implements flatbuffers.IGeneratedObject {
-constructor(
-  public value: number = 0,
-  public fill: boolean = false
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  return Color.createColor(builder,
-    this.value,
-    this.fill
-  );
 }
 }

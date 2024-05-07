@@ -2,17 +2,20 @@
 
  - C++17
  - C++17 cmake project
- - C# **[Not Implemented]**
- - Go **[Not Implemented]**
- - Java **[Not Implemented]**
- - Kotlin **[Not Implemented]**
- - Python3 **[Not Implemented]**
- - rust **[Not Implemented]**
- - TtypeScript **[Not Implemented]**
+
+Not implemented:
+
+ - Python3 **[Requires primitives implementation]**
+ - C# **[Messages generated]**
+ - Go **[Messages generated]**
+ - Java **[Messages generated]**
+ - Kotlin **[Java Messages generated]**
+ - rust **[Messages generated]**
+ - TtypeScript **[Messages generated]**
 
 Original clients [implementation](https://github.com/kswaldemar/rewind-viewer/tree/develop/clients) can be used as reference.
 
-# Message protocol
+# Message protocol v5
 
 Rewind viewer uses FlatBuffers for control message serialization. See [message schema](https://github.com/mortido/rewind-viewer/blob/develop/fbs/rewind_message.fbs) for more details.
 
@@ -106,8 +109,8 @@ Layer {
 }
 
 Map {
-  width:float;     # Map canvas width
-  height:float;    # Map canvas height
+  position:Vector2f; # Position of left bottom corner
+  size:Vector2f;     # Map size, x - width, y - height
   x_grid:uint16;     # Map x cells count (used to draw grid)
   y_grid:uint16;     # Map y cells count (used to draw grid)
 }

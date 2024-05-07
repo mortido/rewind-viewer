@@ -25,33 +25,6 @@ public struct Vector2f : IFlatbufferObject
     builder.PutFloat(X);
     return new Offset<rewind_viewer.fbs.Vector2f>(builder.Offset);
   }
-  public Vector2fT UnPack() {
-    var _o = new Vector2fT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(Vector2fT _o) {
-    _o.X = this.X;
-    _o.Y = this.Y;
-  }
-  public static Offset<rewind_viewer.fbs.Vector2f> Pack(FlatBufferBuilder builder, Vector2fT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.Vector2f>);
-    return CreateVector2f(
-      builder,
-      _o.X,
-      _o.Y);
-  }
-}
-
-public class Vector2fT
-{
-  public float X { get; set; }
-  public float Y { get; set; }
-
-  public Vector2fT() {
-    this.X = 0.0f;
-    this.Y = 0.0f;
-  }
 }
 
 

@@ -6,35 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type ColorT struct {
-	Value uint32 `json:"value"`
-	Fill bool `json:"fill"`
-}
-
-func (t *ColorT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	ColorStart(builder)
-	ColorAddValue(builder, t.Value)
-	ColorAddFill(builder, t.Fill)
-	return ColorEnd(builder)
-}
-
-func (rcv *Color) UnPackTo(t *ColorT) {
-	t.Value = rcv.Value()
-	t.Fill = rcv.Fill()
-}
-
-func (rcv *Color) UnPack() *ColorT {
-	if rcv == nil {
-		return nil
-	}
-	t := &ColorT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type Color struct {
 	_tab flatbuffers.Table
 }

@@ -53,33 +53,5 @@ public final class Arc extends Table {
     public Arc get(int j) { return get(new Arc(), j); }
     public Arc get(Arc obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
-  public ArcT unpack() {
-    ArcT _o = new ArcT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(ArcT _o) {
-    if (color() != null) _o.setColor(color().unpack());
-    else _o.setColor(null);
-    if (center() != null) center().unpackTo(_o.getCenter());
-    else _o.setCenter(null);
-    float _oRadius = radius();
-    _o.setRadius(_oRadius);
-    float _oStartAngle = startAngle();
-    _o.setStartAngle(_oStartAngle);
-    float _oEndAngle = endAngle();
-    _o.setEndAngle(_oEndAngle);
-  }
-  public static int pack(FlatBufferBuilder builder, ArcT _o) {
-    if (_o == null) return 0;
-    int _color = _o.getColor() == null ? 0 : rewind_viewer.fbs.Color.pack(builder, _o.getColor());
-    startArc(builder);
-    addColor(builder, _color);
-    addCenter(builder, rewind_viewer.fbs.Vector2f.pack(builder, _o.getCenter()));
-    addRadius(builder, _o.getRadius());
-    addStartAngle(builder, _o.getStartAngle());
-    addEndAngle(builder, _o.getEndAngle());
-    return endArc(builder);
-  }
 }
 

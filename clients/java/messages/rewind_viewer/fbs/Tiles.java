@@ -60,34 +60,5 @@ public final class Tiles extends Table {
     public Tiles get(int j) { return get(new Tiles(), j); }
     public Tiles get(Tiles obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
-  public TilesT unpack() {
-    TilesT _o = new TilesT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(TilesT _o) {
-    if (position() != null) position().unpackTo(_o.getPosition());
-    else _o.setPosition(null);
-    if (cellSize() != null) cellSize().unpackTo(_o.getCellSize());
-    else _o.setCellSize(null);
-    int _oRowSize = rowSize();
-    _o.setRowSize(_oRowSize);
-    long[] _oColors = new long[colorsLength()];
-    for (int _j = 0; _j < colorsLength(); ++_j) {_oColors[_j] = colors(_j);}
-    _o.setColors(_oColors);
-  }
-  public static int pack(FlatBufferBuilder builder, TilesT _o) {
-    if (_o == null) return 0;
-    int _colors = 0;
-    if (_o.getColors() != null) {
-      _colors = createColorsVector(builder, _o.getColors());
-    }
-    startTiles(builder);
-    addPosition(builder, rewind_viewer.fbs.Vector2f.pack(builder, _o.getPosition()));
-    addCellSize(builder, rewind_viewer.fbs.Vector2f.pack(builder, _o.getCellSize()));
-    addRowSize(builder, _o.getRowSize());
-    addColors(builder, _colors);
-    return endTiles(builder);
-  }
 }
 

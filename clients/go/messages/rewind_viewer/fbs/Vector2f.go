@@ -6,31 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type Vector2fT struct {
-	X float32 `json:"x"`
-	Y float32 `json:"y"`
-}
-
-func (t *Vector2fT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	return CreateVector2f(builder, t.X, t.Y)
-}
-func (rcv *Vector2f) UnPackTo(t *Vector2fT) {
-	t.X = rcv.X()
-	t.Y = rcv.Y()
-}
-
-func (rcv *Vector2f) UnPack() *Vector2fT {
-	if rcv == nil {
-		return nil
-	}
-	t := &Vector2fT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type Vector2f struct {
 	_tab flatbuffers.Struct
 }

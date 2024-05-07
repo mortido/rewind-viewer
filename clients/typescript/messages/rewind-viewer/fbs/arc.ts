@@ -4,11 +4,11 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Color, ColorT } from '../../rewind-viewer/fbs/color.js';
-import { Vector2f, Vector2fT } from '../../rewind-viewer/fbs/vector2f.js';
+import { Color } from '../../rewind-viewer/fbs/color.js';
+import { Vector2f } from '../../rewind-viewer/fbs/vector2f.js';
 
 
-export class Arc implements flatbuffers.IUnpackableObject<ArcT> {
+export class Arc {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):Arc {
@@ -81,47 +81,4 @@ static endArc(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-
-unpack(): ArcT {
-  return new ArcT(
-    (this.color() !== null ? this.color()!.unpack() : null),
-    (this.center() !== null ? this.center()!.unpack() : null),
-    this.radius(),
-    this.startAngle(),
-    this.endAngle()
-  );
-}
-
-
-unpackTo(_o: ArcT): void {
-  _o.color = (this.color() !== null ? this.color()!.unpack() : null);
-  _o.center = (this.center() !== null ? this.center()!.unpack() : null);
-  _o.radius = this.radius();
-  _o.startAngle = this.startAngle();
-  _o.endAngle = this.endAngle();
-}
-}
-
-export class ArcT implements flatbuffers.IGeneratedObject {
-constructor(
-  public color: ColorT|null = null,
-  public center: Vector2fT|null = null,
-  public radius: number = 0.0,
-  public startAngle: number = 0.0,
-  public endAngle: number = 0.0
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  const color = (this.color !== null ? this.color!.pack(builder) : 0);
-
-  Arc.startArc(builder);
-  Arc.addColor(builder, color);
-  Arc.addCenter(builder, (this.center !== null ? this.center!.pack(builder) : 0));
-  Arc.addRadius(builder, this.radius);
-  Arc.addStartAngle(builder, this.startAngle);
-  Arc.addEndAngle(builder, this.endAngle);
-
-  return Arc.endArc(builder);
-}
 }

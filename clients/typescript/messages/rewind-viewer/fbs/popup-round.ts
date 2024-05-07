@@ -4,10 +4,10 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Vector2f, Vector2fT } from '../../rewind-viewer/fbs/vector2f.js';
+import { Vector2f } from '../../rewind-viewer/fbs/vector2f.js';
 
 
-export class PopupRound implements flatbuffers.IUnpackableObject<PopupRoundT> {
+export class PopupRound {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):PopupRound {
@@ -65,39 +65,4 @@ static endPopupRound(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-
-unpack(): PopupRoundT {
-  return new PopupRoundT(
-    this.text(),
-    (this.areaCenter() !== null ? this.areaCenter()!.unpack() : null),
-    this.areaRadius()
-  );
-}
-
-
-unpackTo(_o: PopupRoundT): void {
-  _o.text = this.text();
-  _o.areaCenter = (this.areaCenter() !== null ? this.areaCenter()!.unpack() : null);
-  _o.areaRadius = this.areaRadius();
-}
-}
-
-export class PopupRoundT implements flatbuffers.IGeneratedObject {
-constructor(
-  public text: string|Uint8Array|null = null,
-  public areaCenter: Vector2fT|null = null,
-  public areaRadius: number = 0.0
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  const text = (this.text !== null ? builder.createString(this.text!) : 0);
-
-  PopupRound.startPopupRound(builder);
-  PopupRound.addText(builder, text);
-  PopupRound.addAreaCenter(builder, (this.areaCenter !== null ? this.areaCenter!.pack(builder) : 0));
-  PopupRound.addAreaRadius(builder, this.areaRadius);
-
-  return PopupRound.endPopupRound(builder);
-}
 }

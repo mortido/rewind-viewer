@@ -4,10 +4,10 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Vector2f, Vector2fT } from '../../rewind-viewer/fbs/vector2f.js';
+import { Vector2f } from '../../rewind-viewer/fbs/vector2f.js';
 
 
-export class Popup implements flatbuffers.IUnpackableObject<PopupT> {
+export class Popup {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):Popup {
@@ -66,39 +66,4 @@ static endPopup(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-
-unpack(): PopupT {
-  return new PopupT(
-    this.text(),
-    (this.areaPosition() !== null ? this.areaPosition()!.unpack() : null),
-    (this.areaSize() !== null ? this.areaSize()!.unpack() : null)
-  );
-}
-
-
-unpackTo(_o: PopupT): void {
-  _o.text = this.text();
-  _o.areaPosition = (this.areaPosition() !== null ? this.areaPosition()!.unpack() : null);
-  _o.areaSize = (this.areaSize() !== null ? this.areaSize()!.unpack() : null);
-}
-}
-
-export class PopupT implements flatbuffers.IGeneratedObject {
-constructor(
-  public text: string|Uint8Array|null = null,
-  public areaPosition: Vector2fT|null = null,
-  public areaSize: Vector2fT|null = null
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  const text = (this.text !== null ? builder.createString(this.text!) : 0);
-
-  Popup.startPopup(builder);
-  Popup.addText(builder, text);
-  Popup.addAreaPosition(builder, (this.areaPosition !== null ? this.areaPosition!.pack(builder) : 0));
-  Popup.addAreaSize(builder, (this.areaSize !== null ? this.areaSize!.pack(builder) : 0));
-
-  return Popup.endPopup(builder);
-}
 }

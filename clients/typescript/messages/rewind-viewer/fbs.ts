@@ -2,22 +2,22 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-export { Arc, ArcT } from './fbs/arc.js';
-export { CameraView, CameraViewT } from './fbs/camera-view.js';
-export { Circle, CircleT } from './fbs/circle.js';
-export { CircleSegment, CircleSegmentT } from './fbs/circle-segment.js';
-export { Color, ColorT } from './fbs/color.js';
+export { Arc } from './fbs/arc.js';
+export { CameraView } from './fbs/camera-view.js';
+export { Circle } from './fbs/circle.js';
+export { CircleSegment } from './fbs/circle-segment.js';
+export { Color } from './fbs/color.js';
 export { Command } from './fbs/command.js';
-export { EndFrame, EndFrameT } from './fbs/end-frame.js';
-export { Layer, LayerT } from './fbs/layer.js';
-export { LogText, LogTextT } from './fbs/log-text.js';
-export { Map, MapT } from './fbs/map.js';
-export { Options, OptionsT } from './fbs/options.js';
-export { Polyline, PolylineT } from './fbs/polyline.js';
-export { Popup, PopupT } from './fbs/popup.js';
-export { PopupRound, PopupRoundT } from './fbs/popup-round.js';
-export { Rectangle, RectangleT } from './fbs/rectangle.js';
-export { RewindMessage, RewindMessageT } from './fbs/rewind-message.js';
-export { Tiles, TilesT } from './fbs/tiles.js';
-export { Triangle, TriangleT } from './fbs/triangle.js';
-export { Vector2f, Vector2fT } from './fbs/vector2f.js';
+export { EndFrame } from './fbs/end-frame.js';
+export { Layer } from './fbs/layer.js';
+export { LogText } from './fbs/log-text.js';
+export { Map } from './fbs/map.js';
+export { Options } from './fbs/options.js';
+export { Polyline } from './fbs/polyline.js';
+export { Popup } from './fbs/popup.js';
+export { PopupRound } from './fbs/popup-round.js';
+export { Rectangle } from './fbs/rectangle.js';
+export { RewindMessage } from './fbs/rewind-message.js';
+export { Tiles } from './fbs/tiles.js';
+export { Triangle } from './fbs/triangle.js';
+export { Vector2f } from './fbs/vector2f.js';

@@ -53,23 +53,5 @@ public final class Layer extends Table {
     public Layer get(int j) { return get(new Layer(), j); }
     public Layer get(Layer obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
-  public LayerT unpack() {
-    LayerT _o = new LayerT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(LayerT _o) {
-    long _oId = id();
-    _o.setId(_oId);
-    boolean _oUsePermanentFrame = usePermanentFrame();
-    _o.setUsePermanentFrame(_oUsePermanentFrame);
-  }
-  public static int pack(FlatBufferBuilder builder, LayerT _o) {
-    if (_o == null) return 0;
-    return createLayer(
-      builder,
-      _o.getId(),
-      _o.getUsePermanentFrame());
-  }
 }
 

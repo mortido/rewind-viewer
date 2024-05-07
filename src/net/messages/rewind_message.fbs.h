@@ -1119,16 +1119,16 @@ inline ::flatbuffers::Offset<Layer> CreateLayer(
 struct Map FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef MapBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_WIDTH = 4,
-    VT_HEIGHT = 6,
+    VT_POSITION = 4,
+    VT_SIZE = 6,
     VT_X_GRID = 8,
     VT_Y_GRID = 10
   };
-  float width() const {
-    return GetField<float>(VT_WIDTH, 0.0f);
+  const rewind_viewer::fbs::Vector2f *position() const {
+    return GetStruct<const rewind_viewer::fbs::Vector2f *>(VT_POSITION);
   }
-  float height() const {
-    return GetField<float>(VT_HEIGHT, 0.0f);
+  const rewind_viewer::fbs::Vector2f *size() const {
+    return GetStruct<const rewind_viewer::fbs::Vector2f *>(VT_SIZE);
   }
   uint16_t x_grid() const {
     return GetField<uint16_t>(VT_X_GRID, 0);
@@ -1138,8 +1138,8 @@ struct Map FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<float>(verifier, VT_WIDTH, 4) &&
-           VerifyField<float>(verifier, VT_HEIGHT, 4) &&
+           VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_POSITION, 4) &&
+           VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_SIZE, 4) &&
            VerifyField<uint16_t>(verifier, VT_X_GRID, 2) &&
            VerifyField<uint16_t>(verifier, VT_Y_GRID, 2) &&
            verifier.EndTable();
@@ -1150,11 +1150,11 @@ struct MapBuilder {
   typedef Map Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_width(float width) {
-    fbb_.AddElement<float>(Map::VT_WIDTH, width, 0.0f);
+  void add_position(const rewind_viewer::fbs::Vector2f *position) {
+    fbb_.AddStruct(Map::VT_POSITION, position);
   }
-  void add_height(float height) {
-    fbb_.AddElement<float>(Map::VT_HEIGHT, height, 0.0f);
+  void add_size(const rewind_viewer::fbs::Vector2f *size) {
+    fbb_.AddStruct(Map::VT_SIZE, size);
   }
   void add_x_grid(uint16_t x_grid) {
     fbb_.AddElement<uint16_t>(Map::VT_X_GRID, x_grid, 0);
@@ -1169,19 +1169,21 @@ struct MapBuilder {
   ::flatbuffers::Offset<Map> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<Map>(end);
+    fbb_.Required(o, Map::VT_POSITION);
+    fbb_.Required(o, Map::VT_SIZE);
     return o;
   }
 };
 
 inline ::flatbuffers::Offset<Map> CreateMap(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    float width = 0.0f,
-    float height = 0.0f,
+    const rewind_viewer::fbs::Vector2f *position = nullptr,
+    const rewind_viewer::fbs::Vector2f *size = nullptr,
     uint16_t x_grid = 0,
     uint16_t y_grid = 0) {
   MapBuilder builder_(_fbb);
-  builder_.add_height(height);
-  builder_.add_width(width);
+  builder_.add_size(size);
+  builder_.add_position(position);
   builder_.add_y_grid(y_grid);
   builder_.add_x_grid(x_grid);
   return builder_.Finish();

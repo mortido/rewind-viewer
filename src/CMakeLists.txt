@@ -40,7 +40,7 @@ set(SOURCES
 #add_executable(${APP_NAME} MACOSX_BUNDLE ${Sources})
 
 add_executable(${APP_NAME} ${SOURCES})
-target_compile_features(${APP_NAME} PUBLIC cxx_std_20)
+target_compile_features(${APP_NAME} PUBLIC cxx_std_17)
 add_dependencies(${APP_NAME} CopyResources)
 target_include_directories(${APP_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_definitions(${APP_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)

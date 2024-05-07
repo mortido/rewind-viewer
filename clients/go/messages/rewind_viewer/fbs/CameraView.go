@@ -6,43 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type CameraViewT struct {
-	Name string `json:"name"`
-	Position *Vector2fT `json:"position"`
-	ViewRadius float32 `json:"view_radius"`
-}
-
-func (t *CameraViewT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	nameOffset := flatbuffers.UOffsetT(0)
-	if t.Name != "" {
-		nameOffset = builder.CreateString(t.Name)
-	}
-	CameraViewStart(builder)
-	CameraViewAddName(builder, nameOffset)
-	positionOffset := t.Position.Pack(builder)
-	CameraViewAddPosition(builder, positionOffset)
-	CameraViewAddViewRadius(builder, t.ViewRadius)
-	return CameraViewEnd(builder)
-}
-
-func (rcv *CameraView) UnPackTo(t *CameraViewT) {
-	t.Name = string(rcv.Name())
-	t.Position = rcv.Position(nil).UnPack()
-	t.ViewRadius = rcv.ViewRadius()
-}
-
-func (rcv *CameraView) UnPack() *CameraViewT {
-	if rcv == nil {
-		return nil
-	}
-	t := &CameraViewT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type CameraView struct {
 	_tab flatbuffers.Table
 }

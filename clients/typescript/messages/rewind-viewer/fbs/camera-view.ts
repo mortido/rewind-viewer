@@ -4,10 +4,10 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Vector2f, Vector2fT } from '../../rewind-viewer/fbs/vector2f.js';
+import { Vector2f } from '../../rewind-viewer/fbs/vector2f.js';
 
 
-export class CameraView implements flatbuffers.IUnpackableObject<CameraViewT> {
+export class CameraView {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):CameraView {
@@ -65,39 +65,4 @@ static endCameraView(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-
-unpack(): CameraViewT {
-  return new CameraViewT(
-    this.name(),
-    (this.position() !== null ? this.position()!.unpack() : null),
-    this.viewRadius()
-  );
-}
-
-
-unpackTo(_o: CameraViewT): void {
-  _o.name = this.name();
-  _o.position = (this.position() !== null ? this.position()!.unpack() : null);
-  _o.viewRadius = this.viewRadius();
-}
-}
-
-export class CameraViewT implements flatbuffers.IGeneratedObject {
-constructor(
-  public name: string|Uint8Array|null = null,
-  public position: Vector2fT|null = null,
-  public viewRadius: number = 0.0
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  const name = (this.name !== null ? builder.createString(this.name!) : 0);
-
-  CameraView.startCameraView(builder);
-  CameraView.addName(builder, name);
-  CameraView.addPosition(builder, (this.position !== null ? this.position!.pack(builder) : 0));
-  CameraView.addViewRadius(builder, this.viewRadius);
-
-  return CameraView.endCameraView(builder);
-}
 }

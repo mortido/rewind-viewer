@@ -38,33 +38,6 @@ public struct Color : IFlatbufferObject
     int o = builder.EndTable();
     return new Offset<rewind_viewer.fbs.Color>(o);
   }
-  public ColorT UnPack() {
-    var _o = new ColorT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(ColorT _o) {
-    _o.Value = this.Value;
-    _o.Fill = this.Fill;
-  }
-  public static Offset<rewind_viewer.fbs.Color> Pack(FlatBufferBuilder builder, ColorT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.Color>);
-    return CreateColor(
-      builder,
-      _o.Value,
-      _o.Fill);
-  }
-}
-
-public class ColorT
-{
-  public uint Value { get; set; }
-  public bool Fill { get; set; }
-
-  public ColorT() {
-    this.Value = 0;
-    this.Fill = false;
-  }
 }
 
 

@@ -6,40 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type RewindMessageT struct {
-	Command *CommandT `json:"command"`
-}
-
-func (t *RewindMessageT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	commandOffset := t.Command.Pack(builder)
-
-	RewindMessageStart(builder)
-	if t.Command != nil {
-		RewindMessageAddCommandType(builder, t.Command.Type)
-	}
-	RewindMessageAddCommand(builder, commandOffset)
-	return RewindMessageEnd(builder)
-}
-
-func (rcv *RewindMessage) UnPackTo(t *RewindMessageT) {
-	commandTable := flatbuffers.Table{}
-	if rcv.Command(&commandTable) {
-		t.Command = rcv.CommandType().UnPack(commandTable)
-	}
-}
-
-func (rcv *RewindMessage) UnPack() *RewindMessageT {
-	if rcv == nil {
-		return nil
-	}
-	t := &RewindMessageT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type RewindMessage struct {
 	_tab flatbuffers.Table
 }

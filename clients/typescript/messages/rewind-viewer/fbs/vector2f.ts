@@ -4,9 +4,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-
-
-export class Vector2f implements flatbuffers.IUnpackableObject<Vector2fT> {
+export class Vector2f {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):Vector2f {
@@ -34,32 +32,4 @@ static createVector2f(builder:flatbuffers.Builder, x: number, y: number):flatbuf
   return builder.offset();
 }
 
-
-unpack(): Vector2fT {
-  return new Vector2fT(
-    this.x(),
-    this.y()
-  );
-}
-
-
-unpackTo(_o: Vector2fT): void {
-  _o.x = this.x();
-  _o.y = this.y();
-}
-}
-
-export class Vector2fT implements flatbuffers.IGeneratedObject {
-constructor(
-  public x: number = 0.0,
-  public y: number = 0.0
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  return Vector2f.createVector2f(builder,
-    this.x,
-    this.y
-  );
-}
 }

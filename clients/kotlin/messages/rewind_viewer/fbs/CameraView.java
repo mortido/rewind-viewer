@@ -51,27 +51,5 @@ public final class CameraView extends Table {
     public CameraView get(int j) { return get(new CameraView(), j); }
     public CameraView get(CameraView obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
-  public CameraViewT unpack() {
-    CameraViewT _o = new CameraViewT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(CameraViewT _o) {
-    String _oName = name();
-    _o.setName(_oName);
-    if (position() != null) position().unpackTo(_o.getPosition());
-    else _o.setPosition(null);
-    float _oViewRadius = viewRadius();
-    _o.setViewRadius(_oViewRadius);
-  }
-  public static int pack(FlatBufferBuilder builder, CameraViewT _o) {
-    if (_o == null) return 0;
-    int _name = _o.getName() == null ? 0 : builder.createString(_o.getName());
-    startCameraView(builder);
-    addName(builder, _name);
-    addPosition(builder, rewind_viewer.fbs.Vector2f.pack(builder, _o.getPosition()));
-    addViewRadius(builder, _o.getViewRadius());
-    return endCameraView(builder);
-  }
 }
 

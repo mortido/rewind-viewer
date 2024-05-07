@@ -6,36 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type LogTextT struct {
-	Text string `json:"text"`
-}
-
-func (t *LogTextT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	textOffset := flatbuffers.UOffsetT(0)
-	if t.Text != "" {
-		textOffset = builder.CreateString(t.Text)
-	}
-	LogTextStart(builder)
-	LogTextAddText(builder, textOffset)
-	return LogTextEnd(builder)
-}
-
-func (rcv *LogText) UnPackTo(t *LogTextT) {
-	t.Text = string(rcv.Text())
-}
-
-func (rcv *LogText) UnPack() *LogTextT {
-	if rcv == nil {
-		return nil
-	}
-	t := &LogTextT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type LogText struct {
 	_tab flatbuffers.Table
 }

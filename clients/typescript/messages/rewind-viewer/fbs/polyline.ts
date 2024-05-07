@@ -4,11 +4,11 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Color, ColorT } from '../../rewind-viewer/fbs/color.js';
-import { Vector2f, Vector2fT } from '../../rewind-viewer/fbs/vector2f.js';
+import { Color } from '../../rewind-viewer/fbs/color.js';
+import { Vector2f } from '../../rewind-viewer/fbs/vector2f.js';
 
 
-export class Polyline implements flatbuffers.IUnpackableObject<PolylineT> {
+export class Polyline {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):Polyline {
@@ -68,36 +68,5 @@ static createPolyline(builder:flatbuffers.Builder, colorOffset:flatbuffers.Offse
   Polyline.addColor(builder, colorOffset);
   Polyline.addPoints(builder, pointsOffset);
   return Polyline.endPolyline(builder);
-}
-
-unpack(): PolylineT {
-  return new PolylineT(
-    (this.color() !== null ? this.color()!.unpack() : null),
-    this.bb!.createObjList<Vector2f, Vector2fT>(this.points.bind(this), this.pointsLength())
-  );
-}
-
-
-unpackTo(_o: PolylineT): void {
-  _o.color = (this.color() !== null ? this.color()!.unpack() : null);
-  _o.points = this.bb!.createObjList<Vector2f, Vector2fT>(this.points.bind(this), this.pointsLength());
-}
-}
-
-export class PolylineT implements flatbuffers.IGeneratedObject {
-constructor(
-  public color: ColorT|null = null,
-  public points: (Vector2fT)[] = []
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  const color = (this.color !== null ? this.color!.pack(builder) : 0);
-  const points = builder.createStructOffsetList(this.points, Polyline.startPointsVector);
-
-  return Polyline.createPolyline(builder,
-    color,
-    points
-  );
 }
 }

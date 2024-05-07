@@ -6,46 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type CircleSegmentT struct {
-	Color *ColorT `json:"color"`
-	Center *Vector2fT `json:"center"`
-	Radius float32 `json:"radius"`
-	StartAngle float32 `json:"start_angle"`
-	EndAngle float32 `json:"end_angle"`
-}
-
-func (t *CircleSegmentT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	colorOffset := t.Color.Pack(builder)
-	CircleSegmentStart(builder)
-	CircleSegmentAddColor(builder, colorOffset)
-	centerOffset := t.Center.Pack(builder)
-	CircleSegmentAddCenter(builder, centerOffset)
-	CircleSegmentAddRadius(builder, t.Radius)
-	CircleSegmentAddStartAngle(builder, t.StartAngle)
-	CircleSegmentAddEndAngle(builder, t.EndAngle)
-	return CircleSegmentEnd(builder)
-}
-
-func (rcv *CircleSegment) UnPackTo(t *CircleSegmentT) {
-	t.Color = rcv.Color(nil).UnPack()
-	t.Center = rcv.Center(nil).UnPack()
-	t.Radius = rcv.Radius()
-	t.StartAngle = rcv.StartAngle()
-	t.EndAngle = rcv.EndAngle()
-}
-
-func (rcv *CircleSegment) UnPack() *CircleSegmentT {
-	if rcv == nil {
-		return nil
-	}
-	t := &CircleSegmentT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type CircleSegment struct {
 	_tab flatbuffers.Table
 }

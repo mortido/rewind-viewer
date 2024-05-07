@@ -29,17 +29,6 @@ public struct Popup : IFlatbufferObject
   public rewind_viewer.fbs.Vector2f? AreaPosition { get { int o = __p.__offset(6); return o != 0 ? (rewind_viewer.fbs.Vector2f?)(new rewind_viewer.fbs.Vector2f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
   public rewind_viewer.fbs.Vector2f? AreaSize { get { int o = __p.__offset(8); return o != 0 ? (rewind_viewer.fbs.Vector2f?)(new rewind_viewer.fbs.Vector2f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
 
-  public static Offset<rewind_viewer.fbs.Popup> CreatePopup(FlatBufferBuilder builder,
-      StringOffset textOffset = default(StringOffset),
-      rewind_viewer.fbs.Vector2fT area_position = null,
-      rewind_viewer.fbs.Vector2fT area_size = null) {
-    builder.StartTable(3);
-    Popup.AddAreaSize(builder, rewind_viewer.fbs.Vector2f.Pack(builder, area_size));
-    Popup.AddAreaPosition(builder, rewind_viewer.fbs.Vector2f.Pack(builder, area_position));
-    Popup.AddText(builder, textOffset);
-    return Popup.EndPopup(builder);
-  }
-
   public static void StartPopup(FlatBufferBuilder builder) { builder.StartTable(3); }
   public static void AddText(FlatBufferBuilder builder, StringOffset textOffset) { builder.AddOffset(0, textOffset.Value, 0); }
   public static void AddAreaPosition(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Vector2f> areaPositionOffset) { builder.AddStruct(1, areaPositionOffset.Value, 0); }
@@ -50,38 +39,6 @@ public struct Popup : IFlatbufferObject
     builder.Required(o, 6);  // area_position
     builder.Required(o, 8);  // area_size
     return new Offset<rewind_viewer.fbs.Popup>(o);
-  }
-  public PopupT UnPack() {
-    var _o = new PopupT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(PopupT _o) {
-    _o.Text = this.Text;
-    _o.AreaPosition = this.AreaPosition.HasValue ? this.AreaPosition.Value.UnPack() : null;
-    _o.AreaSize = this.AreaSize.HasValue ? this.AreaSize.Value.UnPack() : null;
-  }
-  public static Offset<rewind_viewer.fbs.Popup> Pack(FlatBufferBuilder builder, PopupT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.Popup>);
-    var _text = _o.Text == null ? default(StringOffset) : builder.CreateString(_o.Text);
-    return CreatePopup(
-      builder,
-      _text,
-      _o.AreaPosition,
-      _o.AreaSize);
-  }
-}
-
-public class PopupT
-{
-  public string Text { get; set; }
-  public rewind_viewer.fbs.Vector2fT AreaPosition { get; set; }
-  public rewind_viewer.fbs.Vector2fT AreaSize { get; set; }
-
-  public PopupT() {
-    this.Text = null;
-    this.AreaPosition = new rewind_viewer.fbs.Vector2fT();
-    this.AreaSize = new rewind_viewer.fbs.Vector2fT();
   }
 }
 

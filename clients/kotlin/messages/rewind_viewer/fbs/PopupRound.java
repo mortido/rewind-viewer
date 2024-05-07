@@ -51,27 +51,5 @@ public final class PopupRound extends Table {
     public PopupRound get(int j) { return get(new PopupRound(), j); }
     public PopupRound get(PopupRound obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
-  public PopupRoundT unpack() {
-    PopupRoundT _o = new PopupRoundT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(PopupRoundT _o) {
-    String _oText = text();
-    _o.setText(_oText);
-    if (areaCenter() != null) areaCenter().unpackTo(_o.getAreaCenter());
-    else _o.setAreaCenter(null);
-    float _oAreaRadius = areaRadius();
-    _o.setAreaRadius(_oAreaRadius);
-  }
-  public static int pack(FlatBufferBuilder builder, PopupRoundT _o) {
-    if (_o == null) return 0;
-    int _text = _o.getText() == null ? 0 : builder.createString(_o.getText());
-    startPopupRound(builder);
-    addText(builder, _text);
-    addAreaCenter(builder, rewind_viewer.fbs.Vector2f.pack(builder, _o.getAreaCenter()));
-    addAreaRadius(builder, _o.getAreaRadius());
-    return endPopupRound(builder);
-  }
 }
 

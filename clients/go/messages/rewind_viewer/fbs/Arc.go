@@ -6,46 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type ArcT struct {
-	Color *ColorT `json:"color"`
-	Center *Vector2fT `json:"center"`
-	Radius float32 `json:"radius"`
-	StartAngle float32 `json:"start_angle"`
-	EndAngle float32 `json:"end_angle"`
-}
-
-func (t *ArcT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	colorOffset := t.Color.Pack(builder)
-	ArcStart(builder)
-	ArcAddColor(builder, colorOffset)
-	centerOffset := t.Center.Pack(builder)
-	ArcAddCenter(builder, centerOffset)
-	ArcAddRadius(builder, t.Radius)
-	ArcAddStartAngle(builder, t.StartAngle)
-	ArcAddEndAngle(builder, t.EndAngle)
-	return ArcEnd(builder)
-}
-
-func (rcv *Arc) UnPackTo(t *ArcT) {
-	t.Color = rcv.Color(nil).UnPack()
-	t.Center = rcv.Center(nil).UnPack()
-	t.Radius = rcv.Radius()
-	t.StartAngle = rcv.StartAngle()
-	t.EndAngle = rcv.EndAngle()
-}
-
-func (rcv *Arc) UnPack() *ArcT {
-	if rcv == nil {
-		return nil
-	}
-	t := &ArcT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type Arc struct {
 	_tab flatbuffers.Table
 }

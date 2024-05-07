@@ -23,17 +23,6 @@ public struct Circle : IFlatbufferObject
   public rewind_viewer.fbs.Vector2f? Center { get { int o = __p.__offset(6); return o != 0 ? (rewind_viewer.fbs.Vector2f?)(new rewind_viewer.fbs.Vector2f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
   public float Radius { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
 
-  public static Offset<rewind_viewer.fbs.Circle> CreateCircle(FlatBufferBuilder builder,
-      Offset<rewind_viewer.fbs.Color> colorOffset = default(Offset<rewind_viewer.fbs.Color>),
-      rewind_viewer.fbs.Vector2fT center = null,
-      float radius = 0.0f) {
-    builder.StartTable(3);
-    Circle.AddRadius(builder, radius);
-    Circle.AddCenter(builder, rewind_viewer.fbs.Vector2f.Pack(builder, center));
-    Circle.AddColor(builder, colorOffset);
-    return Circle.EndCircle(builder);
-  }
-
   public static void StartCircle(FlatBufferBuilder builder) { builder.StartTable(3); }
   public static void AddColor(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Color> colorOffset) { builder.AddOffset(0, colorOffset.Value, 0); }
   public static void AddCenter(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Vector2f> centerOffset) { builder.AddStruct(1, centerOffset.Value, 0); }
@@ -42,38 +31,6 @@ public struct Circle : IFlatbufferObject
     int o = builder.EndTable();
     builder.Required(o, 6);  // center
     return new Offset<rewind_viewer.fbs.Circle>(o);
-  }
-  public CircleT UnPack() {
-    var _o = new CircleT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(CircleT _o) {
-    _o.Color = this.Color.HasValue ? this.Color.Value.UnPack() : null;
-    _o.Center = this.Center.HasValue ? this.Center.Value.UnPack() : null;
-    _o.Radius = this.Radius;
-  }
-  public static Offset<rewind_viewer.fbs.Circle> Pack(FlatBufferBuilder builder, CircleT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.Circle>);
-    var _color = _o.Color == null ? default(Offset<rewind_viewer.fbs.Color>) : rewind_viewer.fbs.Color.Pack(builder, _o.Color);
-    return CreateCircle(
-      builder,
-      _color,
-      _o.Center,
-      _o.Radius);
-  }
-}
-
-public class CircleT
-{
-  public rewind_viewer.fbs.ColorT Color { get; set; }
-  public rewind_viewer.fbs.Vector2fT Center { get; set; }
-  public float Radius { get; set; }
-
-  public CircleT() {
-    this.Color = null;
-    this.Center = new rewind_viewer.fbs.Vector2fT();
-    this.Radius = 0.0f;
   }
 }
 

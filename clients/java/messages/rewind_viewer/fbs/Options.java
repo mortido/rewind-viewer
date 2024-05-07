@@ -55,25 +55,5 @@ public final class Options extends Table {
     public Options get(int j) { return get(new Options(), j); }
     public Options get(Options obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
-  public OptionsT unpack() {
-    OptionsT _o = new OptionsT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(OptionsT _o) {
-    if (map() != null) _o.setMap(map().unpack());
-    else _o.setMap(null);
-    if (layer() != null) _o.setLayer(layer().unpack());
-    else _o.setLayer(null);
-  }
-  public static int pack(FlatBufferBuilder builder, OptionsT _o) {
-    if (_o == null) return 0;
-    int _map = _o.getMap() == null ? 0 : rewind_viewer.fbs.Map.pack(builder, _o.getMap());
-    int _layer = _o.getLayer() == null ? 0 : rewind_viewer.fbs.Layer.pack(builder, _o.getLayer());
-    return createOptions(
-      builder,
-      _map,
-      _layer);
-  }
 }
 

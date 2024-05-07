@@ -4,10 +4,10 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Vector2f, Vector2fT } from '../../rewind-viewer/fbs/vector2f.js';
+import { Vector2f } from '../../rewind-viewer/fbs/vector2f.js';
 
 
-export class Tiles implements flatbuffers.IUnpackableObject<TilesT> {
+export class Tiles {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):Tiles {
@@ -100,43 +100,4 @@ static endTiles(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-
-unpack(): TilesT {
-  return new TilesT(
-    (this.position() !== null ? this.position()!.unpack() : null),
-    (this.cellSize() !== null ? this.cellSize()!.unpack() : null),
-    this.rowSize(),
-    this.bb!.createScalarList<number>(this.colors.bind(this), this.colorsLength())
-  );
-}
-
-
-unpackTo(_o: TilesT): void {
-  _o.position = (this.position() !== null ? this.position()!.unpack() : null);
-  _o.cellSize = (this.cellSize() !== null ? this.cellSize()!.unpack() : null);
-  _o.rowSize = this.rowSize();
-  _o.colors = this.bb!.createScalarList<number>(this.colors.bind(this), this.colorsLength());
-}
-}
-
-export class TilesT implements flatbuffers.IGeneratedObject {
-constructor(
-  public position: Vector2fT|null = null,
-  public cellSize: Vector2fT|null = null,
-  public rowSize: number = 0,
-  public colors: (number)[] = []
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  const colors = Tiles.createColorsVector(builder, this.colors);
-
-  Tiles.startTiles(builder);
-  Tiles.addPosition(builder, (this.position !== null ? this.position!.pack(builder) : 0));
-  Tiles.addCellSize(builder, (this.cellSize !== null ? this.cellSize!.pack(builder) : 0));
-  Tiles.addRowSize(builder, this.rowSize);
-  Tiles.addColors(builder, colors);
-
-  return Tiles.endTiles(builder);
-}
 }

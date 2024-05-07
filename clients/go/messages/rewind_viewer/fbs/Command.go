@@ -2,10 +2,7 @@
 
 package fbs
 
-import (
-	flatbuffers "github.com/google/flatbuffers/go"
-	"strconv"
-)
+import "strconv"
 
 type Command byte
 
@@ -65,102 +62,4 @@ func (v Command) String() string {
 		return s
 	}
 	return "Command(" + strconv.FormatInt(int64(v), 10) + ")"
-}
-
-type CommandT struct {
-	Type Command
-	Value interface{}
-}
-
-func (t *CommandT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	switch t.Type {
-	case CommandArc:
-		return t.Value.(*ArcT).Pack(builder)
-	case CommandCameraView:
-		return t.Value.(*CameraViewT).Pack(builder)
-	case CommandCircle:
-		return t.Value.(*CircleT).Pack(builder)
-	case CommandCircleSegment:
-		return t.Value.(*CircleSegmentT).Pack(builder)
-	case CommandLogText:
-		return t.Value.(*LogTextT).Pack(builder)
-	case CommandOptions:
-		return t.Value.(*OptionsT).Pack(builder)
-	case CommandPolyline:
-		return t.Value.(*PolylineT).Pack(builder)
-	case CommandPopup:
-		return t.Value.(*PopupT).Pack(builder)
-	case CommandPopupRound:
-		return t.Value.(*PopupRoundT).Pack(builder)
-	case CommandRectangle:
-		return t.Value.(*RectangleT).Pack(builder)
-	case CommandTiles:
-		return t.Value.(*TilesT).Pack(builder)
-	case CommandTriangle:
-		return t.Value.(*TriangleT).Pack(builder)
-	case CommandEndFrame:
-		return t.Value.(*EndFrameT).Pack(builder)
-	}
-	return 0
-}
-
-func (rcv Command) UnPack(table flatbuffers.Table) *CommandT {
-	switch rcv {
-	case CommandArc:
-		var x Arc
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandArc, Value: x.UnPack()}
-	case CommandCameraView:
-		var x CameraView
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandCameraView, Value: x.UnPack()}
-	case CommandCircle:
-		var x Circle
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandCircle, Value: x.UnPack()}
-	case CommandCircleSegment:
-		var x CircleSegment
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandCircleSegment, Value: x.UnPack()}
-	case CommandLogText:
-		var x LogText
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandLogText, Value: x.UnPack()}
-	case CommandOptions:
-		var x Options
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandOptions, Value: x.UnPack()}
-	case CommandPolyline:
-		var x Polyline
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandPolyline, Value: x.UnPack()}
-	case CommandPopup:
-		var x Popup
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandPopup, Value: x.UnPack()}
-	case CommandPopupRound:
-		var x PopupRound
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandPopupRound, Value: x.UnPack()}
-	case CommandRectangle:
-		var x Rectangle
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandRectangle, Value: x.UnPack()}
-	case CommandTiles:
-		var x Tiles
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandTiles, Value: x.UnPack()}
-	case CommandTriangle:
-		var x Triangle
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandTriangle, Value: x.UnPack()}
-	case CommandEndFrame:
-		var x EndFrame
-		x.Init(table.Bytes, table.Pos)
-		return &CommandT{Type: CommandEndFrame, Value: x.UnPack()}
-	}
-	return nil
 }

@@ -6,40 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type CircleT struct {
-	Color *ColorT `json:"color"`
-	Center *Vector2fT `json:"center"`
-	Radius float32 `json:"radius"`
-}
-
-func (t *CircleT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	colorOffset := t.Color.Pack(builder)
-	CircleStart(builder)
-	CircleAddColor(builder, colorOffset)
-	centerOffset := t.Center.Pack(builder)
-	CircleAddCenter(builder, centerOffset)
-	CircleAddRadius(builder, t.Radius)
-	return CircleEnd(builder)
-}
-
-func (rcv *Circle) UnPackTo(t *CircleT) {
-	t.Color = rcv.Color(nil).UnPack()
-	t.Center = rcv.Center(nil).UnPack()
-	t.Radius = rcv.Radius()
-}
-
-func (rcv *Circle) UnPack() *CircleT {
-	if rcv == nil {
-		return nil
-	}
-	t := &CircleT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type Circle struct {
 	_tab flatbuffers.Table
 }

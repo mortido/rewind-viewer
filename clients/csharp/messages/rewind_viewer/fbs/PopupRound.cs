@@ -29,17 +29,6 @@ public struct PopupRound : IFlatbufferObject
   public rewind_viewer.fbs.Vector2f? AreaCenter { get { int o = __p.__offset(6); return o != 0 ? (rewind_viewer.fbs.Vector2f?)(new rewind_viewer.fbs.Vector2f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
   public float AreaRadius { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
 
-  public static Offset<rewind_viewer.fbs.PopupRound> CreatePopupRound(FlatBufferBuilder builder,
-      StringOffset textOffset = default(StringOffset),
-      rewind_viewer.fbs.Vector2fT area_center = null,
-      float area_radius = 0.0f) {
-    builder.StartTable(3);
-    PopupRound.AddAreaRadius(builder, area_radius);
-    PopupRound.AddAreaCenter(builder, rewind_viewer.fbs.Vector2f.Pack(builder, area_center));
-    PopupRound.AddText(builder, textOffset);
-    return PopupRound.EndPopupRound(builder);
-  }
-
   public static void StartPopupRound(FlatBufferBuilder builder) { builder.StartTable(3); }
   public static void AddText(FlatBufferBuilder builder, StringOffset textOffset) { builder.AddOffset(0, textOffset.Value, 0); }
   public static void AddAreaCenter(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Vector2f> areaCenterOffset) { builder.AddStruct(1, areaCenterOffset.Value, 0); }
@@ -49,38 +38,6 @@ public struct PopupRound : IFlatbufferObject
     builder.Required(o, 4);  // text
     builder.Required(o, 6);  // area_center
     return new Offset<rewind_viewer.fbs.PopupRound>(o);
-  }
-  public PopupRoundT UnPack() {
-    var _o = new PopupRoundT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(PopupRoundT _o) {
-    _o.Text = this.Text;
-    _o.AreaCenter = this.AreaCenter.HasValue ? this.AreaCenter.Value.UnPack() : null;
-    _o.AreaRadius = this.AreaRadius;
-  }
-  public static Offset<rewind_viewer.fbs.PopupRound> Pack(FlatBufferBuilder builder, PopupRoundT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.PopupRound>);
-    var _text = _o.Text == null ? default(StringOffset) : builder.CreateString(_o.Text);
-    return CreatePopupRound(
-      builder,
-      _text,
-      _o.AreaCenter,
-      _o.AreaRadius);
-  }
-}
-
-public class PopupRoundT
-{
-  public string Text { get; set; }
-  public rewind_viewer.fbs.Vector2fT AreaCenter { get; set; }
-  public float AreaRadius { get; set; }
-
-  public PopupRoundT() {
-    this.Text = null;
-    this.AreaCenter = new rewind_viewer.fbs.Vector2fT();
-    this.AreaRadius = 0.0f;
   }
 }
 

@@ -8,7 +8,8 @@ Scene::Scene(std::shared_ptr<const SceneConfig> config, bool buffered_mode)
     : camera{config->camera.position, config->camera.scale, config->camera.y_axis_up}
     , frames{buffered_mode}
     , config_{std::move(config)}
-    , renderer_{config_->shaders_dir, config_->size, config_->grid_cells} {}
+    , renderer_{config_->shaders_dir, config_->canvas_position, config_->canvas_size,
+                config_->grid_cells} {}
 
 void Scene::render(size_t frame_idx) {
   renderer_.new_frame(camera);
@@ -37,13 +38,14 @@ void Scene::render(size_t frame_idx) {
   }
 }
 
-void Scene::set_canvas_config(const glm::vec2& size, const glm::u16vec2& grid) {
+void Scene::set_canvas_config(const glm::vec2& position, const glm::vec2& size,
+                              const glm::u16vec2& grid) {
   CameraView view{
-      .position = size * 0.5f,
+      .position = position + size * 0.5f,
       .viewport = size * 1.25f,
   };
   camera.set_view(view);
-  renderer_.set_canvas(size, grid);
+  renderer_.update_canvas(position, size, grid);
 }
 
 }  // namespace rewind_viewer::models

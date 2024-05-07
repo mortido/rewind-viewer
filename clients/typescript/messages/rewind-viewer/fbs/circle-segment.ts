@@ -4,11 +4,11 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Color, ColorT } from '../../rewind-viewer/fbs/color.js';
-import { Vector2f, Vector2fT } from '../../rewind-viewer/fbs/vector2f.js';
+import { Color } from '../../rewind-viewer/fbs/color.js';
+import { Vector2f } from '../../rewind-viewer/fbs/vector2f.js';
 
 
-export class CircleSegment implements flatbuffers.IUnpackableObject<CircleSegmentT> {
+export class CircleSegment {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):CircleSegment {
@@ -81,47 +81,4 @@ static endCircleSegment(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-
-unpack(): CircleSegmentT {
-  return new CircleSegmentT(
-    (this.color() !== null ? this.color()!.unpack() : null),
-    (this.center() !== null ? this.center()!.unpack() : null),
-    this.radius(),
-    this.startAngle(),
-    this.endAngle()
-  );
-}
-
-
-unpackTo(_o: CircleSegmentT): void {
-  _o.color = (this.color() !== null ? this.color()!.unpack() : null);
-  _o.center = (this.center() !== null ? this.center()!.unpack() : null);
-  _o.radius = this.radius();
-  _o.startAngle = this.startAngle();
-  _o.endAngle = this.endAngle();
-}
-}
-
-export class CircleSegmentT implements flatbuffers.IGeneratedObject {
-constructor(
-  public color: ColorT|null = null,
-  public center: Vector2fT|null = null,
-  public radius: number = 0.0,
-  public startAngle: number = 0.0,
-  public endAngle: number = 0.0
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  const color = (this.color !== null ? this.color!.pack(builder) : 0);
-
-  CircleSegment.startCircleSegment(builder);
-  CircleSegment.addColor(builder, color);
-  CircleSegment.addCenter(builder, (this.center !== null ? this.center!.pack(builder) : 0));
-  CircleSegment.addRadius(builder, this.radius);
-  CircleSegment.addStartAngle(builder, this.startAngle);
-  CircleSegment.addEndAngle(builder, this.endAngle);
-
-  return CircleSegment.endCircleSegment(builder);
-}
 }

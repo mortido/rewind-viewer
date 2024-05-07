@@ -49,27 +49,5 @@ public final class Circle extends Table {
     public Circle get(int j) { return get(new Circle(), j); }
     public Circle get(Circle obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
-  public CircleT unpack() {
-    CircleT _o = new CircleT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(CircleT _o) {
-    if (color() != null) _o.setColor(color().unpack());
-    else _o.setColor(null);
-    if (center() != null) center().unpackTo(_o.getCenter());
-    else _o.setCenter(null);
-    float _oRadius = radius();
-    _o.setRadius(_oRadius);
-  }
-  public static int pack(FlatBufferBuilder builder, CircleT _o) {
-    if (_o == null) return 0;
-    int _color = _o.getColor() == null ? 0 : rewind_viewer.fbs.Color.pack(builder, _o.getColor());
-    startCircle(builder);
-    addColor(builder, _color);
-    addCenter(builder, rewind_viewer.fbs.Vector2f.pack(builder, _o.getCenter()));
-    addRadius(builder, _o.getRadius());
-    return endCircle(builder);
-  }
 }
 

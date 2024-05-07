@@ -23,17 +23,6 @@ public struct Rectangle : IFlatbufferObject
   public rewind_viewer.fbs.Vector2f? Position { get { int o = __p.__offset(6); return o != 0 ? (rewind_viewer.fbs.Vector2f?)(new rewind_viewer.fbs.Vector2f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
   public rewind_viewer.fbs.Vector2f? Size { get { int o = __p.__offset(8); return o != 0 ? (rewind_viewer.fbs.Vector2f?)(new rewind_viewer.fbs.Vector2f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
 
-  public static Offset<rewind_viewer.fbs.Rectangle> CreateRectangle(FlatBufferBuilder builder,
-      Offset<rewind_viewer.fbs.Color> colorOffset = default(Offset<rewind_viewer.fbs.Color>),
-      rewind_viewer.fbs.Vector2fT position = null,
-      rewind_viewer.fbs.Vector2fT size = null) {
-    builder.StartTable(3);
-    Rectangle.AddSize(builder, rewind_viewer.fbs.Vector2f.Pack(builder, size));
-    Rectangle.AddPosition(builder, rewind_viewer.fbs.Vector2f.Pack(builder, position));
-    Rectangle.AddColor(builder, colorOffset);
-    return Rectangle.EndRectangle(builder);
-  }
-
   public static void StartRectangle(FlatBufferBuilder builder) { builder.StartTable(3); }
   public static void AddColor(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Color> colorOffset) { builder.AddOffset(0, colorOffset.Value, 0); }
   public static void AddPosition(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Vector2f> positionOffset) { builder.AddStruct(1, positionOffset.Value, 0); }
@@ -43,38 +32,6 @@ public struct Rectangle : IFlatbufferObject
     builder.Required(o, 6);  // position
     builder.Required(o, 8);  // size
     return new Offset<rewind_viewer.fbs.Rectangle>(o);
-  }
-  public RectangleT UnPack() {
-    var _o = new RectangleT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(RectangleT _o) {
-    _o.Color = this.Color.HasValue ? this.Color.Value.UnPack() : null;
-    _o.Position = this.Position.HasValue ? this.Position.Value.UnPack() : null;
-    _o.Size = this.Size.HasValue ? this.Size.Value.UnPack() : null;
-  }
-  public static Offset<rewind_viewer.fbs.Rectangle> Pack(FlatBufferBuilder builder, RectangleT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.Rectangle>);
-    var _color = _o.Color == null ? default(Offset<rewind_viewer.fbs.Color>) : rewind_viewer.fbs.Color.Pack(builder, _o.Color);
-    return CreateRectangle(
-      builder,
-      _color,
-      _o.Position,
-      _o.Size);
-  }
-}
-
-public class RectangleT
-{
-  public rewind_viewer.fbs.ColorT Color { get; set; }
-  public rewind_viewer.fbs.Vector2fT Position { get; set; }
-  public rewind_viewer.fbs.Vector2fT Size { get; set; }
-
-  public RectangleT() {
-    this.Color = null;
-    this.Position = new rewind_viewer.fbs.Vector2fT();
-    this.Size = new rewind_viewer.fbs.Vector2fT();
   }
 }
 

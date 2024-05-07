@@ -52,21 +52,5 @@ public final class LogText extends Table {
     public LogText get(int j) { return get(new LogText(), j); }
     public LogText get(LogText obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
-  public LogTextT unpack() {
-    LogTextT _o = new LogTextT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(LogTextT _o) {
-    String _oText = text();
-    _o.setText(_oText);
-  }
-  public static int pack(FlatBufferBuilder builder, LogTextT _o) {
-    if (_o == null) return 0;
-    int _text = _o.getText() == null ? 0 : builder.createString(_o.getText());
-    return createLogText(
-      builder,
-      _text);
-  }
 }
 

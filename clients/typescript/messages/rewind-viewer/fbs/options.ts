@@ -4,11 +4,11 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Layer, LayerT } from '../../rewind-viewer/fbs/layer.js';
-import { Map, MapT } from '../../rewind-viewer/fbs/map.js';
+import { Layer } from '../../rewind-viewer/fbs/layer.js';
+import { Map } from '../../rewind-viewer/fbs/map.js';
 
 
-export class Options implements flatbuffers.IUnpackableObject<OptionsT> {
+export class Options {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):Options {
@@ -53,36 +53,4 @@ static endOptions(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-
-unpack(): OptionsT {
-  return new OptionsT(
-    (this.map() !== null ? this.map()!.unpack() : null),
-    (this.layer() !== null ? this.layer()!.unpack() : null)
-  );
-}
-
-
-unpackTo(_o: OptionsT): void {
-  _o.map = (this.map() !== null ? this.map()!.unpack() : null);
-  _o.layer = (this.layer() !== null ? this.layer()!.unpack() : null);
-}
-}
-
-export class OptionsT implements flatbuffers.IGeneratedObject {
-constructor(
-  public map: MapT|null = null,
-  public layer: LayerT|null = null
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  const map = (this.map !== null ? this.map!.pack(builder) : 0);
-  const layer = (this.layer !== null ? this.layer!.pack(builder) : 0);
-
-  Options.startOptions(builder);
-  Options.addMap(builder, map);
-  Options.addLayer(builder, layer);
-
-  return Options.endOptions(builder);
-}
 }

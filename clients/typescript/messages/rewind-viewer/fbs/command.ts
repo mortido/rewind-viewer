@@ -2,19 +2,19 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-import { Arc, ArcT } from '../../rewind-viewer/fbs/arc.js';
-import { CameraView, CameraViewT } from '../../rewind-viewer/fbs/camera-view.js';
-import { Circle, CircleT } from '../../rewind-viewer/fbs/circle.js';
-import { CircleSegment, CircleSegmentT } from '../../rewind-viewer/fbs/circle-segment.js';
-import { EndFrame, EndFrameT } from '../../rewind-viewer/fbs/end-frame.js';
-import { LogText, LogTextT } from '../../rewind-viewer/fbs/log-text.js';
-import { Options, OptionsT } from '../../rewind-viewer/fbs/options.js';
-import { Polyline, PolylineT } from '../../rewind-viewer/fbs/polyline.js';
-import { Popup, PopupT } from '../../rewind-viewer/fbs/popup.js';
-import { PopupRound, PopupRoundT } from '../../rewind-viewer/fbs/popup-round.js';
-import { Rectangle, RectangleT } from '../../rewind-viewer/fbs/rectangle.js';
-import { Tiles, TilesT } from '../../rewind-viewer/fbs/tiles.js';
-import { Triangle, TriangleT } from '../../rewind-viewer/fbs/triangle.js';
+import { Arc } from '../../rewind-viewer/fbs/arc.js';
+import { CameraView } from '../../rewind-viewer/fbs/camera-view.js';
+import { Circle } from '../../rewind-viewer/fbs/circle.js';
+import { CircleSegment } from '../../rewind-viewer/fbs/circle-segment.js';
+import { EndFrame } from '../../rewind-viewer/fbs/end-frame.js';
+import { LogText } from '../../rewind-viewer/fbs/log-text.js';
+import { Options } from '../../rewind-viewer/fbs/options.js';
+import { Polyline } from '../../rewind-viewer/fbs/polyline.js';
+import { Popup } from '../../rewind-viewer/fbs/popup.js';
+import { PopupRound } from '../../rewind-viewer/fbs/popup-round.js';
+import { Rectangle } from '../../rewind-viewer/fbs/rectangle.js';
+import { Tiles } from '../../rewind-viewer/fbs/tiles.js';
+import { Triangle } from '../../rewind-viewer/fbs/triangle.js';
 
 
 export enum Command {

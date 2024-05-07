@@ -23,63 +23,6 @@ public enum Command : byte
   EndFrame = 13,
 };
 
-public class CommandUnion {
-  public Command Type { get; set; }
-  public object Value { get; set; }
-
-  public CommandUnion() {
-    this.Type = Command.NONE;
-    this.Value = null;
-  }
-
-  public T As<T>() where T : class { return this.Value as T; }
-  public rewind_viewer.fbs.ArcT AsArc() { return this.As<rewind_viewer.fbs.ArcT>(); }
-  public static CommandUnion FromArc(rewind_viewer.fbs.ArcT _arc) { return new CommandUnion{ Type = Command.Arc, Value = _arc }; }
-  public rewind_viewer.fbs.CameraViewT AsCameraView() { return this.As<rewind_viewer.fbs.CameraViewT>(); }
-  public static CommandUnion FromCameraView(rewind_viewer.fbs.CameraViewT _cameraview) { return new CommandUnion{ Type = Command.CameraView, Value = _cameraview }; }
-  public rewind_viewer.fbs.CircleT AsCircle() { return this.As<rewind_viewer.fbs.CircleT>(); }
-  public static CommandUnion FromCircle(rewind_viewer.fbs.CircleT _circle) { return new CommandUnion{ Type = Command.Circle, Value = _circle }; }
-  public rewind_viewer.fbs.CircleSegmentT AsCircleSegment() { return this.As<rewind_viewer.fbs.CircleSegmentT>(); }
-  public static CommandUnion FromCircleSegment(rewind_viewer.fbs.CircleSegmentT _circlesegment) { return new CommandUnion{ Type = Command.CircleSegment, Value = _circlesegment }; }
-  public rewind_viewer.fbs.LogTextT AsLogText() { return this.As<rewind_viewer.fbs.LogTextT>(); }
-  public static CommandUnion FromLogText(rewind_viewer.fbs.LogTextT _logtext) { return new CommandUnion{ Type = Command.LogText, Value = _logtext }; }
-  public rewind_viewer.fbs.OptionsT AsOptions() { return this.As<rewind_viewer.fbs.OptionsT>(); }
-  public static CommandUnion FromOptions(rewind_viewer.fbs.OptionsT _options) { return new CommandUnion{ Type = Command.Options, Value = _options }; }
-  public rewind_viewer.fbs.PolylineT AsPolyline() { return this.As<rewind_viewer.fbs.PolylineT>(); }
-  public static CommandUnion FromPolyline(rewind_viewer.fbs.PolylineT _polyline) { return new CommandUnion{ Type = Command.Polyline, Value = _polyline }; }
-  public rewind_viewer.fbs.PopupT AsPopup() { return this.As<rewind_viewer.fbs.PopupT>(); }
-  public static CommandUnion FromPopup(rewind_viewer.fbs.PopupT _popup) { return new CommandUnion{ Type = Command.Popup, Value = _popup }; }
-  public rewind_viewer.fbs.PopupRoundT AsPopupRound() { return this.As<rewind_viewer.fbs.PopupRoundT>(); }
-  public static CommandUnion FromPopupRound(rewind_viewer.fbs.PopupRoundT _popupround) { return new CommandUnion{ Type = Command.PopupRound, Value = _popupround }; }
-  public rewind_viewer.fbs.RectangleT AsRectangle() { return this.As<rewind_viewer.fbs.RectangleT>(); }
-  public static CommandUnion FromRectangle(rewind_viewer.fbs.RectangleT _rectangle) { return new CommandUnion{ Type = Command.Rectangle, Value = _rectangle }; }
-  public rewind_viewer.fbs.TilesT AsTiles() { return this.As<rewind_viewer.fbs.TilesT>(); }
-  public static CommandUnion FromTiles(rewind_viewer.fbs.TilesT _tiles) { return new CommandUnion{ Type = Command.Tiles, Value = _tiles }; }
-  public rewind_viewer.fbs.TriangleT AsTriangle() { return this.As<rewind_viewer.fbs.TriangleT>(); }
-  public static CommandUnion FromTriangle(rewind_viewer.fbs.TriangleT _triangle) { return new CommandUnion{ Type = Command.Triangle, Value = _triangle }; }
-  public rewind_viewer.fbs.EndFrameT AsEndFrame() { return this.As<rewind_viewer.fbs.EndFrameT>(); }
-  public static CommandUnion FromEndFrame(rewind_viewer.fbs.EndFrameT _endframe) { return new CommandUnion{ Type = Command.EndFrame, Value = _endframe }; }
-
-  public static int Pack(Google.FlatBuffers.FlatBufferBuilder builder, CommandUnion _o) {
-    switch (_o.Type) {
-      default: return 0;
-      case Command.Arc: return rewind_viewer.fbs.Arc.Pack(builder, _o.AsArc()).Value;
-      case Command.CameraView: return rewind_viewer.fbs.CameraView.Pack(builder, _o.AsCameraView()).Value;
-      case Command.Circle: return rewind_viewer.fbs.Circle.Pack(builder, _o.AsCircle()).Value;
-      case Command.CircleSegment: return rewind_viewer.fbs.CircleSegment.Pack(builder, _o.AsCircleSegment()).Value;
-      case Command.LogText: return rewind_viewer.fbs.LogText.Pack(builder, _o.AsLogText()).Value;
-      case Command.Options: return rewind_viewer.fbs.Options.Pack(builder, _o.AsOptions()).Value;
-      case Command.Polyline: return rewind_viewer.fbs.Polyline.Pack(builder, _o.AsPolyline()).Value;
-      case Command.Popup: return rewind_viewer.fbs.Popup.Pack(builder, _o.AsPopup()).Value;
-      case Command.PopupRound: return rewind_viewer.fbs.PopupRound.Pack(builder, _o.AsPopupRound()).Value;
-      case Command.Rectangle: return rewind_viewer.fbs.Rectangle.Pack(builder, _o.AsRectangle()).Value;
-      case Command.Tiles: return rewind_viewer.fbs.Tiles.Pack(builder, _o.AsTiles()).Value;
-      case Command.Triangle: return rewind_viewer.fbs.Triangle.Pack(builder, _o.AsTriangle()).Value;
-      case Command.EndFrame: return rewind_viewer.fbs.EndFrame.Pack(builder, _o.AsEndFrame()).Value;
-    }
-  }
-}
-
 
 
 static public class CommandVerify

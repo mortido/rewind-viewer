@@ -20,71 +20,54 @@ struct Vector2f;
 
 struct Color;
 struct ColorBuilder;
-struct ColorT;
 
 struct Circle;
 struct CircleBuilder;
-struct CircleT;
 
 struct Arc;
 struct ArcBuilder;
-struct ArcT;
 
 struct CircleSegment;
 struct CircleSegmentBuilder;
-struct CircleSegmentT;
 
 struct Tiles;
 struct TilesBuilder;
-struct TilesT;
 
 struct Rectangle;
 struct RectangleBuilder;
-struct RectangleT;
 
 struct Triangle;
 struct TriangleBuilder;
-struct TriangleT;
 
 struct Polyline;
 struct PolylineBuilder;
-struct PolylineT;
 
 struct LogText;
 struct LogTextBuilder;
-struct LogTextT;
 
 struct Popup;
 struct PopupBuilder;
-struct PopupT;
 
 struct PopupRound;
 struct PopupRoundBuilder;
-struct PopupRoundT;
 
 struct CameraView;
 struct CameraViewBuilder;
-struct CameraViewT;
 
 struct Layer;
 struct LayerBuilder;
-struct LayerT;
 
 struct Map;
 struct MapBuilder;
-struct MapT;
 
 struct Options;
 struct OptionsBuilder;
-struct OptionsT;
 
 struct EndFrame;
 struct EndFrameBuilder;
-struct EndFrameT;
 
 struct RewindMessage;
 struct RewindMessageBuilder;
-struct RewindMessageT;
 
 enum Command : uint8_t {
   Command_NONE = 0,
@@ -208,198 +191,6 @@ template<> struct CommandTraits<rewind_viewer::fbs::EndFrame> {
   static const Command enum_value = Command_EndFrame;
 };
 
-template<typename T> struct CommandUnionTraits {
-  static const Command enum_value = Command_NONE;
-};
-
-template<> struct CommandUnionTraits<rewind_viewer::fbs::ArcT> {
-  static const Command enum_value = Command_Arc;
-};
-
-template<> struct CommandUnionTraits<rewind_viewer::fbs::CameraViewT> {
-  static const Command enum_value = Command_CameraView;
-};
-
-template<> struct CommandUnionTraits<rewind_viewer::fbs::CircleT> {
-  static const Command enum_value = Command_Circle;
-};
-
-template<> struct CommandUnionTraits<rewind_viewer::fbs::CircleSegmentT> {
-  static const Command enum_value = Command_CircleSegment;
-};
-
-template<> struct CommandUnionTraits<rewind_viewer::fbs::LogTextT> {
-  static const Command enum_value = Command_LogText;
-};
-
-template<> struct CommandUnionTraits<rewind_viewer::fbs::OptionsT> {
-  static const Command enum_value = Command_Options;
-};
-
-template<> struct CommandUnionTraits<rewind_viewer::fbs::PolylineT> {
-  static const Command enum_value = Command_Polyline;
-};
-
-template<> struct CommandUnionTraits<rewind_viewer::fbs::PopupT> {
-  static const Command enum_value = Command_Popup;
-};
-
-template<> struct CommandUnionTraits<rewind_viewer::fbs::PopupRoundT> {
-  static const Command enum_value = Command_PopupRound;
-};
-
-template<> struct CommandUnionTraits<rewind_viewer::fbs::RectangleT> {
-  static const Command enum_value = Command_Rectangle;
-};
-
-template<> struct CommandUnionTraits<rewind_viewer::fbs::TilesT> {
-  static const Command enum_value = Command_Tiles;
-};
-
-template<> struct CommandUnionTraits<rewind_viewer::fbs::TriangleT> {
-  static const Command enum_value = Command_Triangle;
-};
-
-template<> struct CommandUnionTraits<rewind_viewer::fbs::EndFrameT> {
-  static const Command enum_value = Command_EndFrame;
-};
-
-struct CommandUnion {
-  Command type;
-  void *value;
-
-  CommandUnion() : type(Command_NONE), value(nullptr) {}
-  CommandUnion(CommandUnion&& u) FLATBUFFERS_NOEXCEPT :
-    type(Command_NONE), value(nullptr)
-    { std::swap(type, u.type); std::swap(value, u.value); }
-  CommandUnion(const CommandUnion &);
-  CommandUnion &operator=(const CommandUnion &u)
-    { CommandUnion t(u); std::swap(type, t.type); std::swap(value, t.value); return *this; }
-  CommandUnion &operator=(CommandUnion &&u) FLATBUFFERS_NOEXCEPT
-    { std::swap(type, u.type); std::swap(value, u.value); return *this; }
-  ~CommandUnion() { Reset(); }
-
-  void Reset();
-
-  template <typename T>
-  void Set(T&& val) {
-    typedef typename std::remove_reference<T>::type RT;
-    Reset();
-    type = CommandUnionTraits<RT>::enum_value;
-    if (type != Command_NONE) {
-      value = new RT(std::forward<T>(val));
-    }
-  }
-
-  static void *UnPack(const void *obj, Command type, const ::flatbuffers::resolver_function_t *resolver);
-  ::flatbuffers::Offset<void> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr) const;
-
-  rewind_viewer::fbs::ArcT *AsArc() {
-    return type == Command_Arc ?
-      reinterpret_cast<rewind_viewer::fbs::ArcT *>(value) : nullptr;
-  }
-  const rewind_viewer::fbs::ArcT *AsArc() const {
-    return type == Command_Arc ?
-      reinterpret_cast<const rewind_viewer::fbs::ArcT *>(value) : nullptr;
-  }
-  rewind_viewer::fbs::CameraViewT *AsCameraView() {
-    return type == Command_CameraView ?
-      reinterpret_cast<rewind_viewer::fbs::CameraViewT *>(value) : nullptr;
-  }
-  const rewind_viewer::fbs::CameraViewT *AsCameraView() const {
-    return type == Command_CameraView ?
-      reinterpret_cast<const rewind_viewer::fbs::CameraViewT *>(value) : nullptr;
-  }
-  rewind_viewer::fbs::CircleT *AsCircle() {
-    return type == Command_Circle ?
-      reinterpret_cast<rewind_viewer::fbs::CircleT *>(value) : nullptr;
-  }
-  const rewind_viewer::fbs::CircleT *AsCircle() const {
-    return type == Command_Circle ?
-      reinterpret_cast<const rewind_viewer::fbs::CircleT *>(value) : nullptr;
-  }
-  rewind_viewer::fbs::CircleSegmentT *AsCircleSegment() {
-    return type == Command_CircleSegment ?
-      reinterpret_cast<rewind_viewer::fbs::CircleSegmentT *>(value) : nullptr;
-  }
-  const rewind_viewer::fbs::CircleSegmentT *AsCircleSegment() const {
-    return type == Command_CircleSegment ?
-      reinterpret_cast<const rewind_viewer::fbs::CircleSegmentT *>(value) : nullptr;
-  }
-  rewind_viewer::fbs::LogTextT *AsLogText() {
-    return type == Command_LogText ?
-      reinterpret_cast<rewind_viewer::fbs::LogTextT *>(value) : nullptr;
-  }
-  const rewind_viewer::fbs::LogTextT *AsLogText() const {
-    return type == Command_LogText ?
-      reinterpret_cast<const rewind_viewer::fbs::LogTextT *>(value) : nullptr;
-  }
-  rewind_viewer::fbs::OptionsT *AsOptions() {
-    return type == Command_Options ?
-      reinterpret_cast<rewind_viewer::fbs::OptionsT *>(value) : nullptr;
-  }
-  const rewind_viewer::fbs::OptionsT *AsOptions() const {
-    return type == Command_Options ?
-      reinterpret_cast<const rewind_viewer::fbs::OptionsT *>(value) : nullptr;
-  }
-  rewind_viewer::fbs::PolylineT *AsPolyline() {
-    return type == Command_Polyline ?
-      reinterpret_cast<rewind_viewer::fbs::PolylineT *>(value) : nullptr;
-  }
-  const rewind_viewer::fbs::PolylineT *AsPolyline() const {
-    return type == Command_Polyline ?
-      reinterpret_cast<const rewind_viewer::fbs::PolylineT *>(value) : nullptr;
-  }
-  rewind_viewer::fbs::PopupT *AsPopup() {
-    return type == Command_Popup ?
-      reinterpret_cast<rewind_viewer::fbs::PopupT *>(value) : nullptr;
-  }
-  const rewind_viewer::fbs::PopupT *AsPopup() const {
-    return type == Command_Popup ?
-      reinterpret_cast<const rewind_viewer::fbs::PopupT *>(value) : nullptr;
-  }
-  rewind_viewer::fbs::PopupRoundT *AsPopupRound() {
-    return type == Command_PopupRound ?
-      reinterpret_cast<rewind_viewer::fbs::PopupRoundT *>(value) : nullptr;
-  }
-  const rewind_viewer::fbs::PopupRoundT *AsPopupRound() const {
-    return type == Command_PopupRound ?
-      reinterpret_cast<const rewind_viewer::fbs::PopupRoundT *>(value) : nullptr;
-  }
-  rewind_viewer::fbs::RectangleT *AsRectangle() {
-    return type == Command_Rectangle ?
-      reinterpret_cast<rewind_viewer::fbs::RectangleT *>(value) : nullptr;
-  }
-  const rewind_viewer::fbs::RectangleT *AsRectangle() const {
-    return type == Command_Rectangle ?
-      reinterpret_cast<const rewind_viewer::fbs::RectangleT *>(value) : nullptr;
-  }
-  rewind_viewer::fbs::TilesT *AsTiles() {
-    return type == Command_Tiles ?
-      reinterpret_cast<rewind_viewer::fbs::TilesT *>(value) : nullptr;
-  }
-  const rewind_viewer::fbs::TilesT *AsTiles() const {
-    return type == Command_Tiles ?
-      reinterpret_cast<const rewind_viewer::fbs::TilesT *>(value) : nullptr;
-  }
-  rewind_viewer::fbs::TriangleT *AsTriangle() {
-    return type == Command_Triangle ?
-      reinterpret_cast<rewind_viewer::fbs::TriangleT *>(value) : nullptr;
-  }
-  const rewind_viewer::fbs::TriangleT *AsTriangle() const {
-    return type == Command_Triangle ?
-      reinterpret_cast<const rewind_viewer::fbs::TriangleT *>(value) : nullptr;
-  }
-  rewind_viewer::fbs::EndFrameT *AsEndFrame() {
-    return type == Command_EndFrame ?
-      reinterpret_cast<rewind_viewer::fbs::EndFrameT *>(value) : nullptr;
-  }
-  const rewind_viewer::fbs::EndFrameT *AsEndFrame() const {
-    return type == Command_EndFrame ?
-      reinterpret_cast<const rewind_viewer::fbs::EndFrameT *>(value) : nullptr;
-  }
-};
-
 bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Command type);
 bool VerifyCommandVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
@@ -426,14 +217,7 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Vector2f FLATBUFFERS_FINAL_CLASS {
 };
 FLATBUFFERS_STRUCT_END(Vector2f, 8);
 
-struct ColorT : public ::flatbuffers::NativeTable {
-  typedef Color TableType;
-  uint32_t value = 0;
-  bool fill = false;
-};
-
 struct Color FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef ColorT NativeTableType;
   typedef ColorBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_VALUE = 4,
@@ -451,9 +235,6 @@ struct Color FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint8_t>(verifier, VT_FILL, 1) &&
            verifier.EndTable();
   }
-  ColorT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ColorT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<Color> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ColorT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct ColorBuilder {
@@ -487,21 +268,7 @@ inline ::flatbuffers::Offset<Color> CreateColor(
   return builder_.Finish();
 }
 
-::flatbuffers::Offset<Color> CreateColor(::flatbuffers::FlatBufferBuilder &_fbb, const ColorT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct CircleT : public ::flatbuffers::NativeTable {
-  typedef Circle TableType;
-  std::unique_ptr<rewind_viewer::fbs::ColorT> color{};
-  std::unique_ptr<rewind_viewer::fbs::Vector2f> center{};
-  float radius = 0.0f;
-  CircleT() = default;
-  CircleT(const CircleT &o);
-  CircleT(CircleT&&) FLATBUFFERS_NOEXCEPT = default;
-  CircleT &operator=(CircleT o) FLATBUFFERS_NOEXCEPT;
-};
-
 struct Circle FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef CircleT NativeTableType;
   typedef CircleBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_COLOR = 4,
@@ -525,9 +292,6 @@ struct Circle FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<float>(verifier, VT_RADIUS, 4) &&
            verifier.EndTable();
   }
-  CircleT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(CircleT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<Circle> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CircleT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct CircleBuilder {
@@ -567,23 +331,7 @@ inline ::flatbuffers::Offset<Circle> CreateCircle(
   return builder_.Finish();
 }
 
-::flatbuffers::Offset<Circle> CreateCircle(::flatbuffers::FlatBufferBuilder &_fbb, const CircleT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct ArcT : public ::flatbuffers::NativeTable {
-  typedef Arc TableType;
-  std::unique_ptr<rewind_viewer::fbs::ColorT> color{};
-  std::unique_ptr<rewind_viewer::fbs::Vector2f> center{};
-  float radius = 0.0f;
-  float start_angle = 0.0f;
-  float end_angle = 0.0f;
-  ArcT() = default;
-  ArcT(const ArcT &o);
-  ArcT(ArcT&&) FLATBUFFERS_NOEXCEPT = default;
-  ArcT &operator=(ArcT o) FLATBUFFERS_NOEXCEPT;
-};
-
 struct Arc FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef ArcT NativeTableType;
   typedef ArcBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_COLOR = 4,
@@ -617,9 +365,6 @@ struct Arc FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<float>(verifier, VT_END_ANGLE, 4) &&
            verifier.EndTable();
   }
-  ArcT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ArcT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<Arc> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ArcT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct ArcBuilder {
@@ -669,23 +414,7 @@ inline ::flatbuffers::Offset<Arc> CreateArc(
   return builder_.Finish();
 }
 
-::flatbuffers::Offset<Arc> CreateArc(::flatbuffers::FlatBufferBuilder &_fbb, const ArcT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct CircleSegmentT : public ::flatbuffers::NativeTable {
-  typedef CircleSegment TableType;
-  std::unique_ptr<rewind_viewer::fbs::ColorT> color{};
-  std::unique_ptr<rewind_viewer::fbs::Vector2f> center{};
-  float radius = 0.0f;
-  float start_angle = 0.0f;
-  float end_angle = 0.0f;
-  CircleSegmentT() = default;
-  CircleSegmentT(const CircleSegmentT &o);
-  CircleSegmentT(CircleSegmentT&&) FLATBUFFERS_NOEXCEPT = default;
-  CircleSegmentT &operator=(CircleSegmentT o) FLATBUFFERS_NOEXCEPT;
-};
-
 struct CircleSegment FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef CircleSegmentT NativeTableType;
   typedef CircleSegmentBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_COLOR = 4,
@@ -719,9 +448,6 @@ struct CircleSegment FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<float>(verifier, VT_END_ANGLE, 4) &&
            verifier.EndTable();
   }
-  CircleSegmentT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(CircleSegmentT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<CircleSegment> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CircleSegmentT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct CircleSegmentBuilder {
@@ -771,22 +497,7 @@ inline ::flatbuffers::Offset<CircleSegment> CreateCircleSegment(
   return builder_.Finish();
 }
 
-::flatbuffers::Offset<CircleSegment> CreateCircleSegment(::flatbuffers::FlatBufferBuilder &_fbb, const CircleSegmentT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct TilesT : public ::flatbuffers::NativeTable {
-  typedef Tiles TableType;
-  std::unique_ptr<rewind_viewer::fbs::Vector2f> position{};
-  std::unique_ptr<rewind_viewer::fbs::Vector2f> cell_size{};
-  uint16_t row_size = 0;
-  std::vector<uint32_t> colors{};
-  TilesT() = default;
-  TilesT(const TilesT &o);
-  TilesT(TilesT&&) FLATBUFFERS_NOEXCEPT = default;
-  TilesT &operator=(TilesT o) FLATBUFFERS_NOEXCEPT;
-};
-
 struct Tiles FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef TilesT NativeTableType;
   typedef TilesBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_POSITION = 4,
@@ -815,9 +526,6 @@ struct Tiles FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyVector(colors()) &&
            verifier.EndTable();
   }
-  TilesT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(TilesT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<Tiles> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const TilesT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct TilesBuilder {
@@ -879,21 +587,7 @@ inline ::flatbuffers::Offset<Tiles> CreateTilesDirect(
       colors__);
 }
 
-::flatbuffers::Offset<Tiles> CreateTiles(::flatbuffers::FlatBufferBuilder &_fbb, const TilesT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct RectangleT : public ::flatbuffers::NativeTable {
-  typedef Rectangle TableType;
-  std::unique_ptr<rewind_viewer::fbs::ColorT> color{};
-  std::unique_ptr<rewind_viewer::fbs::Vector2f> position{};
-  std::unique_ptr<rewind_viewer::fbs::Vector2f> size{};
-  RectangleT() = default;
-  RectangleT(const RectangleT &o);
-  RectangleT(RectangleT&&) FLATBUFFERS_NOEXCEPT = default;
-  RectangleT &operator=(RectangleT o) FLATBUFFERS_NOEXCEPT;
-};
-
 struct Rectangle FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef RectangleT NativeTableType;
   typedef RectangleBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_COLOR = 4,
@@ -917,9 +611,6 @@ struct Rectangle FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_SIZE, 4) &&
            verifier.EndTable();
   }
-  RectangleT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(RectangleT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<Rectangle> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const RectangleT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct RectangleBuilder {
@@ -960,20 +651,7 @@ inline ::flatbuffers::Offset<Rectangle> CreateRectangle(
   return builder_.Finish();
 }
 
-::flatbuffers::Offset<Rectangle> CreateRectangle(::flatbuffers::FlatBufferBuilder &_fbb, const RectangleT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct TriangleT : public ::flatbuffers::NativeTable {
-  typedef Triangle TableType;
-  std::unique_ptr<rewind_viewer::fbs::ColorT> color{};
-  std::vector<rewind_viewer::fbs::Vector2f> points{};
-  TriangleT() = default;
-  TriangleT(const TriangleT &o);
-  TriangleT(TriangleT&&) FLATBUFFERS_NOEXCEPT = default;
-  TriangleT &operator=(TriangleT o) FLATBUFFERS_NOEXCEPT;
-};
-
 struct Triangle FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef TriangleT NativeTableType;
   typedef TriangleBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_COLOR = 4,
@@ -993,9 +671,6 @@ struct Triangle FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyVector(points()) &&
            verifier.EndTable();
   }
-  TriangleT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(TriangleT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<Triangle> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const TriangleT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct TriangleBuilder {
@@ -1041,20 +716,7 @@ inline ::flatbuffers::Offset<Triangle> CreateTriangleDirect(
       points__);
 }
 
-::flatbuffers::Offset<Triangle> CreateTriangle(::flatbuffers::FlatBufferBuilder &_fbb, const TriangleT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct PolylineT : public ::flatbuffers::NativeTable {
-  typedef Polyline TableType;
-  std::unique_ptr<rewind_viewer::fbs::ColorT> color{};
-  std::vector<rewind_viewer::fbs::Vector2f> points{};
-  PolylineT() = default;
-  PolylineT(const PolylineT &o);
-  PolylineT(PolylineT&&) FLATBUFFERS_NOEXCEPT = default;
-  PolylineT &operator=(PolylineT o) FLATBUFFERS_NOEXCEPT;
-};
-
 struct Polyline FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef PolylineT NativeTableType;
   typedef PolylineBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_COLOR = 4,
@@ -1074,9 +736,6 @@ struct Polyline FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyVector(points()) &&
            verifier.EndTable();
   }
-  PolylineT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(PolylineT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<Polyline> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const PolylineT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct PolylineBuilder {
@@ -1122,15 +781,7 @@ inline ::flatbuffers::Offset<Polyline> CreatePolylineDirect(
       points__);
 }
 
-::flatbuffers::Offset<Polyline> CreatePolyline(::flatbuffers::FlatBufferBuilder &_fbb, const PolylineT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct LogTextT : public ::flatbuffers::NativeTable {
-  typedef LogText TableType;
-  std::string text{};
-};
-
 struct LogText FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef LogTextT NativeTableType;
   typedef LogTextBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TEXT = 4
@@ -1144,9 +795,6 @@ struct LogText FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyString(text()) &&
            verifier.EndTable();
   }
-  LogTextT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(LogTextT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<LogText> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const LogTextT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct LogTextBuilder {
@@ -1185,21 +833,7 @@ inline ::flatbuffers::Offset<LogText> CreateLogTextDirect(
       text__);
 }
 
-::flatbuffers::Offset<LogText> CreateLogText(::flatbuffers::FlatBufferBuilder &_fbb, const LogTextT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct PopupT : public ::flatbuffers::NativeTable {
-  typedef Popup TableType;
-  std::string text{};
-  std::unique_ptr<rewind_viewer::fbs::Vector2f> area_position{};
-  std::unique_ptr<rewind_viewer::fbs::Vector2f> area_size{};
-  PopupT() = default;
-  PopupT(const PopupT &o);
-  PopupT(PopupT&&) FLATBUFFERS_NOEXCEPT = default;
-  PopupT &operator=(PopupT o) FLATBUFFERS_NOEXCEPT;
-};
-
 struct Popup FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef PopupT NativeTableType;
   typedef PopupBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TEXT = 4,
@@ -1223,9 +857,6 @@ struct Popup FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_AREA_SIZE, 4) &&
            verifier.EndTable();
   }
-  PopupT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(PopupT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<Popup> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const PopupT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct PopupBuilder {
@@ -1280,21 +911,7 @@ inline ::flatbuffers::Offset<Popup> CreatePopupDirect(
       area_size);
 }
 
-::flatbuffers::Offset<Popup> CreatePopup(::flatbuffers::FlatBufferBuilder &_fbb, const PopupT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct PopupRoundT : public ::flatbuffers::NativeTable {
-  typedef PopupRound TableType;
-  std::string text{};
-  std::unique_ptr<rewind_viewer::fbs::Vector2f> area_center{};
-  float area_radius = 0.0f;
-  PopupRoundT() = default;
-  PopupRoundT(const PopupRoundT &o);
-  PopupRoundT(PopupRoundT&&) FLATBUFFERS_NOEXCEPT = default;
-  PopupRoundT &operator=(PopupRoundT o) FLATBUFFERS_NOEXCEPT;
-};
-
 struct PopupRound FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef PopupRoundT NativeTableType;
   typedef PopupRoundBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TEXT = 4,
@@ -1318,9 +935,6 @@ struct PopupRound FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<float>(verifier, VT_AREA_RADIUS, 4) &&
            verifier.EndTable();
   }
-  PopupRoundT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(PopupRoundT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<PopupRound> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const PopupRoundT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct PopupRoundBuilder {
@@ -1374,21 +988,7 @@ inline ::flatbuffers::Offset<PopupRound> CreatePopupRoundDirect(
       area_radius);
 }
 
-::flatbuffers::Offset<PopupRound> CreatePopupRound(::flatbuffers::FlatBufferBuilder &_fbb, const PopupRoundT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct CameraViewT : public ::flatbuffers::NativeTable {
-  typedef CameraView TableType;
-  std::string name{};
-  std::unique_ptr<rewind_viewer::fbs::Vector2f> position{};
-  float view_radius = 0.0f;
-  CameraViewT() = default;
-  CameraViewT(const CameraViewT &o);
-  CameraViewT(CameraViewT&&) FLATBUFFERS_NOEXCEPT = default;
-  CameraViewT &operator=(CameraViewT o) FLATBUFFERS_NOEXCEPT;
-};
-
 struct CameraView FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef CameraViewT NativeTableType;
   typedef CameraViewBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4,
@@ -1412,9 +1012,6 @@ struct CameraView FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<float>(verifier, VT_VIEW_RADIUS, 4) &&
            verifier.EndTable();
   }
-  CameraViewT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(CameraViewT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<CameraView> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CameraViewT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct CameraViewBuilder {
@@ -1468,16 +1065,7 @@ inline ::flatbuffers::Offset<CameraView> CreateCameraViewDirect(
       view_radius);
 }
 
-::flatbuffers::Offset<CameraView> CreateCameraView(::flatbuffers::FlatBufferBuilder &_fbb, const CameraViewT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct LayerT : public ::flatbuffers::NativeTable {
-  typedef Layer TableType;
-  uint32_t id = 0;
-  bool use_permanent_frame = false;
-};
-
 struct Layer FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef LayerT NativeTableType;
   typedef LayerBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
@@ -1495,9 +1083,6 @@ struct Layer FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint8_t>(verifier, VT_USE_PERMANENT_FRAME, 1) &&
            verifier.EndTable();
   }
-  LayerT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(LayerT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<Layer> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const LayerT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct LayerBuilder {
@@ -1531,30 +1116,19 @@ inline ::flatbuffers::Offset<Layer> CreateLayer(
   return builder_.Finish();
 }
 
-::flatbuffers::Offset<Layer> CreateLayer(::flatbuffers::FlatBufferBuilder &_fbb, const LayerT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct MapT : public ::flatbuffers::NativeTable {
-  typedef Map TableType;
-  float width = 0.0f;
-  float height = 0.0f;
-  uint16_t x_grid = 0;
-  uint16_t y_grid = 0;
-};
-
 struct Map FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef MapT NativeTableType;
   typedef MapBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_WIDTH = 4,
-    VT_HEIGHT = 6,
+    VT_POSITION = 4,
+    VT_SIZE = 6,
     VT_X_GRID = 8,
     VT_Y_GRID = 10
   };
-  float width() const {
-    return GetField<float>(VT_WIDTH, 0.0f);
+  const rewind_viewer::fbs::Vector2f *position() const {
+    return GetStruct<const rewind_viewer::fbs::Vector2f *>(VT_POSITION);
   }
-  float height() const {
-    return GetField<float>(VT_HEIGHT, 0.0f);
+  const rewind_viewer::fbs::Vector2f *size() const {
+    return GetStruct<const rewind_viewer::fbs::Vector2f *>(VT_SIZE);
   }
   uint16_t x_grid() const {
     return GetField<uint16_t>(VT_X_GRID, 0);
@@ -1564,26 +1138,23 @@ struct Map FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<float>(verifier, VT_WIDTH, 4) &&
-           VerifyField<float>(verifier, VT_HEIGHT, 4) &&
+           VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_POSITION, 4) &&
+           VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_SIZE, 4) &&
            VerifyField<uint16_t>(verifier, VT_X_GRID, 2) &&
            VerifyField<uint16_t>(verifier, VT_Y_GRID, 2) &&
            verifier.EndTable();
   }
-  MapT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(MapT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<Map> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MapT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct MapBuilder {
   typedef Map Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_width(float width) {
-    fbb_.AddElement<float>(Map::VT_WIDTH, width, 0.0f);
+  void add_position(const rewind_viewer::fbs::Vector2f *position) {
+    fbb_.AddStruct(Map::VT_POSITION, position);
   }
-  void add_height(float height) {
-    fbb_.AddElement<float>(Map::VT_HEIGHT, height, 0.0f);
+  void add_size(const rewind_viewer::fbs::Vector2f *size) {
+    fbb_.AddStruct(Map::VT_SIZE, size);
   }
   void add_x_grid(uint16_t x_grid) {
     fbb_.AddElement<uint16_t>(Map::VT_X_GRID, x_grid, 0);
@@ -1598,38 +1169,27 @@ struct MapBuilder {
   ::flatbuffers::Offset<Map> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<Map>(end);
+    fbb_.Required(o, Map::VT_POSITION);
+    fbb_.Required(o, Map::VT_SIZE);
     return o;
   }
 };
 
 inline ::flatbuffers::Offset<Map> CreateMap(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    float width = 0.0f,
-    float height = 0.0f,
+    const rewind_viewer::fbs::Vector2f *position = nullptr,
+    const rewind_viewer::fbs::Vector2f *size = nullptr,
     uint16_t x_grid = 0,
     uint16_t y_grid = 0) {
   MapBuilder builder_(_fbb);
-  builder_.add_height(height);
-  builder_.add_width(width);
+  builder_.add_size(size);
+  builder_.add_position(position);
   builder_.add_y_grid(y_grid);
   builder_.add_x_grid(x_grid);
   return builder_.Finish();
 }
 
-::flatbuffers::Offset<Map> CreateMap(::flatbuffers::FlatBufferBuilder &_fbb, const MapT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct OptionsT : public ::flatbuffers::NativeTable {
-  typedef Options TableType;
-  std::unique_ptr<rewind_viewer::fbs::MapT> map{};
-  std::unique_ptr<rewind_viewer::fbs::LayerT> layer{};
-  OptionsT() = default;
-  OptionsT(const OptionsT &o);
-  OptionsT(OptionsT&&) FLATBUFFERS_NOEXCEPT = default;
-  OptionsT &operator=(OptionsT o) FLATBUFFERS_NOEXCEPT;
-};
-
 struct Options FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef OptionsT NativeTableType;
   typedef OptionsBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MAP = 4,
@@ -1649,9 +1209,6 @@ struct Options FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyTable(layer()) &&
            verifier.EndTable();
   }
-  OptionsT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(OptionsT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<Options> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const OptionsT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct OptionsBuilder {
@@ -1685,22 +1242,12 @@ inline ::flatbuffers::Offset<Options> CreateOptions(
   return builder_.Finish();
 }
 
-::flatbuffers::Offset<Options> CreateOptions(::flatbuffers::FlatBufferBuilder &_fbb, const OptionsT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct EndFrameT : public ::flatbuffers::NativeTable {
-  typedef EndFrame TableType;
-};
-
 struct EndFrame FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef EndFrameT NativeTableType;
   typedef EndFrameBuilder Builder;
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            verifier.EndTable();
   }
-  EndFrameT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(EndFrameT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<EndFrame> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const EndFrameT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 struct EndFrameBuilder {
@@ -1724,15 +1271,7 @@ inline ::flatbuffers::Offset<EndFrame> CreateEndFrame(
   return builder_.Finish();
 }
 
-::flatbuffers::Offset<EndFrame> CreateEndFrame(::flatbuffers::FlatBufferBuilder &_fbb, const EndFrameT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct RewindMessageT : public ::flatbuffers::NativeTable {
-  typedef RewindMessage TableType;
-  rewind_viewer::fbs::CommandUnion command{};
-};
-
 struct RewindMessage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef RewindMessageT NativeTableType;
   typedef RewindMessageBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_COMMAND_TYPE = 4,
@@ -1791,9 +1330,6 @@ struct RewindMessage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyCommand(verifier, command(), command_type()) &&
            verifier.EndTable();
   }
-  RewindMessageT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(RewindMessageT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<RewindMessage> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const RewindMessageT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
 template<> inline const rewind_viewer::fbs::Arc *RewindMessage::command_as<rewind_viewer::fbs::Arc>() const {
@@ -1880,684 +1416,6 @@ inline ::flatbuffers::Offset<RewindMessage> CreateRewindMessage(
   return builder_.Finish();
 }
 
-::flatbuffers::Offset<RewindMessage> CreateRewindMessage(::flatbuffers::FlatBufferBuilder &_fbb, const RewindMessageT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-inline ColorT *Color::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<ColorT>(new ColorT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void Color::UnPackTo(ColorT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = value(); _o->value = _e; }
-  { auto _e = fill(); _o->fill = _e; }
-}
-
-inline ::flatbuffers::Offset<Color> Color::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ColorT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateColor(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<Color> CreateColor(::flatbuffers::FlatBufferBuilder &_fbb, const ColorT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ColorT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _value = _o->value;
-  auto _fill = _o->fill;
-  return rewind_viewer::fbs::CreateColor(
-      _fbb,
-      _value,
-      _fill);
-}
-
-inline CircleT::CircleT(const CircleT &o)
-      : color((o.color) ? new rewind_viewer::fbs::ColorT(*o.color) : nullptr),
-        center((o.center) ? new rewind_viewer::fbs::Vector2f(*o.center) : nullptr),
-        radius(o.radius) {
-}
-
-inline CircleT &CircleT::operator=(CircleT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(color, o.color);
-  std::swap(center, o.center);
-  std::swap(radius, o.radius);
-  return *this;
-}
-
-inline CircleT *Circle::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<CircleT>(new CircleT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void Circle::UnPackTo(CircleT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = color(); if (_e) { if(_o->color) { _e->UnPackTo(_o->color.get(), _resolver); } else { _o->color = std::unique_ptr<rewind_viewer::fbs::ColorT>(_e->UnPack(_resolver)); } } else if (_o->color) { _o->color.reset(); } }
-  { auto _e = center(); if (_e) _o->center = std::unique_ptr<rewind_viewer::fbs::Vector2f>(new rewind_viewer::fbs::Vector2f(*_e)); }
-  { auto _e = radius(); _o->radius = _e; }
-}
-
-inline ::flatbuffers::Offset<Circle> Circle::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CircleT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateCircle(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<Circle> CreateCircle(::flatbuffers::FlatBufferBuilder &_fbb, const CircleT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CircleT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _color = _o->color ? CreateColor(_fbb, _o->color.get(), _rehasher) : 0;
-  auto _center = _o->center ? _o->center.get() : nullptr;
-  auto _radius = _o->radius;
-  return rewind_viewer::fbs::CreateCircle(
-      _fbb,
-      _color,
-      _center,
-      _radius);
-}
-
-inline ArcT::ArcT(const ArcT &o)
-      : color((o.color) ? new rewind_viewer::fbs::ColorT(*o.color) : nullptr),
-        center((o.center) ? new rewind_viewer::fbs::Vector2f(*o.center) : nullptr),
-        radius(o.radius),
-        start_angle(o.start_angle),
-        end_angle(o.end_angle) {
-}
-
-inline ArcT &ArcT::operator=(ArcT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(color, o.color);
-  std::swap(center, o.center);
-  std::swap(radius, o.radius);
-  std::swap(start_angle, o.start_angle);
-  std::swap(end_angle, o.end_angle);
-  return *this;
-}
-
-inline ArcT *Arc::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<ArcT>(new ArcT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void Arc::UnPackTo(ArcT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = color(); if (_e) { if(_o->color) { _e->UnPackTo(_o->color.get(), _resolver); } else { _o->color = std::unique_ptr<rewind_viewer::fbs::ColorT>(_e->UnPack(_resolver)); } } else if (_o->color) { _o->color.reset(); } }
-  { auto _e = center(); if (_e) _o->center = std::unique_ptr<rewind_viewer::fbs::Vector2f>(new rewind_viewer::fbs::Vector2f(*_e)); }
-  { auto _e = radius(); _o->radius = _e; }
-  { auto _e = start_angle(); _o->start_angle = _e; }
-  { auto _e = end_angle(); _o->end_angle = _e; }
-}
-
-inline ::flatbuffers::Offset<Arc> Arc::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ArcT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateArc(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<Arc> CreateArc(::flatbuffers::FlatBufferBuilder &_fbb, const ArcT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ArcT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _color = _o->color ? CreateColor(_fbb, _o->color.get(), _rehasher) : 0;
-  auto _center = _o->center ? _o->center.get() : nullptr;
-  auto _radius = _o->radius;
-  auto _start_angle = _o->start_angle;
-  auto _end_angle = _o->end_angle;
-  return rewind_viewer::fbs::CreateArc(
-      _fbb,
-      _color,
-      _center,
-      _radius,
-      _start_angle,
-      _end_angle);
-}
-
-inline CircleSegmentT::CircleSegmentT(const CircleSegmentT &o)
-      : color((o.color) ? new rewind_viewer::fbs::ColorT(*o.color) : nullptr),
-        center((o.center) ? new rewind_viewer::fbs::Vector2f(*o.center) : nullptr),
-        radius(o.radius),
-        start_angle(o.start_angle),
-        end_angle(o.end_angle) {
-}
-
-inline CircleSegmentT &CircleSegmentT::operator=(CircleSegmentT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(color, o.color);
-  std::swap(center, o.center);
-  std::swap(radius, o.radius);
-  std::swap(start_angle, o.start_angle);
-  std::swap(end_angle, o.end_angle);
-  return *this;
-}
-
-inline CircleSegmentT *CircleSegment::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<CircleSegmentT>(new CircleSegmentT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void CircleSegment::UnPackTo(CircleSegmentT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = color(); if (_e) { if(_o->color) { _e->UnPackTo(_o->color.get(), _resolver); } else { _o->color = std::unique_ptr<rewind_viewer::fbs::ColorT>(_e->UnPack(_resolver)); } } else if (_o->color) { _o->color.reset(); } }
-  { auto _e = center(); if (_e) _o->center = std::unique_ptr<rewind_viewer::fbs::Vector2f>(new rewind_viewer::fbs::Vector2f(*_e)); }
-  { auto _e = radius(); _o->radius = _e; }
-  { auto _e = start_angle(); _o->start_angle = _e; }
-  { auto _e = end_angle(); _o->end_angle = _e; }
-}
-
-inline ::flatbuffers::Offset<CircleSegment> CircleSegment::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CircleSegmentT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateCircleSegment(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<CircleSegment> CreateCircleSegment(::flatbuffers::FlatBufferBuilder &_fbb, const CircleSegmentT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CircleSegmentT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _color = _o->color ? CreateColor(_fbb, _o->color.get(), _rehasher) : 0;
-  auto _center = _o->center ? _o->center.get() : nullptr;
-  auto _radius = _o->radius;
-  auto _start_angle = _o->start_angle;
-  auto _end_angle = _o->end_angle;
-  return rewind_viewer::fbs::CreateCircleSegment(
-      _fbb,
-      _color,
-      _center,
-      _radius,
-      _start_angle,
-      _end_angle);
-}
-
-inline TilesT::TilesT(const TilesT &o)
-      : position((o.position) ? new rewind_viewer::fbs::Vector2f(*o.position) : nullptr),
-        cell_size((o.cell_size) ? new rewind_viewer::fbs::Vector2f(*o.cell_size) : nullptr),
-        row_size(o.row_size),
-        colors(o.colors) {
-}
-
-inline TilesT &TilesT::operator=(TilesT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(position, o.position);
-  std::swap(cell_size, o.cell_size);
-  std::swap(row_size, o.row_size);
-  std::swap(colors, o.colors);
-  return *this;
-}
-
-inline TilesT *Tiles::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<TilesT>(new TilesT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void Tiles::UnPackTo(TilesT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = position(); if (_e) _o->position = std::unique_ptr<rewind_viewer::fbs::Vector2f>(new rewind_viewer::fbs::Vector2f(*_e)); }
-  { auto _e = cell_size(); if (_e) _o->cell_size = std::unique_ptr<rewind_viewer::fbs::Vector2f>(new rewind_viewer::fbs::Vector2f(*_e)); }
-  { auto _e = row_size(); _o->row_size = _e; }
-  { auto _e = colors(); if (_e) { _o->colors.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->colors[_i] = _e->Get(_i); } } else { _o->colors.resize(0); } }
-}
-
-inline ::flatbuffers::Offset<Tiles> Tiles::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const TilesT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateTiles(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<Tiles> CreateTiles(::flatbuffers::FlatBufferBuilder &_fbb, const TilesT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const TilesT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _position = _o->position ? _o->position.get() : nullptr;
-  auto _cell_size = _o->cell_size ? _o->cell_size.get() : nullptr;
-  auto _row_size = _o->row_size;
-  auto _colors = _fbb.CreateVector(_o->colors);
-  return rewind_viewer::fbs::CreateTiles(
-      _fbb,
-      _position,
-      _cell_size,
-      _row_size,
-      _colors);
-}
-
-inline RectangleT::RectangleT(const RectangleT &o)
-      : color((o.color) ? new rewind_viewer::fbs::ColorT(*o.color) : nullptr),
-        position((o.position) ? new rewind_viewer::fbs::Vector2f(*o.position) : nullptr),
-        size((o.size) ? new rewind_viewer::fbs::Vector2f(*o.size) : nullptr) {
-}
-
-inline RectangleT &RectangleT::operator=(RectangleT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(color, o.color);
-  std::swap(position, o.position);
-  std::swap(size, o.size);
-  return *this;
-}
-
-inline RectangleT *Rectangle::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<RectangleT>(new RectangleT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void Rectangle::UnPackTo(RectangleT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = color(); if (_e) { if(_o->color) { _e->UnPackTo(_o->color.get(), _resolver); } else { _o->color = std::unique_ptr<rewind_viewer::fbs::ColorT>(_e->UnPack(_resolver)); } } else if (_o->color) { _o->color.reset(); } }
-  { auto _e = position(); if (_e) _o->position = std::unique_ptr<rewind_viewer::fbs::Vector2f>(new rewind_viewer::fbs::Vector2f(*_e)); }
-  { auto _e = size(); if (_e) _o->size = std::unique_ptr<rewind_viewer::fbs::Vector2f>(new rewind_viewer::fbs::Vector2f(*_e)); }
-}
-
-inline ::flatbuffers::Offset<Rectangle> Rectangle::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const RectangleT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateRectangle(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<Rectangle> CreateRectangle(::flatbuffers::FlatBufferBuilder &_fbb, const RectangleT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const RectangleT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _color = _o->color ? CreateColor(_fbb, _o->color.get(), _rehasher) : 0;
-  auto _position = _o->position ? _o->position.get() : nullptr;
-  auto _size = _o->size ? _o->size.get() : nullptr;
-  return rewind_viewer::fbs::CreateRectangle(
-      _fbb,
-      _color,
-      _position,
-      _size);
-}
-
-inline TriangleT::TriangleT(const TriangleT &o)
-      : color((o.color) ? new rewind_viewer::fbs::ColorT(*o.color) : nullptr),
-        points(o.points) {
-}
-
-inline TriangleT &TriangleT::operator=(TriangleT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(color, o.color);
-  std::swap(points, o.points);
-  return *this;
-}
-
-inline TriangleT *Triangle::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<TriangleT>(new TriangleT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void Triangle::UnPackTo(TriangleT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = color(); if (_e) { if(_o->color) { _e->UnPackTo(_o->color.get(), _resolver); } else { _o->color = std::unique_ptr<rewind_viewer::fbs::ColorT>(_e->UnPack(_resolver)); } } else if (_o->color) { _o->color.reset(); } }
-  { auto _e = points(); if (_e) { _o->points.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->points[_i] = *_e->Get(_i); } } else { _o->points.resize(0); } }
-}
-
-inline ::flatbuffers::Offset<Triangle> Triangle::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const TriangleT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateTriangle(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<Triangle> CreateTriangle(::flatbuffers::FlatBufferBuilder &_fbb, const TriangleT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const TriangleT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _color = _o->color ? CreateColor(_fbb, _o->color.get(), _rehasher) : 0;
-  auto _points = _fbb.CreateVectorOfStructs(_o->points);
-  return rewind_viewer::fbs::CreateTriangle(
-      _fbb,
-      _color,
-      _points);
-}
-
-inline PolylineT::PolylineT(const PolylineT &o)
-      : color((o.color) ? new rewind_viewer::fbs::ColorT(*o.color) : nullptr),
-        points(o.points) {
-}
-
-inline PolylineT &PolylineT::operator=(PolylineT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(color, o.color);
-  std::swap(points, o.points);
-  return *this;
-}
-
-inline PolylineT *Polyline::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<PolylineT>(new PolylineT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void Polyline::UnPackTo(PolylineT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = color(); if (_e) { if(_o->color) { _e->UnPackTo(_o->color.get(), _resolver); } else { _o->color = std::unique_ptr<rewind_viewer::fbs::ColorT>(_e->UnPack(_resolver)); } } else if (_o->color) { _o->color.reset(); } }
-  { auto _e = points(); if (_e) { _o->points.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->points[_i] = *_e->Get(_i); } } else { _o->points.resize(0); } }
-}
-
-inline ::flatbuffers::Offset<Polyline> Polyline::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const PolylineT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreatePolyline(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<Polyline> CreatePolyline(::flatbuffers::FlatBufferBuilder &_fbb, const PolylineT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const PolylineT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _color = _o->color ? CreateColor(_fbb, _o->color.get(), _rehasher) : 0;
-  auto _points = _fbb.CreateVectorOfStructs(_o->points);
-  return rewind_viewer::fbs::CreatePolyline(
-      _fbb,
-      _color,
-      _points);
-}
-
-inline LogTextT *LogText::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<LogTextT>(new LogTextT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void LogText::UnPackTo(LogTextT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = text(); if (_e) _o->text = _e->str(); }
-}
-
-inline ::flatbuffers::Offset<LogText> LogText::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const LogTextT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateLogText(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<LogText> CreateLogText(::flatbuffers::FlatBufferBuilder &_fbb, const LogTextT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const LogTextT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _text = _fbb.CreateString(_o->text);
-  return rewind_viewer::fbs::CreateLogText(
-      _fbb,
-      _text);
-}
-
-inline PopupT::PopupT(const PopupT &o)
-      : text(o.text),
-        area_position((o.area_position) ? new rewind_viewer::fbs::Vector2f(*o.area_position) : nullptr),
-        area_size((o.area_size) ? new rewind_viewer::fbs::Vector2f(*o.area_size) : nullptr) {
-}
-
-inline PopupT &PopupT::operator=(PopupT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(text, o.text);
-  std::swap(area_position, o.area_position);
-  std::swap(area_size, o.area_size);
-  return *this;
-}
-
-inline PopupT *Popup::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<PopupT>(new PopupT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void Popup::UnPackTo(PopupT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = text(); if (_e) _o->text = _e->str(); }
-  { auto _e = area_position(); if (_e) _o->area_position = std::unique_ptr<rewind_viewer::fbs::Vector2f>(new rewind_viewer::fbs::Vector2f(*_e)); }
-  { auto _e = area_size(); if (_e) _o->area_size = std::unique_ptr<rewind_viewer::fbs::Vector2f>(new rewind_viewer::fbs::Vector2f(*_e)); }
-}
-
-inline ::flatbuffers::Offset<Popup> Popup::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const PopupT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreatePopup(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<Popup> CreatePopup(::flatbuffers::FlatBufferBuilder &_fbb, const PopupT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const PopupT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _text = _fbb.CreateString(_o->text);
-  auto _area_position = _o->area_position ? _o->area_position.get() : nullptr;
-  auto _area_size = _o->area_size ? _o->area_size.get() : nullptr;
-  return rewind_viewer::fbs::CreatePopup(
-      _fbb,
-      _text,
-      _area_position,
-      _area_size);
-}
-
-inline PopupRoundT::PopupRoundT(const PopupRoundT &o)
-      : text(o.text),
-        area_center((o.area_center) ? new rewind_viewer::fbs::Vector2f(*o.area_center) : nullptr),
-        area_radius(o.area_radius) {
-}
-
-inline PopupRoundT &PopupRoundT::operator=(PopupRoundT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(text, o.text);
-  std::swap(area_center, o.area_center);
-  std::swap(area_radius, o.area_radius);
-  return *this;
-}
-
-inline PopupRoundT *PopupRound::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<PopupRoundT>(new PopupRoundT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void PopupRound::UnPackTo(PopupRoundT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = text(); if (_e) _o->text = _e->str(); }
-  { auto _e = area_center(); if (_e) _o->area_center = std::unique_ptr<rewind_viewer::fbs::Vector2f>(new rewind_viewer::fbs::Vector2f(*_e)); }
-  { auto _e = area_radius(); _o->area_radius = _e; }
-}
-
-inline ::flatbuffers::Offset<PopupRound> PopupRound::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const PopupRoundT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreatePopupRound(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<PopupRound> CreatePopupRound(::flatbuffers::FlatBufferBuilder &_fbb, const PopupRoundT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const PopupRoundT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _text = _fbb.CreateString(_o->text);
-  auto _area_center = _o->area_center ? _o->area_center.get() : nullptr;
-  auto _area_radius = _o->area_radius;
-  return rewind_viewer::fbs::CreatePopupRound(
-      _fbb,
-      _text,
-      _area_center,
-      _area_radius);
-}
-
-inline CameraViewT::CameraViewT(const CameraViewT &o)
-      : name(o.name),
-        position((o.position) ? new rewind_viewer::fbs::Vector2f(*o.position) : nullptr),
-        view_radius(o.view_radius) {
-}
-
-inline CameraViewT &CameraViewT::operator=(CameraViewT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(name, o.name);
-  std::swap(position, o.position);
-  std::swap(view_radius, o.view_radius);
-  return *this;
-}
-
-inline CameraViewT *CameraView::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<CameraViewT>(new CameraViewT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void CameraView::UnPackTo(CameraViewT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = name(); if (_e) _o->name = _e->str(); }
-  { auto _e = position(); if (_e) _o->position = std::unique_ptr<rewind_viewer::fbs::Vector2f>(new rewind_viewer::fbs::Vector2f(*_e)); }
-  { auto _e = view_radius(); _o->view_radius = _e; }
-}
-
-inline ::flatbuffers::Offset<CameraView> CameraView::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CameraViewT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateCameraView(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<CameraView> CreateCameraView(::flatbuffers::FlatBufferBuilder &_fbb, const CameraViewT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CameraViewT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _name = _fbb.CreateString(_o->name);
-  auto _position = _o->position ? _o->position.get() : nullptr;
-  auto _view_radius = _o->view_radius;
-  return rewind_viewer::fbs::CreateCameraView(
-      _fbb,
-      _name,
-      _position,
-      _view_radius);
-}
-
-inline LayerT *Layer::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<LayerT>(new LayerT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void Layer::UnPackTo(LayerT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = id(); _o->id = _e; }
-  { auto _e = use_permanent_frame(); _o->use_permanent_frame = _e; }
-}
-
-inline ::flatbuffers::Offset<Layer> Layer::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const LayerT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateLayer(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<Layer> CreateLayer(::flatbuffers::FlatBufferBuilder &_fbb, const LayerT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const LayerT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _id = _o->id;
-  auto _use_permanent_frame = _o->use_permanent_frame;
-  return rewind_viewer::fbs::CreateLayer(
-      _fbb,
-      _id,
-      _use_permanent_frame);
-}
-
-inline MapT *Map::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<MapT>(new MapT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void Map::UnPackTo(MapT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = width(); _o->width = _e; }
-  { auto _e = height(); _o->height = _e; }
-  { auto _e = x_grid(); _o->x_grid = _e; }
-  { auto _e = y_grid(); _o->y_grid = _e; }
-}
-
-inline ::flatbuffers::Offset<Map> Map::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MapT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateMap(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<Map> CreateMap(::flatbuffers::FlatBufferBuilder &_fbb, const MapT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const MapT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _width = _o->width;
-  auto _height = _o->height;
-  auto _x_grid = _o->x_grid;
-  auto _y_grid = _o->y_grid;
-  return rewind_viewer::fbs::CreateMap(
-      _fbb,
-      _width,
-      _height,
-      _x_grid,
-      _y_grid);
-}
-
-inline OptionsT::OptionsT(const OptionsT &o)
-      : map((o.map) ? new rewind_viewer::fbs::MapT(*o.map) : nullptr),
-        layer((o.layer) ? new rewind_viewer::fbs::LayerT(*o.layer) : nullptr) {
-}
-
-inline OptionsT &OptionsT::operator=(OptionsT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(map, o.map);
-  std::swap(layer, o.layer);
-  return *this;
-}
-
-inline OptionsT *Options::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<OptionsT>(new OptionsT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void Options::UnPackTo(OptionsT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = map(); if (_e) { if(_o->map) { _e->UnPackTo(_o->map.get(), _resolver); } else { _o->map = std::unique_ptr<rewind_viewer::fbs::MapT>(_e->UnPack(_resolver)); } } else if (_o->map) { _o->map.reset(); } }
-  { auto _e = layer(); if (_e) { if(_o->layer) { _e->UnPackTo(_o->layer.get(), _resolver); } else { _o->layer = std::unique_ptr<rewind_viewer::fbs::LayerT>(_e->UnPack(_resolver)); } } else if (_o->layer) { _o->layer.reset(); } }
-}
-
-inline ::flatbuffers::Offset<Options> Options::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const OptionsT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateOptions(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<Options> CreateOptions(::flatbuffers::FlatBufferBuilder &_fbb, const OptionsT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const OptionsT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _map = _o->map ? CreateMap(_fbb, _o->map.get(), _rehasher) : 0;
-  auto _layer = _o->layer ? CreateLayer(_fbb, _o->layer.get(), _rehasher) : 0;
-  return rewind_viewer::fbs::CreateOptions(
-      _fbb,
-      _map,
-      _layer);
-}
-
-inline EndFrameT *EndFrame::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<EndFrameT>(new EndFrameT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void EndFrame::UnPackTo(EndFrameT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-}
-
-inline ::flatbuffers::Offset<EndFrame> EndFrame::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const EndFrameT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateEndFrame(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<EndFrame> CreateEndFrame(::flatbuffers::FlatBufferBuilder &_fbb, const EndFrameT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const EndFrameT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  return rewind_viewer::fbs::CreateEndFrame(
-      _fbb);
-}
-
-inline RewindMessageT *RewindMessage::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<RewindMessageT>(new RewindMessageT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void RewindMessage::UnPackTo(RewindMessageT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = command_type(); _o->command.type = _e; }
-  { auto _e = command(); if (_e) _o->command.value = rewind_viewer::fbs::CommandUnion::UnPack(_e, command_type(), _resolver); }
-}
-
-inline ::flatbuffers::Offset<RewindMessage> RewindMessage::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const RewindMessageT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateRewindMessage(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<RewindMessage> CreateRewindMessage(::flatbuffers::FlatBufferBuilder &_fbb, const RewindMessageT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const RewindMessageT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _command_type = _o->command.type;
-  auto _command = _o->command.Pack(_fbb);
-  return rewind_viewer::fbs::CreateRewindMessage(
-      _fbb,
-      _command_type,
-      _command);
-}
-
 inline bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Command type) {
   switch (type) {
     case Command_NONE: {
@@ -2631,256 +1489,6 @@ inline bool VerifyCommandVector(::flatbuffers::Verifier &verifier, const ::flatb
   return true;
 }
 
-inline void *CommandUnion::UnPack(const void *obj, Command type, const ::flatbuffers::resolver_function_t *resolver) {
-  (void)resolver;
-  switch (type) {
-    case Command_Arc: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Arc *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_CameraView: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::CameraView *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_Circle: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Circle *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_CircleSegment: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::CircleSegment *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_LogText: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::LogText *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_Options: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Options *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_Polyline: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Polyline *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_Popup: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Popup *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_PopupRound: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::PopupRound *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_Rectangle: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Rectangle *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_Tiles: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Tiles *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_Triangle: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Triangle *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case Command_EndFrame: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::EndFrame *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    default: return nullptr;
-  }
-}
-
-inline ::flatbuffers::Offset<void> CommandUnion::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher) const {
-  (void)_rehasher;
-  switch (type) {
-    case Command_Arc: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::ArcT *>(value);
-      return CreateArc(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_CameraView: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::CameraViewT *>(value);
-      return CreateCameraView(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_Circle: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::CircleT *>(value);
-      return CreateCircle(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_CircleSegment: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::CircleSegmentT *>(value);
-      return CreateCircleSegment(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_LogText: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::LogTextT *>(value);
-      return CreateLogText(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_Options: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::OptionsT *>(value);
-      return CreateOptions(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_Polyline: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::PolylineT *>(value);
-      return CreatePolyline(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_Popup: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::PopupT *>(value);
-      return CreatePopup(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_PopupRound: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::PopupRoundT *>(value);
-      return CreatePopupRound(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_Rectangle: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::RectangleT *>(value);
-      return CreateRectangle(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_Tiles: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::TilesT *>(value);
-      return CreateTiles(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_Triangle: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::TriangleT *>(value);
-      return CreateTriangle(_fbb, ptr, _rehasher).Union();
-    }
-    case Command_EndFrame: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::EndFrameT *>(value);
-      return CreateEndFrame(_fbb, ptr, _rehasher).Union();
-    }
-    default: return 0;
-  }
-}
-
-inline CommandUnion::CommandUnion(const CommandUnion &u) : type(u.type), value(nullptr) {
-  switch (type) {
-    case Command_Arc: {
-      value = new rewind_viewer::fbs::ArcT(*reinterpret_cast<rewind_viewer::fbs::ArcT *>(u.value));
-      break;
-    }
-    case Command_CameraView: {
-      value = new rewind_viewer::fbs::CameraViewT(*reinterpret_cast<rewind_viewer::fbs::CameraViewT *>(u.value));
-      break;
-    }
-    case Command_Circle: {
-      value = new rewind_viewer::fbs::CircleT(*reinterpret_cast<rewind_viewer::fbs::CircleT *>(u.value));
-      break;
-    }
-    case Command_CircleSegment: {
-      value = new rewind_viewer::fbs::CircleSegmentT(*reinterpret_cast<rewind_viewer::fbs::CircleSegmentT *>(u.value));
-      break;
-    }
-    case Command_LogText: {
-      value = new rewind_viewer::fbs::LogTextT(*reinterpret_cast<rewind_viewer::fbs::LogTextT *>(u.value));
-      break;
-    }
-    case Command_Options: {
-      value = new rewind_viewer::fbs::OptionsT(*reinterpret_cast<rewind_viewer::fbs::OptionsT *>(u.value));
-      break;
-    }
-    case Command_Polyline: {
-      value = new rewind_viewer::fbs::PolylineT(*reinterpret_cast<rewind_viewer::fbs::PolylineT *>(u.value));
-      break;
-    }
-    case Command_Popup: {
-      value = new rewind_viewer::fbs::PopupT(*reinterpret_cast<rewind_viewer::fbs::PopupT *>(u.value));
-      break;
-    }
-    case Command_PopupRound: {
-      value = new rewind_viewer::fbs::PopupRoundT(*reinterpret_cast<rewind_viewer::fbs::PopupRoundT *>(u.value));
-      break;
-    }
-    case Command_Rectangle: {
-      value = new rewind_viewer::fbs::RectangleT(*reinterpret_cast<rewind_viewer::fbs::RectangleT *>(u.value));
-      break;
-    }
-    case Command_Tiles: {
-      value = new rewind_viewer::fbs::TilesT(*reinterpret_cast<rewind_viewer::fbs::TilesT *>(u.value));
-      break;
-    }
-    case Command_Triangle: {
-      value = new rewind_viewer::fbs::TriangleT(*reinterpret_cast<rewind_viewer::fbs::TriangleT *>(u.value));
-      break;
-    }
-    case Command_EndFrame: {
-      value = new rewind_viewer::fbs::EndFrameT(*reinterpret_cast<rewind_viewer::fbs::EndFrameT *>(u.value));
-      break;
-    }
-    default:
-      break;
-  }
-}
-
-inline void CommandUnion::Reset() {
-  switch (type) {
-    case Command_Arc: {
-      auto ptr = reinterpret_cast<rewind_viewer::fbs::ArcT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_CameraView: {
-      auto ptr = reinterpret_cast<rewind_viewer::fbs::CameraViewT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_Circle: {
-      auto ptr = reinterpret_cast<rewind_viewer::fbs::CircleT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_CircleSegment: {
-      auto ptr = reinterpret_cast<rewind_viewer::fbs::CircleSegmentT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_LogText: {
-      auto ptr = reinterpret_cast<rewind_viewer::fbs::LogTextT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_Options: {
-      auto ptr = reinterpret_cast<rewind_viewer::fbs::OptionsT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_Polyline: {
-      auto ptr = reinterpret_cast<rewind_viewer::fbs::PolylineT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_Popup: {
-      auto ptr = reinterpret_cast<rewind_viewer::fbs::PopupT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_PopupRound: {
-      auto ptr = reinterpret_cast<rewind_viewer::fbs::PopupRoundT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_Rectangle: {
-      auto ptr = reinterpret_cast<rewind_viewer::fbs::RectangleT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_Tiles: {
-      auto ptr = reinterpret_cast<rewind_viewer::fbs::TilesT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_Triangle: {
-      auto ptr = reinterpret_cast<rewind_viewer::fbs::TriangleT *>(value);
-      delete ptr;
-      break;
-    }
-    case Command_EndFrame: {
-      auto ptr = reinterpret_cast<rewind_viewer::fbs::EndFrameT *>(value);
-      delete ptr;
-      break;
-    }
-    default: break;
-  }
-  value = nullptr;
-  type = Command_NONE;
-}
-
 inline const rewind_viewer::fbs::RewindMessage *GetRewindMessage(const void *buf) {
   return ::flatbuffers::GetRoot<rewind_viewer::fbs::RewindMessage>(buf);
 }
@@ -2909,18 +1517,6 @@ inline void FinishSizePrefixedRewindMessageBuffer(
     ::flatbuffers::FlatBufferBuilder &fbb,
     ::flatbuffers::Offset<rewind_viewer::fbs::RewindMessage> root) {
   fbb.FinishSizePrefixed(root);
-}
-
-inline std::unique_ptr<rewind_viewer::fbs::RewindMessageT> UnPackRewindMessage(
-    const void *buf,
-    const ::flatbuffers::resolver_function_t *res = nullptr) {
-  return std::unique_ptr<rewind_viewer::fbs::RewindMessageT>(GetRewindMessage(buf)->UnPack(res));
-}
-
-inline std::unique_ptr<rewind_viewer::fbs::RewindMessageT> UnPackSizePrefixedRewindMessage(
-    const void *buf,
-    const ::flatbuffers::resolver_function_t *res = nullptr) {
-  return std::unique_ptr<rewind_viewer::fbs::RewindMessageT>(GetSizePrefixedRewindMessage(buf)->UnPack(res));
 }
 
 }  // namespace fbs

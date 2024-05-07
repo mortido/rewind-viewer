@@ -4,11 +4,11 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { Color, ColorT } from '../../rewind-viewer/fbs/color.js';
-import { Vector2f, Vector2fT } from '../../rewind-viewer/fbs/vector2f.js';
+import { Color } from '../../rewind-viewer/fbs/color.js';
+import { Vector2f } from '../../rewind-viewer/fbs/vector2f.js';
 
 
-export class Circle implements flatbuffers.IUnpackableObject<CircleT> {
+export class Circle {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):Circle {
@@ -63,39 +63,4 @@ static endCircle(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-
-unpack(): CircleT {
-  return new CircleT(
-    (this.color() !== null ? this.color()!.unpack() : null),
-    (this.center() !== null ? this.center()!.unpack() : null),
-    this.radius()
-  );
-}
-
-
-unpackTo(_o: CircleT): void {
-  _o.color = (this.color() !== null ? this.color()!.unpack() : null);
-  _o.center = (this.center() !== null ? this.center()!.unpack() : null);
-  _o.radius = this.radius();
-}
-}
-
-export class CircleT implements flatbuffers.IGeneratedObject {
-constructor(
-  public color: ColorT|null = null,
-  public center: Vector2fT|null = null,
-  public radius: number = 0.0
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  const color = (this.color !== null ? this.color!.pack(builder) : 0);
-
-  Circle.startCircle(builder);
-  Circle.addColor(builder, color);
-  Circle.addCenter(builder, (this.center !== null ? this.center!.pack(builder) : 0));
-  Circle.addRadius(builder, this.radius);
-
-  return Circle.endCircle(builder);
-}
 }

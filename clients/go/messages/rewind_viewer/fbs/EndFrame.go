@@ -6,29 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type EndFrameT struct {
-}
-
-func (t *EndFrameT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	EndFrameStart(builder)
-	return EndFrameEnd(builder)
-}
-
-func (rcv *EndFrame) UnPackTo(t *EndFrameT) {
-}
-
-func (rcv *EndFrame) UnPack() *EndFrameT {
-	if rcv == nil {
-		return nil
-	}
-	t := &EndFrameT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type EndFrame struct {
 	_tab flatbuffers.Table
 }

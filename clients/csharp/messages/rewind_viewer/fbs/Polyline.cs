@@ -41,41 +41,6 @@ public struct Polyline : IFlatbufferObject
     builder.Required(o, 6);  // points
     return new Offset<rewind_viewer.fbs.Polyline>(o);
   }
-  public PolylineT UnPack() {
-    var _o = new PolylineT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(PolylineT _o) {
-    _o.Color = this.Color.HasValue ? this.Color.Value.UnPack() : null;
-    _o.Points = new List<rewind_viewer.fbs.Vector2fT>();
-    for (var _j = 0; _j < this.PointsLength; ++_j) {_o.Points.Add(this.Points(_j).HasValue ? this.Points(_j).Value.UnPack() : null);}
-  }
-  public static Offset<rewind_viewer.fbs.Polyline> Pack(FlatBufferBuilder builder, PolylineT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.Polyline>);
-    var _color = _o.Color == null ? default(Offset<rewind_viewer.fbs.Color>) : rewind_viewer.fbs.Color.Pack(builder, _o.Color);
-    var _points = default(VectorOffset);
-    if (_o.Points != null) {
-      StartPointsVector(builder, _o.Points.Count);
-      for (var _j = _o.Points.Count - 1; _j >= 0; --_j) { rewind_viewer.fbs.Vector2f.Pack(builder, _o.Points[_j]); }
-      _points = builder.EndVector();
-    }
-    return CreatePolyline(
-      builder,
-      _color,
-      _points);
-  }
-}
-
-public class PolylineT
-{
-  public rewind_viewer.fbs.ColorT Color { get; set; }
-  public List<rewind_viewer.fbs.Vector2fT> Points { get; set; }
-
-  public PolylineT() {
-    this.Color = null;
-    this.Points = null;
-  }
 }
 
 

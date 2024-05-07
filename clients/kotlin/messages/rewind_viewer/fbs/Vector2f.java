@@ -40,23 +40,5 @@ public final class Vector2f extends Struct {
     public Vector2f get(int j) { return get(new Vector2f(), j); }
     public Vector2f get(Vector2f obj, int j) {  return obj.__assign(__element(j), bb); }
   }
-  public Vector2fT unpack() {
-    Vector2fT _o = new Vector2fT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(Vector2fT _o) {
-    float _oX = x();
-    _o.setX(_oX);
-    float _oY = y();
-    _o.setY(_oY);
-  }
-  public static int pack(FlatBufferBuilder builder, Vector2fT _o) {
-    if (_o == null) return 0;
-    return createVector2f(
-      builder,
-      _o.getX(),
-      _o.getY());
-  }
 }
 

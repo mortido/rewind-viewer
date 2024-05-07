@@ -53,27 +53,5 @@ public final class Popup extends Table {
     public Popup get(int j) { return get(new Popup(), j); }
     public Popup get(Popup obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
-  public PopupT unpack() {
-    PopupT _o = new PopupT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(PopupT _o) {
-    String _oText = text();
-    _o.setText(_oText);
-    if (areaPosition() != null) areaPosition().unpackTo(_o.getAreaPosition());
-    else _o.setAreaPosition(null);
-    if (areaSize() != null) areaSize().unpackTo(_o.getAreaSize());
-    else _o.setAreaSize(null);
-  }
-  public static int pack(FlatBufferBuilder builder, PopupT _o) {
-    if (_o == null) return 0;
-    int _text = _o.getText() == null ? 0 : builder.createString(_o.getText());
-    startPopup(builder);
-    addText(builder, _text);
-    addAreaPosition(builder, rewind_viewer.fbs.Vector2f.pack(builder, _o.getAreaPosition()));
-    addAreaSize(builder, rewind_viewer.fbs.Vector2f.pack(builder, _o.getAreaSize()));
-    return endPopup(builder);
-  }
 }
 

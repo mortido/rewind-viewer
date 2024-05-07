@@ -41,30 +41,6 @@ public struct LogText : IFlatbufferObject
     builder.Required(o, 4);  // text
     return new Offset<rewind_viewer.fbs.LogText>(o);
   }
-  public LogTextT UnPack() {
-    var _o = new LogTextT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(LogTextT _o) {
-    _o.Text = this.Text;
-  }
-  public static Offset<rewind_viewer.fbs.LogText> Pack(FlatBufferBuilder builder, LogTextT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.LogText>);
-    var _text = _o.Text == null ? default(StringOffset) : builder.CreateString(_o.Text);
-    return CreateLogText(
-      builder,
-      _text);
-  }
-}
-
-public class LogTextT
-{
-  public string Text { get; set; }
-
-  public LogTextT() {
-    this.Text = null;
-  }
 }
 
 

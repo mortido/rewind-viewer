@@ -4,9 +4,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-
-
-export class EndFrame implements flatbuffers.IUnpackableObject<EndFrameT> {
+export class EndFrame {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):EndFrame {
@@ -36,21 +34,5 @@ static endEndFrame(builder:flatbuffers.Builder):flatbuffers.Offset {
 static createEndFrame(builder:flatbuffers.Builder):flatbuffers.Offset {
   EndFrame.startEndFrame(builder);
   return EndFrame.endEndFrame(builder);
-}
-
-unpack(): EndFrameT {
-  return new EndFrameT();
-}
-
-
-unpackTo(_o: EndFrameT): void {}
-}
-
-export class EndFrameT implements flatbuffers.IGeneratedObject {
-constructor(){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  return EndFrame.createEndFrame(builder);
 }
 }

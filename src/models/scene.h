@@ -16,7 +16,8 @@ class Scene {
  public:
   Scene(std::shared_ptr<const SceneConfig> config, bool buffered_mode);
   void render(size_t frame_idx);
-  void set_canvas_config(const glm::vec2 &size, const glm::u16vec2 &grid);
+  void set_canvas_config(const glm::vec2 &position, const glm::vec2 &size,
+                         const glm::u16vec2 &grid);
 
  public:
   models::Camera camera;

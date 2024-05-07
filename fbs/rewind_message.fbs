@@ -83,8 +83,8 @@ table Layer {
 }
 
 table Map {
-  width:float;
-  height:float;
+  position:Vector2f (required);
+  size:Vector2f (required);
   x_grid:uint16;
   y_grid:uint16;
 }

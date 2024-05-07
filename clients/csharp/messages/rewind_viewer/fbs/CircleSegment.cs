@@ -25,21 +25,6 @@ public struct CircleSegment : IFlatbufferObject
   public float StartAngle { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
   public float EndAngle { get { int o = __p.__offset(12); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
 
-  public static Offset<rewind_viewer.fbs.CircleSegment> CreateCircleSegment(FlatBufferBuilder builder,
-      Offset<rewind_viewer.fbs.Color> colorOffset = default(Offset<rewind_viewer.fbs.Color>),
-      rewind_viewer.fbs.Vector2fT center = null,
-      float radius = 0.0f,
-      float start_angle = 0.0f,
-      float end_angle = 0.0f) {
-    builder.StartTable(5);
-    CircleSegment.AddEndAngle(builder, end_angle);
-    CircleSegment.AddStartAngle(builder, start_angle);
-    CircleSegment.AddRadius(builder, radius);
-    CircleSegment.AddCenter(builder, rewind_viewer.fbs.Vector2f.Pack(builder, center));
-    CircleSegment.AddColor(builder, colorOffset);
-    return CircleSegment.EndCircleSegment(builder);
-  }
-
   public static void StartCircleSegment(FlatBufferBuilder builder) { builder.StartTable(5); }
   public static void AddColor(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Color> colorOffset) { builder.AddOffset(0, colorOffset.Value, 0); }
   public static void AddCenter(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Vector2f> centerOffset) { builder.AddStruct(1, centerOffset.Value, 0); }
@@ -50,46 +35,6 @@ public struct CircleSegment : IFlatbufferObject
     int o = builder.EndTable();
     builder.Required(o, 6);  // center
     return new Offset<rewind_viewer.fbs.CircleSegment>(o);
-  }
-  public CircleSegmentT UnPack() {
-    var _o = new CircleSegmentT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(CircleSegmentT _o) {
-    _o.Color = this.Color.HasValue ? this.Color.Value.UnPack() : null;
-    _o.Center = this.Center.HasValue ? this.Center.Value.UnPack() : null;
-    _o.Radius = this.Radius;
-    _o.StartAngle = this.StartAngle;
-    _o.EndAngle = this.EndAngle;
-  }
-  public static Offset<rewind_viewer.fbs.CircleSegment> Pack(FlatBufferBuilder builder, CircleSegmentT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.CircleSegment>);
-    var _color = _o.Color == null ? default(Offset<rewind_viewer.fbs.Color>) : rewind_viewer.fbs.Color.Pack(builder, _o.Color);
-    return CreateCircleSegment(
-      builder,
-      _color,
-      _o.Center,
-      _o.Radius,
-      _o.StartAngle,
-      _o.EndAngle);
-  }
-}
-
-public class CircleSegmentT
-{
-  public rewind_viewer.fbs.ColorT Color { get; set; }
-  public rewind_viewer.fbs.Vector2fT Center { get; set; }
-  public float Radius { get; set; }
-  public float StartAngle { get; set; }
-  public float EndAngle { get; set; }
-
-  public CircleSegmentT() {
-    this.Color = null;
-    this.Center = new rewind_viewer.fbs.Vector2fT();
-    this.Radius = 0.0f;
-    this.StartAngle = 0.0f;
-    this.EndAngle = 0.0f;
   }
 }
 

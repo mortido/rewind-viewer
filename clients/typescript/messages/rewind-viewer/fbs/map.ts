@@ -4,9 +4,10 @@
 
 import * as flatbuffers from 'flatbuffers';
 
+import { Vector2f } from '../../rewind-viewer/fbs/vector2f.js';
 
 
-export class Map implements flatbuffers.IUnpackableObject<MapT> {
+export class Map {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):Map {
@@ -24,14 +25,14 @@ static getSizePrefixedRootAsMap(bb:flatbuffers.ByteBuffer, obj?:Map):Map {
   return (obj || new Map()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-width():number {
+position(obj?:Vector2f):Vector2f|null {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+  return offset ? (obj || new Vector2f()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
-height():number {
+size(obj?:Vector2f):Vector2f|null {
   const offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.0;
+  return offset ? (obj || new Vector2f()).__init(this.bb_pos + offset, this.bb!) : null;
 }
 
 xGrid():number {
@@ -48,12 +49,12 @@ static startMap(builder:flatbuffers.Builder) {
   builder.startObject(4);
 }
 
-static addWidth(builder:flatbuffers.Builder, width:number) {
-  builder.addFieldFloat32(0, width, 0.0);
+static addPosition(builder:flatbuffers.Builder, positionOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(0, positionOffset, 0);
 }
 
-static addHeight(builder:flatbuffers.Builder, height:number) {
-  builder.addFieldFloat32(1, height, 0.0);
+static addSize(builder:flatbuffers.Builder, sizeOffset:flatbuffers.Offset) {
+  builder.addFieldStruct(1, sizeOffset, 0);
 }
 
 static addXGrid(builder:flatbuffers.Builder, xGrid:number) {
@@ -66,51 +67,9 @@ static addYGrid(builder:flatbuffers.Builder, yGrid:number) {
 
 static endMap(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
+  builder.requiredField(offset, 4) // position
+  builder.requiredField(offset, 6) // size
   return offset;
 }
 
-static createMap(builder:flatbuffers.Builder, width:number, height:number, xGrid:number, yGrid:number):flatbuffers.Offset {
-  Map.startMap(builder);
-  Map.addWidth(builder, width);
-  Map.addHeight(builder, height);
-  Map.addXGrid(builder, xGrid);
-  Map.addYGrid(builder, yGrid);
-  return Map.endMap(builder);
-}
-
-unpack(): MapT {
-  return new MapT(
-    this.width(),
-    this.height(),
-    this.xGrid(),
-    this.yGrid()
-  );
-}
-
-
-unpackTo(_o: MapT): void {
-  _o.width = this.width();
-  _o.height = this.height();
-  _o.xGrid = this.xGrid();
-  _o.yGrid = this.yGrid();
-}
-}
-
-export class MapT implements flatbuffers.IGeneratedObject {
-constructor(
-  public width: number = 0.0,
-  public height: number = 0.0,
-  public xGrid: number = 0,
-  public yGrid: number = 0
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  return Map.createMap(builder,
-    this.width,
-    this.height,
-    this.xGrid,
-    this.yGrid
-  );
-}
 }

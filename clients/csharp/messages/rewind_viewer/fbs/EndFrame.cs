@@ -25,25 +25,6 @@ public struct EndFrame : IFlatbufferObject
     int o = builder.EndTable();
     return new Offset<rewind_viewer.fbs.EndFrame>(o);
   }
-  public EndFrameT UnPack() {
-    var _o = new EndFrameT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(EndFrameT _o) {
-  }
-  public static Offset<rewind_viewer.fbs.EndFrame> Pack(FlatBufferBuilder builder, EndFrameT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.EndFrame>);
-    StartEndFrame(builder);
-    return EndEndFrame(builder);
-  }
-}
-
-public class EndFrameT
-{
-
-  public EndFrameT() {
-  }
 }
 
 

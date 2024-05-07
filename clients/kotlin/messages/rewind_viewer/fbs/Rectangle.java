@@ -51,27 +51,5 @@ public final class Rectangle extends Table {
     public Rectangle get(int j) { return get(new Rectangle(), j); }
     public Rectangle get(Rectangle obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
-  public RectangleT unpack() {
-    RectangleT _o = new RectangleT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(RectangleT _o) {
-    if (color() != null) _o.setColor(color().unpack());
-    else _o.setColor(null);
-    if (position() != null) position().unpackTo(_o.getPosition());
-    else _o.setPosition(null);
-    if (size() != null) size().unpackTo(_o.getSize());
-    else _o.setSize(null);
-  }
-  public static int pack(FlatBufferBuilder builder, RectangleT _o) {
-    if (_o == null) return 0;
-    int _color = _o.getColor() == null ? 0 : rewind_viewer.fbs.Color.pack(builder, _o.getColor());
-    startRectangle(builder);
-    addColor(builder, _color);
-    addPosition(builder, rewind_viewer.fbs.Vector2f.pack(builder, _o.getPosition()));
-    addSize(builder, rewind_viewer.fbs.Vector2f.pack(builder, _o.getSize()));
-    return endRectangle(builder);
-  }
 }
 

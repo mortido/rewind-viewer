@@ -19,67 +19,21 @@ public struct Map : IFlatbufferObject
   public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
   public Map __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public float Width { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
-  public float Height { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public rewind_viewer.fbs.Vector2f? Position { get { int o = __p.__offset(4); return o != 0 ? (rewind_viewer.fbs.Vector2f?)(new rewind_viewer.fbs.Vector2f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
+  public rewind_viewer.fbs.Vector2f? Size { get { int o = __p.__offset(6); return o != 0 ? (rewind_viewer.fbs.Vector2f?)(new rewind_viewer.fbs.Vector2f()).__assign(o + __p.bb_pos, __p.bb) : null; } }
   public ushort XGrid { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetUshort(o + __p.bb_pos) : (ushort)0; } }
   public ushort YGrid { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetUshort(o + __p.bb_pos) : (ushort)0; } }
 
-  public static Offset<rewind_viewer.fbs.Map> CreateMap(FlatBufferBuilder builder,
-      float width = 0.0f,
-      float height = 0.0f,
-      ushort x_grid = 0,
-      ushort y_grid = 0) {
-    builder.StartTable(4);
-    Map.AddHeight(builder, height);
-    Map.AddWidth(builder, width);
-    Map.AddYGrid(builder, y_grid);
-    Map.AddXGrid(builder, x_grid);
-    return Map.EndMap(builder);
-  }
-
   public static void StartMap(FlatBufferBuilder builder) { builder.StartTable(4); }
-  public static void AddWidth(FlatBufferBuilder builder, float width) { builder.AddFloat(0, width, 0.0f); }
-  public static void AddHeight(FlatBufferBuilder builder, float height) { builder.AddFloat(1, height, 0.0f); }
+  public static void AddPosition(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Vector2f> positionOffset) { builder.AddStruct(0, positionOffset.Value, 0); }
+  public static void AddSize(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Vector2f> sizeOffset) { builder.AddStruct(1, sizeOffset.Value, 0); }
   public static void AddXGrid(FlatBufferBuilder builder, ushort xGrid) { builder.AddUshort(2, xGrid, 0); }
   public static void AddYGrid(FlatBufferBuilder builder, ushort yGrid) { builder.AddUshort(3, yGrid, 0); }
   public static Offset<rewind_viewer.fbs.Map> EndMap(FlatBufferBuilder builder) {
     int o = builder.EndTable();
+    builder.Required(o, 4);  // position
+    builder.Required(o, 6);  // size
     return new Offset<rewind_viewer.fbs.Map>(o);
-  }
-  public MapT UnPack() {
-    var _o = new MapT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(MapT _o) {
-    _o.Width = this.Width;
-    _o.Height = this.Height;
-    _o.XGrid = this.XGrid;
-    _o.YGrid = this.YGrid;
-  }
-  public static Offset<rewind_viewer.fbs.Map> Pack(FlatBufferBuilder builder, MapT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.Map>);
-    return CreateMap(
-      builder,
-      _o.Width,
-      _o.Height,
-      _o.XGrid,
-      _o.YGrid);
-  }
-}
-
-public class MapT
-{
-  public float Width { get; set; }
-  public float Height { get; set; }
-  public ushort XGrid { get; set; }
-  public ushort YGrid { get; set; }
-
-  public MapT() {
-    this.Width = 0.0f;
-    this.Height = 0.0f;
-    this.XGrid = 0;
-    this.YGrid = 0;
   }
 }
 
@@ -89,8 +43,8 @@ static public class MapVerify
   static public bool Verify(Google.FlatBuffers.Verifier verifier, uint tablePos)
   {
     return verifier.VerifyTableStart(tablePos)
-      && verifier.VerifyField(tablePos, 4 /*Width*/, 4 /*float*/, 4, false)
-      && verifier.VerifyField(tablePos, 6 /*Height*/, 4 /*float*/, 4, false)
+      && verifier.VerifyField(tablePos, 4 /*Position*/, 8 /*rewind_viewer.fbs.Vector2f*/, 4, true)
+      && verifier.VerifyField(tablePos, 6 /*Size*/, 8 /*rewind_viewer.fbs.Vector2f*/, 4, true)
       && verifier.VerifyField(tablePos, 8 /*XGrid*/, 2 /*ushort*/, 2, false)
       && verifier.VerifyField(tablePos, 10 /*YGrid*/, 2 /*ushort*/, 2, false)
       && verifier.VerifyTableEnd(tablePos);

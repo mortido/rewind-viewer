@@ -27,31 +27,22 @@ public final class Map extends Table {
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public Map __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public float width() { int o = __offset(4); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
-  public float height() { int o = __offset(6); return o != 0 ? bb.getFloat(o + bb_pos) : 0.0f; }
+  public rewind_viewer.fbs.Vector2f position() { return position(new rewind_viewer.fbs.Vector2f()); }
+  public rewind_viewer.fbs.Vector2f position(rewind_viewer.fbs.Vector2f obj) { int o = __offset(4); return o != 0 ? obj.__assign(o + bb_pos, bb) : null; }
+  public rewind_viewer.fbs.Vector2f size() { return size(new rewind_viewer.fbs.Vector2f()); }
+  public rewind_viewer.fbs.Vector2f size(rewind_viewer.fbs.Vector2f obj) { int o = __offset(6); return o != 0 ? obj.__assign(o + bb_pos, bb) : null; }
   public int xGrid() { int o = __offset(8); return o != 0 ? bb.getShort(o + bb_pos) & 0xFFFF : 0; }
   public int yGrid() { int o = __offset(10); return o != 0 ? bb.getShort(o + bb_pos) & 0xFFFF : 0; }
 
-  public static int createMap(FlatBufferBuilder builder,
-      float width,
-      float height,
-      int xGrid,
-      int yGrid) {
-    builder.startTable(4);
-    Map.addHeight(builder, height);
-    Map.addWidth(builder, width);
-    Map.addYGrid(builder, yGrid);
-    Map.addXGrid(builder, xGrid);
-    return Map.endMap(builder);
-  }
-
   public static void startMap(FlatBufferBuilder builder) { builder.startTable(4); }
-  public static void addWidth(FlatBufferBuilder builder, float width) { builder.addFloat(0, width, 0.0f); }
-  public static void addHeight(FlatBufferBuilder builder, float height) { builder.addFloat(1, height, 0.0f); }
+  public static void addPosition(FlatBufferBuilder builder, int positionOffset) { builder.addStruct(0, positionOffset, 0); }
+  public static void addSize(FlatBufferBuilder builder, int sizeOffset) { builder.addStruct(1, sizeOffset, 0); }
   public static void addXGrid(FlatBufferBuilder builder, int xGrid) { builder.addShort(2, (short) xGrid, (short) 0); }
   public static void addYGrid(FlatBufferBuilder builder, int yGrid) { builder.addShort(3, (short) yGrid, (short) 0); }
   public static int endMap(FlatBufferBuilder builder) {
     int o = builder.endTable();
+    builder.required(o, 4);  // position
+    builder.required(o, 6);  // size
     return o;
   }
 
@@ -60,30 +51,6 @@ public final class Map extends Table {
 
     public Map get(int j) { return get(new Map(), j); }
     public Map get(Map obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
-  }
-  public MapT unpack() {
-    MapT _o = new MapT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(MapT _o) {
-    float _oWidth = width();
-    _o.setWidth(_oWidth);
-    float _oHeight = height();
-    _o.setHeight(_oHeight);
-    int _oXGrid = xGrid();
-    _o.setXGrid(_oXGrid);
-    int _oYGrid = yGrid();
-    _o.setYGrid(_oYGrid);
-  }
-  public static int pack(FlatBufferBuilder builder, MapT _o) {
-    if (_o == null) return 0;
-    return createMap(
-      builder,
-      _o.getWidth(),
-      _o.getHeight(),
-      _o.getXGrid(),
-      _o.getYGrid());
   }
 }
 

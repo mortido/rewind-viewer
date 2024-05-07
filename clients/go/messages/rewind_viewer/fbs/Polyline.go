@@ -6,51 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type PolylineT struct {
-	Color *ColorT `json:"color"`
-	Points []*Vector2fT `json:"points"`
-}
-
-func (t *PolylineT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	colorOffset := t.Color.Pack(builder)
-	pointsOffset := flatbuffers.UOffsetT(0)
-	if t.Points != nil {
-		pointsLength := len(t.Points)
-		PolylineStartPointsVector(builder, pointsLength)
-		for j := pointsLength - 1; j >= 0; j-- {
-			t.Points[j].Pack(builder)
-		}
-		pointsOffset = builder.EndVector(pointsLength)
-	}
-	PolylineStart(builder)
-	PolylineAddColor(builder, colorOffset)
-	PolylineAddPoints(builder, pointsOffset)
-	return PolylineEnd(builder)
-}
-
-func (rcv *Polyline) UnPackTo(t *PolylineT) {
-	t.Color = rcv.Color(nil).UnPack()
-	pointsLength := rcv.PointsLength()
-	t.Points = make([]*Vector2fT, pointsLength)
-	for j := 0; j < pointsLength; j++ {
-		x := Vector2f{}
-		rcv.Points(&x, j)
-		t.Points[j] = x.UnPack()
-	}
-}
-
-func (rcv *Polyline) UnPack() *PolylineT {
-	if rcv == nil {
-		return nil
-	}
-	t := &PolylineT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type Polyline struct {
 	_tab flatbuffers.Table
 }

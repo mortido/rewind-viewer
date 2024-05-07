@@ -40,17 +40,5 @@ public final class EndFrame extends Table {
     public EndFrame get(int j) { return get(new EndFrame(), j); }
     public EndFrame get(EndFrame obj, int j) {  return obj.__assign(__indirect(__element(j), bb), bb); }
   }
-  public EndFrameT unpack() {
-    EndFrameT _o = new EndFrameT();
-    unpackTo(_o);
-    return _o;
-  }
-  public void unpackTo(EndFrameT _o) {
-  }
-  public static int pack(FlatBufferBuilder builder, EndFrameT _o) {
-    if (_o == null) return 0;
-    startEndFrame(builder);
-    return endEndFrame(builder);
-  }
 }
 

@@ -31,19 +31,6 @@ public struct Tiles : IFlatbufferObject
 #endif
   public uint[] GetColorsArray() { return __p.__vector_as_array<uint>(10); }
 
-  public static Offset<rewind_viewer.fbs.Tiles> CreateTiles(FlatBufferBuilder builder,
-      rewind_viewer.fbs.Vector2fT position = null,
-      rewind_viewer.fbs.Vector2fT cell_size = null,
-      ushort row_size = 0,
-      VectorOffset colorsOffset = default(VectorOffset)) {
-    builder.StartTable(4);
-    Tiles.AddColors(builder, colorsOffset);
-    Tiles.AddCellSize(builder, rewind_viewer.fbs.Vector2f.Pack(builder, cell_size));
-    Tiles.AddPosition(builder, rewind_viewer.fbs.Vector2f.Pack(builder, position));
-    Tiles.AddRowSize(builder, row_size);
-    return Tiles.EndTiles(builder);
-  }
-
   public static void StartTiles(FlatBufferBuilder builder) { builder.StartTable(4); }
   public static void AddPosition(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Vector2f> positionOffset) { builder.AddStruct(0, positionOffset.Value, 0); }
   public static void AddCellSize(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.Vector2f> cellSizeOffset) { builder.AddStruct(1, cellSizeOffset.Value, 0); }
@@ -60,47 +47,6 @@ public struct Tiles : IFlatbufferObject
     builder.Required(o, 6);  // cell_size
     builder.Required(o, 10);  // colors
     return new Offset<rewind_viewer.fbs.Tiles>(o);
-  }
-  public TilesT UnPack() {
-    var _o = new TilesT();
-    this.UnPackTo(_o);
-    return _o;
-  }
-  public void UnPackTo(TilesT _o) {
-    _o.Position = this.Position.HasValue ? this.Position.Value.UnPack() : null;
-    _o.CellSize = this.CellSize.HasValue ? this.CellSize.Value.UnPack() : null;
-    _o.RowSize = this.RowSize;
-    _o.Colors = new List<uint>();
-    for (var _j = 0; _j < this.ColorsLength; ++_j) {_o.Colors.Add(this.Colors(_j));}
-  }
-  public static Offset<rewind_viewer.fbs.Tiles> Pack(FlatBufferBuilder builder, TilesT _o) {
-    if (_o == null) return default(Offset<rewind_viewer.fbs.Tiles>);
-    var _colors = default(VectorOffset);
-    if (_o.Colors != null) {
-      var __colors = _o.Colors.ToArray();
-      _colors = CreateColorsVector(builder, __colors);
-    }
-    return CreateTiles(
-      builder,
-      _o.Position,
-      _o.CellSize,
-      _o.RowSize,
-      _colors);
-  }
-}
-
-public class TilesT
-{
-  public rewind_viewer.fbs.Vector2fT Position { get; set; }
-  public rewind_viewer.fbs.Vector2fT CellSize { get; set; }
-  public ushort RowSize { get; set; }
-  public List<uint> Colors { get; set; }
-
-  public TilesT() {
-    this.Position = new rewind_viewer.fbs.Vector2fT();
-    this.CellSize = new rewind_viewer.fbs.Vector2fT();
-    this.RowSize = 0;
-    this.Colors = null;
   }
 }
 

@@ -4,9 +4,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-
-
-export class Layer implements flatbuffers.IUnpackableObject<LayerT> {
+export class Layer {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
   __init(i:number, bb:flatbuffers.ByteBuffer):Layer {
@@ -56,33 +54,5 @@ static createLayer(builder:flatbuffers.Builder, id:number, usePermanentFrame:boo
   Layer.addId(builder, id);
   Layer.addUsePermanentFrame(builder, usePermanentFrame);
   return Layer.endLayer(builder);
-}
-
-unpack(): LayerT {
-  return new LayerT(
-    this.id(),
-    this.usePermanentFrame()
-  );
-}
-
-
-unpackTo(_o: LayerT): void {
-  _o.id = this.id();
-  _o.usePermanentFrame = this.usePermanentFrame();
-}
-}
-
-export class LayerT implements flatbuffers.IGeneratedObject {
-constructor(
-  public id: number = 0,
-  public usePermanentFrame: boolean = false
-){}
-
-
-pack(builder:flatbuffers.Builder): flatbuffers.Offset {
-  return Layer.createLayer(builder,
-    this.id,
-    this.usePermanentFrame
-  );
 }
 }

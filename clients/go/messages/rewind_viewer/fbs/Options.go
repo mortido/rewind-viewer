@@ -6,37 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type OptionsT struct {
-	Map *MapT `json:"map"`
-	Layer *LayerT `json:"layer"`
-}
-
-func (t *OptionsT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
-	map_Offset := t.Map.Pack(builder)
-	layerOffset := t.Layer.Pack(builder)
-	OptionsStart(builder)
-	OptionsAddMap(builder, map_Offset)
-	OptionsAddLayer(builder, layerOffset)
-	return OptionsEnd(builder)
-}
-
-func (rcv *Options) UnPackTo(t *OptionsT) {
-	t.Map = rcv.Map(nil).UnPack()
-	t.Layer = rcv.Layer(nil).UnPack()
-}
-
-func (rcv *Options) UnPack() *OptionsT {
-	if rcv == nil {
-		return nil
-	}
-	t := &OptionsT{}
-	rcv.UnPackTo(t)
-	return t
-}
-
 type Options struct {
 	_tab flatbuffers.Table
 }
