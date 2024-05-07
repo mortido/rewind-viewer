@@ -9,35 +9,6 @@
 #include "utils.h"
 
 namespace {
-using rewind_viewer::gl::PrimitivesCollection;
-[[maybe_unused]] const PrimitivesCollection *test_draw() {
-  static std::unique_ptr<PrimitivesCollection> context;
-  if (!context) {
-    context = std::make_unique<PrimitivesCollection>();
-    auto &to = *context;
-
-    const glm::vec4 color_red = {1.0, 0.0, 0.0, 1.0};
-    const glm::vec4 color_blue = {0, 0, 1.0, 1.0};
-    const glm::vec4 color_green = {0, 1.0, 0.0, 1.0};
-    to.add_polyline({{0, 0}, {100, 10}, {10, 100}, {50, 50}, {40, 30}}, color_red);
-    to.add_polyline({{10, 0}, {30, 15}, {40, 60}, {10, 90}, {5, 25}}, color_blue);
-
-    for (int i = 0; i < 1200; i += 5) {
-      for (int j = 0; j < 800; j += 5) {
-        to.add_circle({i, j}, 5, {i / 1200.0, j / 800.0, 0.5, 1.0}, false);
-      }
-    }
-
-    to.add_rectangle({5, 5}, {45, 35}, {1.0, 1.0, 0.0, 0.7}, true);
-    to.add_triangle({10, 10}, {60, 30}, {10, 40}, {0.0, 1.0, 1.0, 0.8}, true);
-
-    to.add_circle({8, 8}, 8, color_red, true);
-    to.add_circle({20, 10}, 8, color_green, true);
-    to.add_circle({10, 20}, 8, color_blue, false);
-  }
-
-  return context.get();
-}
 
 void load_indices(const std::vector<GLuint> &indices) {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(indices.size() * sizeof(GLuint)),
@@ -149,11 +120,6 @@ void Renderer::new_frame(const models::Camera &cam) {
 }
 
 void Renderer::render_canvas(glm::vec3 color) {
-  //  auto test = test_draw();
-  //  if (test) {
-  //    render_primitives(*test);
-  //  }
-
   std::lock_guard<Spinlock> lock(canvas_mutex_);
   shaders_.uniform_color_model.use();
   shaders_.uniform_color_model.set_mat4("model", canvas_model);

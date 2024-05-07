@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdio>
-//#include <limits>
+// #include <limits>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -61,9 +61,12 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
-  void map(const Vec2T &size, uint16_t grid_x, uint16_t grid_y) {
+  void map(const Vec2T &position, const Vec2T &size, uint16_t grid_x, uint16_t grid_y) {
     builder_.Clear();
-    auto map_obj = fbs::CreateMap(builder_, size.x, size.y, grid_x, grid_y);
+    auto position_obj =
+        fbs::Vector2f(static_cast<float>(position.x), static_cast<float>(position.y));
+    auto size_obj = fbs::Vector2f(static_cast<float>(size.x), static_cast<float>(size.y));
+    auto map_obj = fbs::CreateMap(builder_, &position_obj, &size_obj, grid_x, grid_y);
     auto command = fbs::CreateOptions(builder_, map_obj, 0);
     auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Options, command.Union());
     builder_.Finish(msg);
@@ -309,7 +312,7 @@ class RewindClient {
   constexpr static uint64_t MAX_MESSAGE_SIZE = 1024 * 1024;  // 1MB
 
   void send(const uint8_t *buf, uint64_t buf_size) {
-//    if (buf_size > std::numeric_limits<uint32_t>::max()) {
+    //    if (buf_size > std::numeric_limits<uint32_t>::max()) {
     if (buf_size > MAX_MESSAGE_SIZE) {
       throw std::runtime_error("Rewind message size can't be more then 1MB");
     }

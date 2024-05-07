@@ -1,11 +1,13 @@
 # Clients
 
+Ready to use:
+
  - C++17
  - C++17 cmake project
+ - Python3
 
 Not implemented:
 
- - Python3 **[Requires primitives implementation]**
  - C# **[Messages generated]**
  - Go **[Messages generated]**
  - Java **[Messages generated]**

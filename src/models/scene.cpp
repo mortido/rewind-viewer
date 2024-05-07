@@ -16,23 +16,20 @@ void Scene::render(size_t frame_idx) {
   if (config_->show_background) {
     renderer_.render_canvas(config_->background_color);
   }
-
   if (config_->show_grid) {
     renderer_.render_grid(config_->grid_color);
   }
 
   auto [perma_frame, frame] = frames.get_frame(&frame_idx);
-
-  // Draw currently selected frame
   if (frame) {
-    auto perma_frame_contexts = perma_frame->all_primitives();
-    auto frame_contexts = frame->all_primitives();
+    auto perma_frame_primitives = perma_frame->all_primitives();
+    auto frame_primitives = frame->all_primitives();
     for (size_t idx = 0; idx < Frame::LAYERS_COUNT; ++idx) {
       if (config_->enabled_permanent_layers[idx]) {
-        renderer_.render_primitives((*perma_frame_contexts)[idx]);
+        renderer_.render_primitives((*perma_frame_primitives)[idx]);
       }
       if (config_->enabled_layers[idx]) {
-        renderer_.render_primitives((*frame_contexts)[idx]);
+        renderer_.render_primitives((*frame_primitives)[idx]);
       }
     }
   }
