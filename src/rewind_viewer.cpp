@@ -4,6 +4,7 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_opengl3.h>
 
+#include <algorithm>
 #include <utility>
 
 #include "version.h"
