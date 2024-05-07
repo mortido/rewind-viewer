@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdio>
-#include <limits>
+//#include <limits>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -306,17 +306,19 @@ class RewindClient {
   flatbuffers::FlatBufferBuilder builder_;
   CActiveSocket socket_;
   uint32_t opacity_{0xFF000000};
+  constexpr static uint64_t MAX_MESSAGE_SIZE = 1024 * 1024;  // 1MB
 
   void send(const uint8_t *buf, uint64_t buf_size) {
-    if (buf_size > std::numeric_limits<uint16_t>::max()) {
-      throw std::runtime_error("Rewind message size can't be more then max value of uint16");
+//    if (buf_size > std::numeric_limits<uint32_t>::max()) {
+    if (buf_size > MAX_MESSAGE_SIZE) {
+      throw std::runtime_error("Rewind message size can't be more then 1MB");
     }
-    static uint8_t buffer[sizeof(int16_t)];
-    memcpy(buffer, &buf_size, sizeof(int16_t));
+    static uint8_t buffer[sizeof(int32_t)];
+    memcpy(buffer, &buf_size, sizeof(int32_t));
     if (!is_little_endian_) {
-      std::reverse(buffer, buffer + sizeof(uint16_t));
+      std::reverse(buffer, buffer + sizeof(uint32_t));
     }
-    socket_.Send(buffer, sizeof(int16_t));
+    socket_.Send(buffer, sizeof(int32_t));
     socket_.Send(buf, buf_size);
   }
 
