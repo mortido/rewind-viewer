@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 project(rewind-viewer-executable)
 set(APP_NAME "rewind-viewer")
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_options(-Wall)
 if (MSVC)
@@ -40,7 +42,7 @@ set(SOURCES
 #add_executable(${APP_NAME} MACOSX_BUNDLE ${Sources})
 
 add_executable(${APP_NAME} ${SOURCES})
-target_compile_features(${APP_NAME} PUBLIC cxx_std_17)
+target_compile_features(${APP_NAME} PUBLIC cxx_std_20)
 add_dependencies(${APP_NAME} CopyResources)
 target_include_directories(${APP_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_definitions(${APP_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)
