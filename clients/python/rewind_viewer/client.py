@@ -37,14 +37,14 @@ class RewindClient:
 
         self._builder = Builder(0)
         self._opacity = 0xFF000000
-        self._send_schema_version()
+        self._send_protocol_version()
 
     def set_opacity(self, opacity):
         if opacity > 255:
             raise RuntimeError("Opacity value should be no more than 255")
         self._opacity = (int(opacity) << 24)
 
-    def _send_schema_version(self):
+    def _send_protocol_version(self):
         self._socket.sendall(struct.pack('<H', self.MESSAGE_SCHEMA_VERSION))
 
     def _send_bytes(self, data):
@@ -417,3 +417,11 @@ class RewindClient:
         msg = RewindMessageEnd(self._builder)
         self._builder.Finish(msg)
         self._send_bytes(self._builder.Output())
+
+    def close(self):
+        try:
+            self._socket.shutdown(socket.SHUT_RDWR)
+        except socket.error as e:
+            print(f"Error shutting down socket: {e}")
+        finally:
+            self._socket.close()

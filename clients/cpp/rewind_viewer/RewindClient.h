@@ -31,13 +31,12 @@ class RewindClient {
     const unsigned char *least_significant_address{static_cast<const unsigned char *>(address)};
     is_little_endian_ = *least_significant_address == 0x01;
 
-    // Send protocol version 1 timee on connection.
-    static uint8_t buffer[sizeof(int16_t)];
-    if (!is_little_endian_) {
-      std::reverse(buffer, buffer + sizeof(uint16_t));
-    }
-    memcpy(buffer, &MESSAGE_SCHEMA_VERSION, sizeof(int16_t));
-    socket_.Send(buffer, sizeof(int16_t));
+    // Send protocol version 1 time on connection.
+    send_protocol_version();
+  }
+
+  ~RewindClient() {
+    close();
   }
 
   void set_opacity(uint32_t opacity) {
@@ -304,12 +303,30 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  void close() {
+    if (socket_.IsSocketValid()) {
+      if (!socket_.Shutdown(CSimpleSocket::CShutdownMode::Both)) {
+        // ???
+      }
+      socket_.Close();
+    }
+  }
+
  private:
   bool is_little_endian_;
   flatbuffers::FlatBufferBuilder builder_;
   CActiveSocket socket_;
   uint32_t opacity_{0xFF000000};
   constexpr static uint64_t MAX_MESSAGE_SIZE = 1024 * 1024;  // 1MB
+
+  void send_protocol_version() {
+    static uint8_t buffer[sizeof(int16_t)];
+    if (!is_little_endian_) {
+      std::reverse(buffer, buffer + sizeof(uint16_t));
+    }
+    memcpy(buffer, &MESSAGE_SCHEMA_VERSION, sizeof(int16_t));
+    socket_.Send(buffer, sizeof(int16_t));
+  }
 
   void send(const uint8_t *buf, uint64_t buf_size) {
     //    if (buf_size > std::numeric_limits<uint32_t>::max()) {
