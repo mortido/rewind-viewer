@@ -2,7 +2,6 @@
 
 #include <clsocket/PassiveSocket.h>
 
-#include <bit>
 #include <cstdint>
 #include <memory>
 #include <string>

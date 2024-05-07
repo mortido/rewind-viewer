@@ -13,6 +13,7 @@ namespace rewind_viewer::models {
 
 class YamlConfig {
  public:
+  virtual ~YamlConfig() = default;
   virtual void parse(ryml::ConstNodeRef node) = 0;
   virtual void serialize(ryml::NodeRef node) const noexcept = 0;
   virtual bool validate(std::vector<std::string>& errors) const noexcept = 0;
