@@ -12,10 +12,10 @@ jobs:
           submodules: true
 
       - name: Configure CMake
-        run: cmake -S . -B build
+        run: cmake -S . -B build -DCMAKE_C_FLAGS=" /DWIN32 /D_WINDOWS $CFLAGS" -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /EHsc /GR $CXXFLAGS"
 
       - name: Build
-        run: cmake --build build --target rewind-viewer --parallel --config Release
+        run: cmake --build build --target rewind-viewer --parallel --config Release --verbose
 
       - name: Copy assets
         run: |
