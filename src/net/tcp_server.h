@@ -20,14 +20,14 @@ class TcpServer {
   std::unique_ptr<CActiveSocket> client_;
   bool is_little_endian_;
 
-  void read_bytes(uint8_t *buffer, uint16_t size);
+  void read_bytes(uint8_t *buffer, uint32_t size);
 
  public:
   TcpServer(std::string address, uint16_t port);
   void initialize();
   bool accept_connection();
-  uint16_t read_msg(uint8_t *buffer, uint16_t max_size);
-  void send_msg(uint8_t *buffer, uint16_t bytes_cnt);
+  uint32_t read_msg(uint8_t *buffer, uint32_t max_size);
+  void send_msg(uint8_t *buffer, uint32_t bytes_cnt);
   uint16_t get_port() const;
 };
 

@@ -16,7 +16,7 @@ struct ParsingError : std::runtime_error {
 
 class RewindServer {
  public:
-  constexpr static uint64_t MAX_MESSAGE_SIZE = 100 * 1024;
+  constexpr static uint64_t MAX_MESSAGE_SIZE = 1024 * 1024;  // 1MB
   constexpr static size_t DEFAULT_LAYER = 2ul;
   enum class State { wait, established, closed };
 

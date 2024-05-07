@@ -17,7 +17,7 @@ void swap_bytes(T &value) {
 
 namespace rewind_viewer::net {
 
-void TcpServer::read_bytes(uint8_t *buffer, uint16_t size) {
+void TcpServer::read_bytes(uint8_t *buffer, uint32_t size) {
   if (!client_) {
     throw std::runtime_error("Can't read bytes if client is not connected.");
   }
@@ -93,9 +93,9 @@ bool TcpServer::accept_connection() {
   return true;
 }
 
-uint16_t TcpServer::read_msg(uint8_t *buffer, uint16_t max_size) {
-  uint16_t bytes_cnt;
-  read_bytes(reinterpret_cast<uint8_t *>(&bytes_cnt), sizeof(uint16_t));
+uint32_t TcpServer::read_msg(uint8_t *buffer, uint32_t max_size) {
+  uint32_t bytes_cnt;
+  read_bytes(reinterpret_cast<uint8_t *>(&bytes_cnt), sizeof(uint32_t));
   if (!is_little_endian_) {
     swap_bytes(bytes_cnt);
   }
@@ -108,7 +108,7 @@ uint16_t TcpServer::read_msg(uint8_t *buffer, uint16_t max_size) {
   return bytes_cnt;
 }
 
-void TcpServer::send_msg(uint8_t *buffer, uint16_t bytes_cnt) {
+void TcpServer::send_msg(uint8_t *buffer, uint32_t bytes_cnt) {
   if (!client_) {
     throw std::runtime_error("Can't send bytes if client is not connected.");
   }
@@ -120,12 +120,12 @@ void TcpServer::send_msg(uint8_t *buffer, uint16_t bytes_cnt) {
   //    throw std::runtime_error("Can't send 0 bytes.");
   //  }
 
-  uint16_t size_buffer = bytes_cnt;
+  uint32_t size_buffer = bytes_cnt;
   if (!is_little_endian_) {
     swap_bytes(size_buffer);
   }
 
-  if (client_->Send(reinterpret_cast<uint8_t *>(&size_buffer), sizeof(uint16_t)) == 0) {
+  if (client_->Send(reinterpret_cast<uint8_t *>(&size_buffer), sizeof(uint32_t)) == 0) {
     throw std::runtime_error(
         str_format("Error sending message size: %s", client_->DescribeError()));
   }

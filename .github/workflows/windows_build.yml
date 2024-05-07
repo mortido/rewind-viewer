@@ -11,18 +11,11 @@ jobs:
         with:
           submodules: true
 
-      - name: Set up MSVC toolchain
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: List installed Visual Studio versions
-        run: |
-          "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe"
-
       - name: Configure CMake
-        run: cmake -S . -B build -DCMAKE_CXX_STANDARD=20 -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+        run: cmake -S . -B build -DCMAKE_CXX_STANDARD=17
 
       - name: Build
-        run: cmake --build build --target rewind-viewer --parallel --config Release --verbose
+        run: cmake --build build --target rewind-viewer --parallel --config Release
 
       - name: Copy assets
         run: |

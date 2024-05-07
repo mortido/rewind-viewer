@@ -251,6 +251,7 @@ void RewindViewer::frame_info() {
           is_selected = ui_state_.selected_camera == name;
           if (ImGui::Selectable(name.c_str(), is_selected)) {
             ui_state_.selected_camera = name;
+            ui_state_.ignore_frame_camera_viewport = false;
           }
         }
       }
@@ -374,10 +375,9 @@ void RewindViewer::playback_controls() {
       ui_state_.current_frame_idx =
           std::max(0ul, std::min(frames_cnt, ui_state_.current_frame_idx));
       ImGui::PushItemWidth(-1);
-      const int frames_max = static_cast<int>(frames_cnt) - 1;
       int frame = static_cast<int>(ui_state_.current_frame_idx) + 1;
       const std::string slider_fmt = "%5d/" + std::to_string(frames_cnt);
-      if (ImGui::SliderInt("##empty", &frame, 1, frames_max, slider_fmt.data(),
+      if (ImGui::SliderInt("##empty", &frame, 1, static_cast<int>(frames_cnt), slider_fmt.data(),
                            ImGuiSliderFlags_AlwaysClamp)) {
         ui_state_.current_frame_idx = frame - 1;
         ui_state_.autoplay = false;
@@ -444,7 +444,6 @@ void RewindViewer::viewport() {
   //  mouse_pos.y = viewport_size.y - mouse_pos.y;
 
   scene_->camera.set_viewport_size(viewport_size);
-  bool set_camera = !ui_state_.selected_camera.empty();
   if (!io.WantCaptureMouse) {
     if (io.MouseWheel != 0.0f) {
       float zoom_factor = std::exp(-io.MouseWheel * config_.scene->camera.zoom_speed);
@@ -458,11 +457,10 @@ void RewindViewer::viewport() {
       camera_move.y *= -io.DisplayFramebufferScale.y;
       scene_->camera.move(camera_move);
 
-      // Allow to move camera
-      set_camera = false;
+      ui_state_.selected_camera.clear();
     }
   }
-  if (set_camera) {
+  if (!ui_state_.selected_camera.empty()) {
     // TODO: cleean up logic...
     if (current_frame_) {
       const auto &cameras = current_frame_->get_cameras();
