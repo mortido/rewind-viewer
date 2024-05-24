@@ -209,7 +209,7 @@ void RewindViewer::frame_info() {
     }
     float temp_scale = 1.0f / scene_->camera.get_scale();
     if (ImGui::InputFloat("Scale", &temp_scale, 0.05, 0.5, "%.2f")) {
-      temp_scale = std::min(100.0f, std::max(0.01f, temp_scale));
+      temp_scale = std::min(1000.0f, std::max(0.01f, temp_scale));
       scene_->camera.set_scale(1.0f / temp_scale);
       ui_state_.ignore_frame_camera_viewport = true;
     }
@@ -365,10 +365,6 @@ void RewindViewer::playback_controls() {
       ui_state_.autoplay = false;
     }
 
-    if (ui_state_.autoplay) {
-      ui_state_.current_frame_idx++;
-    }
-
     ImGui::SameLine();
     // Tick is one indexed
     const size_t frames_cnt = scene_->frames.size();
@@ -495,6 +491,10 @@ void RewindViewer::viewport() {
       }
     }
   }
+
+  if (ui_state_.autoplay) {
+    ui_state_.current_frame_idx++;
+  }
   scene_->render(ui_state_.current_frame_idx);
 
   // Cleanup opengl state
@@ -555,8 +555,8 @@ void RewindViewer::handle_keys() {
     // Layer toggle shortcuts
     auto &enabled_layers = config_.scene->enabled_layers;
     static const std::array<ImGuiKey, models::SceneConfig::LAYERS_COUNT> layer_shortcuts = {
-        ImGuiKey_0, ImGuiKey_1, ImGuiKey_2, ImGuiKey_3, ImGuiKey_4,
-        ImGuiKey_5, ImGuiKey_6, ImGuiKey_7, ImGuiKey_8, ImGuiKey_9,
+        ImGuiKey_1, ImGuiKey_2, ImGuiKey_3, ImGuiKey_4, ImGuiKey_5,
+        ImGuiKey_6, ImGuiKey_7, ImGuiKey_8, ImGuiKey_9, ImGuiKey_0,
     };
     for (size_t i = 0; i < layer_shortcuts.size(); ++i) {
       if (ImGui::IsKeyPressed(layer_shortcuts[i], false)) {

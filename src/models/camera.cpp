@@ -35,8 +35,8 @@ void Camera::zoom(float zoom_value, glm::vec2 focal_point) {
 
   std::lock_guard<Spinlock> lock(mutex_);
   float new_scale = scale_ * zoom_value;
-  if (new_scale < 0.01f) {
-    zoom_value = 0.01f / scale_;
+  if (new_scale < 0.001f) {
+    zoom_value = 0.001f / scale_;
   } else if (new_scale > 100.0f) {
     zoom_value = 100.0f / scale_;
   }

@@ -11,7 +11,6 @@ class RewindClient(host: String, port: Int) {
 
     private val socket = Socket(host, port).apply { tcpNoDelay = true }
     private val outputStream = socket.getOutputStream()
-    private val isLittleEndian = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN
     private val builder = com.google.flatbuffers.FlatBufferBuilder(1024)
 
     init {
@@ -29,7 +28,7 @@ class RewindClient(host: String, port: Int) {
     @Throws(IOException::class)
     private fun sendProtocolVersion() {
         val buffer = ByteBuffer.allocate(2).apply {
-            order(if (isLittleEndian) ByteOrder.LITTLE_ENDIAN else ByteOrder.BIG_ENDIAN)
+            order(ByteOrder.LITTLE_ENDIAN)
             putShort(MESSAGE_SCHEMA_VERSION.toShort())  // uint16?
         }
         outputStream.write(buffer.array())
@@ -56,7 +55,7 @@ class RewindClient(host: String, port: Int) {
         }
 
         val buffer = ByteBuffer.allocate(4).apply {
-            order(if (isLittleEndian) ByteOrder.LITTLE_ENDIAN else ByteOrder.BIG_ENDIAN)
+            order(ByteOrder.LITTLE_ENDIAN)
             putInt(data.size) // uint32?
         }
         outputStream.apply {

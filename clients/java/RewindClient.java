@@ -10,7 +10,6 @@ public class RewindClient {
 
     private final Socket socket;
     private final OutputStream outputStream;
-    private final boolean isLittleEndian;
     private int opacity = 0xFF000000;
     private com.google.flatbuffers.FlatBufferBuilder builder = new com.google.flatbuffers.FlatBufferBuilder(1024);
 
@@ -18,7 +17,6 @@ public class RewindClient {
         socket = new Socket(host, port);
         socket.setTcpNoDelay(true);
         outputStream = socket.getOutputStream();
-        isLittleEndian = ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN);
         sendProtocolVersion();
     }
 
@@ -32,7 +30,7 @@ public class RewindClient {
 
     private void sendProtocolVersion() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(2);
-        buffer.order(isLittleEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
         buffer.putShort((short) MESSAGE_SCHEMA_VERSION); // uint16?
         outputStream.write(buffer.array());
         outputStream.flush();
@@ -56,7 +54,7 @@ public class RewindClient {
         }
 
         ByteBuffer buffer = ByteBuffer.allocate(4);
-        buffer.order(isLittleEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
         buffer.putInt(data.length); // uint32?
         try {
             outputStream.write(buffer.array());

@@ -223,8 +223,8 @@ struct CameraConfig : public YamlConfig {
 
   bool validate(std::vector<std::string>& errors) const noexcept override {
     bool is_valid = true;
-    if (scale < 0.01f || scale > 100.0f) {
-      errors.emplace_back("Camera scale must be between 0.01 and 100.0");
+    if (scale < 0.001f || scale > 100.0f) {
+      errors.emplace_back("Camera scale must be between 0.001 and 100.0");
       is_valid = false;
     }
     return is_valid;
