@@ -1,5 +1,7 @@
 #pragma once
 
+#include <rapidjson/document.h>
+
 #include <memory>
 #include <thread>
 #include <utility>
@@ -14,10 +16,13 @@ struct ParsingError : std::runtime_error {
   using std::runtime_error::runtime_error;
 };
 
+constexpr uint16_t MESSAGE_SCHEMA_VERSION = 5;
+constexpr uint16_t JSON_MESSAGE_SCHEMA_VERSION = 6;
+constexpr uint64_t MAX_MESSAGE_SIZE = 1024 * 1024;  // 1MB
+constexpr size_t DEFAULT_LAYER = 2ul;
+
 class RewindServer {
  public:
-  constexpr static uint64_t MAX_MESSAGE_SIZE = 1024 * 1024;  // 1MB
-  constexpr static size_t DEFAULT_LAYER = 2ul;
   enum class State { wait, established, closed };
 
   RewindServer(std::shared_ptr<models::Scene> scene, const std::string& address, uint16_t port,
@@ -43,6 +48,7 @@ class RewindServer {
   void network_loop();
   void reset();
   void handle_message(const fbs::RewindMessage* message);
+  void handle_message(const rapidjson::Document& doc);
 };
 
 }  // namespace rewind_viewer::net

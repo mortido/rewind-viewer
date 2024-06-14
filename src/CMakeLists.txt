@@ -45,7 +45,7 @@ add_dependencies(${APP_NAME} CopyResources)
 target_include_directories(${APP_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_definitions(${APP_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)
 
-target_link_libraries(${APP_NAME} Glad glfw glm ImGui stb_image clsocket loguru flatbuffers rapidyaml)
+target_link_libraries(${APP_NAME} Glad glfw glm ImGui stb_image clsocket loguru flatbuffers rapidjson rapidyaml)
 
 set_target_properties(${APP_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 

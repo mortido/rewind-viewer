@@ -9,8 +9,6 @@
 
 namespace rewind_viewer::net {
 
-constexpr uint16_t MESSAGE_SCHEMA_VERSION = 5;
-
 class TcpServer {
  private:
   std::string address_;
@@ -24,7 +22,8 @@ class TcpServer {
  public:
   TcpServer(std::string address, uint16_t port);
   void initialize();
-  bool accept_connection();
+  uint16_t accept_connection();
+  void discard_connection();
   uint32_t read_msg(uint8_t *buffer, uint32_t max_size);
   void send_msg(uint8_t *buffer, uint32_t bytes_cnt);
   uint16_t get_port() const;

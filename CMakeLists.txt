@@ -6,6 +6,7 @@ add_subdirectory(3rdparty/glad)
 add_subdirectory(3rdparty/stb_image)
 add_subdirectory(3rdparty/clsocket)
 add_subdirectory(3rdparty/loguru)
+add_subdirectory(3rdparty/rapidjson)
 add_subdirectory(3rdparty/rapidyaml)
 add_subdirectory(3rdparty/flatbuffers)
 

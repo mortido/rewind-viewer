@@ -1,6 +1,5 @@
 #pragma once
 #include <cstdio>
-// #include <limits>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -12,7 +11,6 @@ namespace rewind_viewer {
 
 constexpr uint16_t MESSAGE_SCHEMA_VERSION = 5;
 
-template <typename Vec2T>
 class RewindClient {
  public:
   RewindClient(const RewindClient &) = delete;
@@ -51,7 +49,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
-  void switch_to_layer(size_t layer, bool permanent = false) {
+  void set_layer(size_t layer, bool permanent = false) {
     builder_.Clear();
     auto layer_obj = fbs::CreateLayer(builder_, layer, permanent);
     auto command = fbs::CreateOptions(builder_, 0, layer_obj);
@@ -60,6 +58,11 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  void switch_to_layer(size_t layer, bool permanent = false) {
+    set_layer(layer, permanent);
+  }
+
+  template <typename Vec2T>
   void map(const Vec2T &position, const Vec2T &size, uint16_t grid_x, uint16_t grid_y) {
     builder_.Clear();
     auto position_obj =
@@ -72,6 +75,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void circle(const Vec2T &center, double r, uint32_t color, bool fill = false) {
     builder_.Clear();
     auto color_obj = fbs::CreateColor(builder_, color | opacity_, fill);
@@ -82,6 +86,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void arc(const Vec2T &center, double r, double start_angle, double end_angle, uint32_t color,
            bool fill = false) {
     builder_.Clear();
@@ -94,6 +99,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void mask_arc(const Vec2T &center, double r, double start_angle, double end_angle) {
     builder_.Clear();
     auto center_obj = fbs::Vector2f(static_cast<float>(center.x), static_cast<float>(center.y));
@@ -104,6 +110,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void circle_segment(const Vec2T &center, double r, double start_angle, double end_angle,
                       uint32_t color, bool fill = false) {
     builder_.Clear();
@@ -117,6 +124,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void mask_circle_segment(const Vec2T &center, double r, double start_angle, double end_angle) {
     builder_.Clear();
     auto center_obj = fbs::Vector2f(static_cast<float>(center.x), static_cast<float>(center.y));
@@ -128,6 +136,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void mask_circle(const Vec2T &center, double r) {
     builder_.Clear();
     auto center_obj = fbs::Vector2f(static_cast<float>(center.x), static_cast<float>(center.y));
@@ -137,6 +146,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void line(const Vec2T &p1, const Vec2T &p2, uint32_t color) {
     builder_.Clear();
     auto color_obj = fbs::CreateColor(builder_, color | opacity_, false);
@@ -150,6 +160,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void polyline(const std::vector<Vec2T> &points, uint32_t color, bool fill = false) {
     builder_.Clear();
     auto color_obj = fbs::CreateColor(builder_, color | opacity_, fill);
@@ -164,6 +175,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void mask_polyline(const std::vector<Vec2T> &points) {
     builder_.Clear();
     std::vector<fbs::Vector2f> points_obj;
@@ -188,6 +200,7 @@ class RewindClient {
    * | c4 |
    * | c1 | c2 | c3 |
    */
+  template <typename Vec2T>
   void tiles(const Vec2T &pos, const Vec2T &cell_size, uint16_t row_size,
              std::vector<uint32_t> *colors, bool use_global_alpha = true) {
     if (use_global_alpha) {
@@ -206,6 +219,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void triangle(const Vec2T &p1, const Vec2T &p2, const Vec2T &p3, uint32_t color,
                 bool fill = false) {
     builder_.Clear();
@@ -221,6 +235,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void mask_triangle(const Vec2T &p1, const Vec2T &p2, const Vec2T &p3) {
     builder_.Clear();
     std::vector<fbs::Vector2f> points_obj;
@@ -233,6 +248,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void rectangle(const Vec2T &position, const Vec2T &size, uint32_t color, bool fill = false) {
     builder_.Clear();
     auto color_obj = fbs::CreateColor(builder_, color | opacity_, fill);
@@ -244,6 +260,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void mask_rectangle(const Vec2T &position, const Vec2T &size) {
     builder_.Clear();
     fbs::Vector2f position_obj{static_cast<float>(position.x), static_cast<float>(position.y)};
@@ -270,7 +287,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
-  template <typename... Args>
+  template <typename Vec2T, typename... Args>
   void popup_round(const Vec2T &pos, double r, const char *fmt, Args... args) {
     builder_.Clear();
     auto str = builder_.CreateString(format(fmt, args...));
@@ -281,7 +298,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
-  template <typename... Args>
+  template <typename Vec2T, typename... Args>
   void popup(const Vec2T &position, const Vec2T &size, const char *fmt, Args... args) {
     builder_.Clear();
     auto str = builder_.CreateString(format(fmt, args...));
@@ -293,6 +310,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T>
   void camera_view(const std::string &name, const Vec2T &pos, double r) {
     builder_.Clear();
     auto name_obj = builder_.CreateString(name);

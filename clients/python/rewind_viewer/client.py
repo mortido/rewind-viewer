@@ -268,7 +268,7 @@ class RewindClient:
         self._builder.Finish(msg)
         self._send_bytes(self._builder.Output())
 
-    def switch_to_layer(self, layer_id, permanent=False):
+    def set_layer(self, layer_id, permanent=False):
         self._builder.Clear()
         LayerStart(self._builder)
         LayerAddId(self._builder, layer_id)

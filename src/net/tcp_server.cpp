@@ -60,37 +60,32 @@ void TcpServer::initialize() {
   LOG_INFO("Start listening on %s:%u", address_.c_str(), port_);
 }
 
-bool TcpServer::accept_connection() {
-  do {
-    if (!socket_->IsSocketValid()) {
-      throw std::runtime_error(
-          str_format("Can't accept connection, invalid socket: %s", socket_->DescribeError()));
-    }
-    client_.reset(socket_->Accept());
-    if (client_ == nullptr) {
-//      LOG_ERROR("Got null connection, continue listening on %s:%u", address_.c_str(), port_);
-      LOG_ERROR("Got null connection");
-      return false;
-    } else {
-      LOG_INFO("Got connection from %s:%u", client_->GetClientAddr(), client_->GetClientPort());
+uint16_t TcpServer::accept_connection() {
+  if (!socket_->IsSocketValid()) {
+    throw std::runtime_error(
+        str_format("Can't accept connection, invalid socket: %s", socket_->DescribeError()));
+  }
+  client_.reset(socket_->Accept());
+  if (client_ == nullptr) {
+    //      LOG_ERROR("Got null connection, continue listening on %s:%u", address_.c_str(), port_);
+    LOG_ERROR("Got null connection");
+    return 0;
+  }
 
-      // Check schema version on new connection.
-      uint16_t schema_version;
-      read_bytes(reinterpret_cast<uint8_t *>(&schema_version), sizeof(uint16_t));
-      if (!is_little_endian_) {
-        swap_bytes(schema_version);
-      }
+  LOG_INFO("Got connection from %s:%u", client_->GetClientAddr(), client_->GetClientPort());
 
-      if (schema_version != MESSAGE_SCHEMA_VERSION) {
-        LOG_ERROR("Incorrect schema version, got %u, required %u", schema_version,
-                  MESSAGE_SCHEMA_VERSION);
-        client_.reset(nullptr);
-      } else {
-        LOG_INFO("Schema version %u", schema_version);
-      }
-    }
-  } while (client_ == nullptr);
-  return true;
+  // Check schema version on new connection.
+  uint16_t schema_version;
+  read_bytes(reinterpret_cast<uint8_t *>(&schema_version), sizeof(uint16_t));
+  if (!is_little_endian_) {
+    swap_bytes(schema_version);
+  }
+
+  return schema_version;
+}
+
+void TcpServer::discard_connection() {
+  client_.reset(nullptr);
 }
 
 uint32_t TcpServer::read_msg(uint8_t *buffer, uint32_t max_size) {
