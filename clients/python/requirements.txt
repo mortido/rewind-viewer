@@ -1,1 +1,2 @@
 flatbuffers>=24.3.25
+ujson>=5.10.0

@@ -1,5 +1,5 @@
 import socket
-import json
+import ujson
 import struct
 
 
@@ -35,7 +35,7 @@ class RewindClient:
                 'd': command_data
             }
         }
-        data = json.dumps(message).encode('utf-8')
+        data = ujson.dumps(message).encode('utf-8')
         self._send_bytes(data)
 
     def circle(self, center, radius, color, fill=False):
