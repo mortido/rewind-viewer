@@ -8,7 +8,6 @@ CSHARP_DIR := $(CURDIR)/clients/csharp
 JAVA_DIR := $(CURDIR)/clients/java
 KOTLIN_DIR := $(CURDIR)/clients/kotlin
 GO_DIR := $(CURDIR)/clients/go
-PYTHON_DIR := $(CURDIR)/clients/python
 TS_DIR := $(CURDIR)/clients/typescript
 RUST_DIR := $(CURDIR)/clients/rust
 
@@ -71,13 +70,6 @@ go_client:
 	@mkdir -p $(GO_DIR)/messages
 	@echo "Compiling FlatBuffers schemas to Go..."
 	@flatc --go -o $(GO_DIR)/messages -I $(FBS_DIR) $(FBS_MSG_FILE)
-
-python_client:
-	@echo "Cleaning $(PYTHON_DIR)/rewind_viewer/fbs..."
-	@rm -rf $(PYTHON_DIR)/rewind_viewer/fbs
-	@mkdir -p $(PYTHON_DIR)/rewind_viewer/fbs
-	@echo "Compiling FlatBuffers schemas to Python..."
-	@flatc --python -o $(PYTHON_DIR) -I $(FBS_DIR) $(FBS_MSG_FILE)
 
 ts_client:
 	@echo "Cleaning $(TS_DIR)/messages..."

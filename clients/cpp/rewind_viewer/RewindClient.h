@@ -58,10 +58,6 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
-  void switch_to_layer(size_t layer, bool permanent = false) {
-    set_layer(layer, permanent);
-  }
-
   template <typename Vec2T>
   void map(const Vec2T &position, const Vec2T &size, uint16_t grid_x, uint16_t grid_y) {
     builder_.Clear();

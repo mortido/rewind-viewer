@@ -88,10 +88,10 @@ def main():
         rewind_client.log_text("Extra message")
         rewind_client.log_text("Multi\nline\nmessage")
 
-        rewind_client.switch_to_layer(0)
+        rewind_client.set_layer(0)
         rewind_client.tiles(start_pos, cell_size, row_size, field_colors, False)
 
-        rewind_client.switch_to_layer(i)
+        rewind_client.set_layer(i)
         rewind_client.set_opacity(255 - i * 15)
         pattern_position.x = (i % 5) * 100.0
         pattern_position.y = (i // 5) * 200.0
@@ -99,7 +99,7 @@ def main():
 
         rewind_client.camera_view("Always Camera", pattern_position, 100.0)
 
-        rewind_client.switch_to_layer(i, True)
+        rewind_client.set_layer(i, True)
         pattern_position.y += 100.0
         draw_pattern(rewind_client, pattern_position, i)
 
