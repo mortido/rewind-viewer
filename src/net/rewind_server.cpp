@@ -1,7 +1,6 @@
 #include "net/rewind_server.h"
 
 #include <rapidjson/error/en.h>
-#include <rapidjson/document.h>
 
 #include "common/logger.h"
 

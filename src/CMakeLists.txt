@@ -53,3 +53,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${APP_NAME} PRIVATE OPENGL_DEBUG)
 endif ()
 
+if (MSVC)
+    target_compile_options(${APP_NAME} PUBLIC "/Zc:__cplusplus")
+endif()
+

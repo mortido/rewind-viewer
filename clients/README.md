@@ -4,7 +4,7 @@ Ready to use:
 
  - C++17
  - C++17 cmake project
- - Python3
+ - Python3 - uses JSON serialization as it is faster than flatbuffers on python
 
 Not implemented:
 
@@ -17,9 +17,9 @@ Not implemented:
 
 Original clients [implementation](https://github.com/kswaldemar/rewind-viewer/tree/develop/clients) can be used as reference.
 
-# Message protocol v5
+# Message protocol v5/v6
 
-Rewind viewer uses FlatBuffers for control message serialization. See [message schema](https://github.com/mortido/rewind-viewer/blob/develop/fbs/rewind_message.fbs) for more details.
+Rewind viewer uses FlatBuffers (v5 [message schema](https://github.com/mortido/rewind-viewer/blob/develop/fbs/rewind_message.fbs)) and JSON (v6) for control message serialization.
 
 Viewer accepts the following types of commands:
  - Arc,
