@@ -13,10 +13,10 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 24 &&
               FLATBUFFERS_VERSION_REVISION == 25,
              "Non-compatible flatbuffers version included");
 
+#include "vector2f.fbs.h"
+
 namespace rewind_viewer {
 namespace fbs {
-
-struct Vector2f;
 
 struct Color;
 struct ColorBuilder;
@@ -63,6 +63,15 @@ struct MapBuilder;
 struct Options;
 struct OptionsBuilder;
 
+struct Subscribe;
+struct SubscribeBuilder;
+
+struct Unsubscribe;
+struct UnsubscribeBuilder;
+
+struct ReadEvents;
+struct ReadEventsBuilder;
+
 struct EndFrame;
 struct EndFrameBuilder;
 
@@ -80,15 +89,18 @@ enum Command : uint8_t {
   Command_Polyline = 7,
   Command_Popup = 8,
   Command_PopupRound = 9,
-  Command_Rectangle = 10,
-  Command_Tiles = 11,
-  Command_Triangle = 12,
-  Command_EndFrame = 13,
+  Command_ReadEvents = 10,
+  Command_Rectangle = 11,
+  Command_Subscribe = 12,
+  Command_Tiles = 13,
+  Command_Triangle = 14,
+  Command_Unsubscribe = 15,
+  Command_EndFrame = 16,
   Command_MIN = Command_NONE,
   Command_MAX = Command_EndFrame
 };
 
-inline const Command (&EnumValuesCommand())[14] {
+inline const Command (&EnumValuesCommand())[17] {
   static const Command values[] = {
     Command_NONE,
     Command_Arc,
@@ -100,16 +112,19 @@ inline const Command (&EnumValuesCommand())[14] {
     Command_Polyline,
     Command_Popup,
     Command_PopupRound,
+    Command_ReadEvents,
     Command_Rectangle,
+    Command_Subscribe,
     Command_Tiles,
     Command_Triangle,
+    Command_Unsubscribe,
     Command_EndFrame
   };
   return values;
 }
 
 inline const char * const *EnumNamesCommand() {
-  static const char * const names[15] = {
+  static const char * const names[18] = {
     "NONE",
     "Arc",
     "CameraView",
@@ -120,9 +135,12 @@ inline const char * const *EnumNamesCommand() {
     "Polyline",
     "Popup",
     "PopupRound",
+    "ReadEvents",
     "Rectangle",
+    "Subscribe",
     "Tiles",
     "Triangle",
+    "Unsubscribe",
     "EndFrame",
     nullptr
   };
@@ -175,8 +193,16 @@ template<> struct CommandTraits<rewind_viewer::fbs::PopupRound> {
   static const Command enum_value = Command_PopupRound;
 };
 
+template<> struct CommandTraits<rewind_viewer::fbs::ReadEvents> {
+  static const Command enum_value = Command_ReadEvents;
+};
+
 template<> struct CommandTraits<rewind_viewer::fbs::Rectangle> {
   static const Command enum_value = Command_Rectangle;
+};
+
+template<> struct CommandTraits<rewind_viewer::fbs::Subscribe> {
+  static const Command enum_value = Command_Subscribe;
 };
 
 template<> struct CommandTraits<rewind_viewer::fbs::Tiles> {
@@ -187,35 +213,16 @@ template<> struct CommandTraits<rewind_viewer::fbs::Triangle> {
   static const Command enum_value = Command_Triangle;
 };
 
+template<> struct CommandTraits<rewind_viewer::fbs::Unsubscribe> {
+  static const Command enum_value = Command_Unsubscribe;
+};
+
 template<> struct CommandTraits<rewind_viewer::fbs::EndFrame> {
   static const Command enum_value = Command_EndFrame;
 };
 
 bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Command type);
 bool VerifyCommandVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
-
-FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Vector2f FLATBUFFERS_FINAL_CLASS {
- private:
-  float x_;
-  float y_;
-
- public:
-  Vector2f()
-      : x_(0),
-        y_(0) {
-  }
-  Vector2f(float _x, float _y)
-      : x_(::flatbuffers::EndianScalar(_x)),
-        y_(::flatbuffers::EndianScalar(_y)) {
-  }
-  float x() const {
-    return ::flatbuffers::EndianScalar(x_);
-  }
-  float y() const {
-    return ::flatbuffers::EndianScalar(y_);
-  }
-};
-FLATBUFFERS_STRUCT_END(Vector2f, 8);
 
 struct Color FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ColorBuilder Builder;
@@ -1242,6 +1249,175 @@ inline ::flatbuffers::Offset<Options> CreateOptions(
   return builder_.Finish();
 }
 
+struct Subscribe FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SubscribeBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_KEY = 6,
+    VT_CONTINUOUS = 8,
+    VT_CAPTURE_MOUSE = 10,
+    VT_MIN_POSITION_CHANGE = 12
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  int8_t key() const {
+    return GetField<int8_t>(VT_KEY, 0);
+  }
+  bool continuous() const {
+    return GetField<uint8_t>(VT_CONTINUOUS, 0) != 0;
+  }
+  bool capture_mouse() const {
+    return GetField<uint8_t>(VT_CAPTURE_MOUSE, 0) != 0;
+  }
+  float min_position_change() const {
+    return GetField<float>(VT_MIN_POSITION_CHANGE, 0.001f);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyField<int8_t>(verifier, VT_KEY, 1) &&
+           VerifyField<uint8_t>(verifier, VT_CONTINUOUS, 1) &&
+           VerifyField<uint8_t>(verifier, VT_CAPTURE_MOUSE, 1) &&
+           VerifyField<float>(verifier, VT_MIN_POSITION_CHANGE, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct SubscribeBuilder {
+  typedef Subscribe Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(Subscribe::VT_NAME, name);
+  }
+  void add_key(int8_t key) {
+    fbb_.AddElement<int8_t>(Subscribe::VT_KEY, key, 0);
+  }
+  void add_continuous(bool continuous) {
+    fbb_.AddElement<uint8_t>(Subscribe::VT_CONTINUOUS, static_cast<uint8_t>(continuous), 0);
+  }
+  void add_capture_mouse(bool capture_mouse) {
+    fbb_.AddElement<uint8_t>(Subscribe::VT_CAPTURE_MOUSE, static_cast<uint8_t>(capture_mouse), 0);
+  }
+  void add_min_position_change(float min_position_change) {
+    fbb_.AddElement<float>(Subscribe::VT_MIN_POSITION_CHANGE, min_position_change, 0.001f);
+  }
+  explicit SubscribeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Subscribe> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Subscribe>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Subscribe> CreateSubscribe(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    int8_t key = 0,
+    bool continuous = false,
+    bool capture_mouse = false,
+    float min_position_change = 0.001f) {
+  SubscribeBuilder builder_(_fbb);
+  builder_.add_min_position_change(min_position_change);
+  builder_.add_name(name);
+  builder_.add_capture_mouse(capture_mouse);
+  builder_.add_continuous(continuous);
+  builder_.add_key(key);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<Subscribe> CreateSubscribeDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    int8_t key = 0,
+    bool continuous = false,
+    bool capture_mouse = false,
+    float min_position_change = 0.001f) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return rewind_viewer::fbs::CreateSubscribe(
+      _fbb,
+      name__,
+      key,
+      continuous,
+      capture_mouse,
+      min_position_change);
+}
+
+struct Unsubscribe FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef UnsubscribeBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_KEY = 4
+  };
+  int8_t key() const {
+    return GetField<int8_t>(VT_KEY, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int8_t>(verifier, VT_KEY, 1) &&
+           verifier.EndTable();
+  }
+};
+
+struct UnsubscribeBuilder {
+  typedef Unsubscribe Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_key(int8_t key) {
+    fbb_.AddElement<int8_t>(Unsubscribe::VT_KEY, key, 0);
+  }
+  explicit UnsubscribeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Unsubscribe> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Unsubscribe>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Unsubscribe> CreateUnsubscribe(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int8_t key = 0) {
+  UnsubscribeBuilder builder_(_fbb);
+  builder_.add_key(key);
+  return builder_.Finish();
+}
+
+struct ReadEvents FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ReadEventsBuilder Builder;
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           verifier.EndTable();
+  }
+};
+
+struct ReadEventsBuilder {
+  typedef ReadEvents Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  explicit ReadEventsBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ReadEvents> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ReadEvents>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ReadEvents> CreateReadEvents(
+    ::flatbuffers::FlatBufferBuilder &_fbb) {
+  ReadEventsBuilder builder_(_fbb);
+  return builder_.Finish();
+}
+
 struct EndFrame FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef EndFrameBuilder Builder;
   bool Verify(::flatbuffers::Verifier &verifier) const {
@@ -1311,14 +1487,23 @@ struct RewindMessage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const rewind_viewer::fbs::PopupRound *command_as_PopupRound() const {
     return command_type() == rewind_viewer::fbs::Command_PopupRound ? static_cast<const rewind_viewer::fbs::PopupRound *>(command()) : nullptr;
   }
+  const rewind_viewer::fbs::ReadEvents *command_as_ReadEvents() const {
+    return command_type() == rewind_viewer::fbs::Command_ReadEvents ? static_cast<const rewind_viewer::fbs::ReadEvents *>(command()) : nullptr;
+  }
   const rewind_viewer::fbs::Rectangle *command_as_Rectangle() const {
     return command_type() == rewind_viewer::fbs::Command_Rectangle ? static_cast<const rewind_viewer::fbs::Rectangle *>(command()) : nullptr;
+  }
+  const rewind_viewer::fbs::Subscribe *command_as_Subscribe() const {
+    return command_type() == rewind_viewer::fbs::Command_Subscribe ? static_cast<const rewind_viewer::fbs::Subscribe *>(command()) : nullptr;
   }
   const rewind_viewer::fbs::Tiles *command_as_Tiles() const {
     return command_type() == rewind_viewer::fbs::Command_Tiles ? static_cast<const rewind_viewer::fbs::Tiles *>(command()) : nullptr;
   }
   const rewind_viewer::fbs::Triangle *command_as_Triangle() const {
     return command_type() == rewind_viewer::fbs::Command_Triangle ? static_cast<const rewind_viewer::fbs::Triangle *>(command()) : nullptr;
+  }
+  const rewind_viewer::fbs::Unsubscribe *command_as_Unsubscribe() const {
+    return command_type() == rewind_viewer::fbs::Command_Unsubscribe ? static_cast<const rewind_viewer::fbs::Unsubscribe *>(command()) : nullptr;
   }
   const rewind_viewer::fbs::EndFrame *command_as_EndFrame() const {
     return command_type() == rewind_viewer::fbs::Command_EndFrame ? static_cast<const rewind_viewer::fbs::EndFrame *>(command()) : nullptr;
@@ -1368,8 +1553,16 @@ template<> inline const rewind_viewer::fbs::PopupRound *RewindMessage::command_a
   return command_as_PopupRound();
 }
 
+template<> inline const rewind_viewer::fbs::ReadEvents *RewindMessage::command_as<rewind_viewer::fbs::ReadEvents>() const {
+  return command_as_ReadEvents();
+}
+
 template<> inline const rewind_viewer::fbs::Rectangle *RewindMessage::command_as<rewind_viewer::fbs::Rectangle>() const {
   return command_as_Rectangle();
+}
+
+template<> inline const rewind_viewer::fbs::Subscribe *RewindMessage::command_as<rewind_viewer::fbs::Subscribe>() const {
+  return command_as_Subscribe();
 }
 
 template<> inline const rewind_viewer::fbs::Tiles *RewindMessage::command_as<rewind_viewer::fbs::Tiles>() const {
@@ -1378,6 +1571,10 @@ template<> inline const rewind_viewer::fbs::Tiles *RewindMessage::command_as<rew
 
 template<> inline const rewind_viewer::fbs::Triangle *RewindMessage::command_as<rewind_viewer::fbs::Triangle>() const {
   return command_as_Triangle();
+}
+
+template<> inline const rewind_viewer::fbs::Unsubscribe *RewindMessage::command_as<rewind_viewer::fbs::Unsubscribe>() const {
+  return command_as_Unsubscribe();
 }
 
 template<> inline const rewind_viewer::fbs::EndFrame *RewindMessage::command_as<rewind_viewer::fbs::EndFrame>() const {
@@ -1457,8 +1654,16 @@ inline bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Co
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::PopupRound *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case Command_ReadEvents: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::ReadEvents *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     case Command_Rectangle: {
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::Rectangle *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Command_Subscribe: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Subscribe *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case Command_Tiles: {
@@ -1467,6 +1672,10 @@ inline bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Co
     }
     case Command_Triangle: {
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::Triangle *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Command_Unsubscribe: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Unsubscribe *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case Command_EndFrame: {

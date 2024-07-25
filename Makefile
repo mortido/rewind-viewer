@@ -1,5 +1,5 @@
 FBS_DIR := $(CURDIR)/fbs
-FBS_MSG_FILE := $(FBS_DIR)/rewind_message.fbs
+FBS_MSG_FILE := $(FBS_DIR)/rewind_message.fbs $(FBS_DIR)/vector2f.fbs $(FBS_DIR)/rewind_event.fbs
 
 VIEWER_OUT := $(CURDIR)/src/net/messages
 CPP_DIR := $(CURDIR)/clients/cpp

@@ -103,7 +103,8 @@ uint32_t TcpServer::read_msg(uint8_t *buffer, uint32_t max_size) {
   return bytes_cnt;
 }
 
-void TcpServer::send_msg(uint8_t *buffer, uint32_t bytes_cnt) {
+// TODO: uint64_t for size?
+void TcpServer::send_msg(const uint8_t *buffer, uint32_t bytes_cnt) {
   if (!client_) {
     throw std::runtime_error("Can't send bytes if client is not connected.");
   }

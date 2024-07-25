@@ -1,0 +1,18 @@
+include "vector2f.fbs";
+
+namespace rewind_viewer.fbs;
+
+table MousePath {
+  points: [Vector2f];
+}
+
+table RewindEvent {
+  key: byte;
+  mouse_path: [MousePath];
+}
+
+table RewindEventList {
+  events: [RewindEvent];
+}
+
+root_type RewindEventList;

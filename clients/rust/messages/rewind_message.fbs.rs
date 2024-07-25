@@ -3,6 +3,7 @@
 
 // @generated
 
+use crate::vector2f.fbs::*;
 use core::mem;
 use core::cmp::Ordering;
 
@@ -12,6 +13,7 @@ use self::flatbuffers::{EndianScalar, Follow};
 #[allow(unused_imports, dead_code)]
 pub mod rewind_viewer {
 
+  use crate::vector2f.fbs::*;
   use core::mem;
   use core::cmp::Ordering;
 
@@ -20,6 +22,7 @@ pub mod rewind_viewer {
 #[allow(unused_imports, dead_code)]
 pub mod fbs {
 
+  use crate::vector2f.fbs::*;
   use core::mem;
   use core::cmp::Ordering;
 
@@ -29,10 +32,10 @@ pub mod fbs {
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 pub const ENUM_MIN_COMMAND: u8 = 0;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
-pub const ENUM_MAX_COMMAND: u8 = 13;
+pub const ENUM_MAX_COMMAND: u8 = 16;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_COMMAND: [Command; 14] = [
+pub const ENUM_VALUES_COMMAND: [Command; 17] = [
   Command::NONE,
   Command::Arc,
   Command::CameraView,
@@ -43,9 +46,12 @@ pub const ENUM_VALUES_COMMAND: [Command; 14] = [
   Command::Polyline,
   Command::Popup,
   Command::PopupRound,
+  Command::ReadEvents,
   Command::Rectangle,
+  Command::Subscribe,
   Command::Tiles,
   Command::Triangle,
+  Command::Unsubscribe,
   Command::EndFrame,
 ];
 
@@ -64,13 +70,16 @@ impl Command {
   pub const Polyline: Self = Self(7);
   pub const Popup: Self = Self(8);
   pub const PopupRound: Self = Self(9);
-  pub const Rectangle: Self = Self(10);
-  pub const Tiles: Self = Self(11);
-  pub const Triangle: Self = Self(12);
-  pub const EndFrame: Self = Self(13);
+  pub const ReadEvents: Self = Self(10);
+  pub const Rectangle: Self = Self(11);
+  pub const Subscribe: Self = Self(12);
+  pub const Tiles: Self = Self(13);
+  pub const Triangle: Self = Self(14);
+  pub const Unsubscribe: Self = Self(15);
+  pub const EndFrame: Self = Self(16);
 
   pub const ENUM_MIN: u8 = 0;
-  pub const ENUM_MAX: u8 = 13;
+  pub const ENUM_MAX: u8 = 16;
   pub const ENUM_VALUES: &'static [Self] = &[
     Self::NONE,
     Self::Arc,
@@ -82,9 +91,12 @@ impl Command {
     Self::Polyline,
     Self::Popup,
     Self::PopupRound,
+    Self::ReadEvents,
     Self::Rectangle,
+    Self::Subscribe,
     Self::Tiles,
     Self::Triangle,
+    Self::Unsubscribe,
     Self::EndFrame,
   ];
   /// Returns the variant's name or "" if unknown.
@@ -100,9 +112,12 @@ impl Command {
       Self::Polyline => Some("Polyline"),
       Self::Popup => Some("Popup"),
       Self::PopupRound => Some("PopupRound"),
+      Self::ReadEvents => Some("ReadEvents"),
       Self::Rectangle => Some("Rectangle"),
+      Self::Subscribe => Some("Subscribe"),
       Self::Tiles => Some("Tiles"),
       Self::Triangle => Some("Triangle"),
+      Self::Unsubscribe => Some("Unsubscribe"),
       Self::EndFrame => Some("EndFrame"),
       _ => None,
     }
@@ -160,130 +175,6 @@ impl<'a> flatbuffers::Verifiable for Command {
 
 impl flatbuffers::SimpleToVerifyInSlice for Command {}
 pub struct CommandUnionTableOffset {}
-
-// struct Vector2f, aligned to 4
-#[repr(transparent)]
-#[derive(Clone, Copy, PartialEq)]
-pub struct Vector2f(pub [u8; 8]);
-impl Default for Vector2f { 
-  fn default() -> Self { 
-    Self([0; 8])
-  }
-}
-impl core::fmt::Debug for Vector2f {
-  fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-    f.debug_struct("Vector2f")
-      .field("x", &self.x())
-      .field("y", &self.y())
-      .finish()
-  }
-}
-
-impl flatbuffers::SimpleToVerifyInSlice for Vector2f {}
-impl<'a> flatbuffers::Follow<'a> for Vector2f {
-  type Inner = &'a Vector2f;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    <&'a Vector2f>::follow(buf, loc)
-  }
-}
-impl<'a> flatbuffers::Follow<'a> for &'a Vector2f {
-  type Inner = &'a Vector2f;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    flatbuffers::follow_cast_ref::<Vector2f>(buf, loc)
-  }
-}
-impl<'b> flatbuffers::Push for Vector2f {
-    type Output = Vector2f;
-    #[inline]
-    unsafe fn push(&self, dst: &mut [u8], _written_len: usize) {
-        let src = ::core::slice::from_raw_parts(self as *const Vector2f as *const u8, Self::size());
-        dst.copy_from_slice(src);
-    }
-}
-
-impl<'a> flatbuffers::Verifiable for Vector2f {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.in_buffer::<Self>(pos)
-  }
-}
-
-impl<'a> Vector2f {
-  #[allow(clippy::too_many_arguments)]
-  pub fn new(
-    x: f32,
-    y: f32,
-  ) -> Self {
-    let mut s = Self([0; 8]);
-    s.set_x(x);
-    s.set_y(y);
-    s
-  }
-
-  pub fn x(&self) -> f32 {
-    let mut mem = core::mem::MaybeUninit::<<f32 as EndianScalar>::Scalar>::uninit();
-    // Safety:
-    // Created from a valid Table for this object
-    // Which contains a valid value in this slot
-    EndianScalar::from_little_endian(unsafe {
-      core::ptr::copy_nonoverlapping(
-        self.0[0..].as_ptr(),
-        mem.as_mut_ptr() as *mut u8,
-        core::mem::size_of::<<f32 as EndianScalar>::Scalar>(),
-      );
-      mem.assume_init()
-    })
-  }
-
-  pub fn set_x(&mut self, x: f32) {
-    let x_le = x.to_little_endian();
-    // Safety:
-    // Created from a valid Table for this object
-    // Which contains a valid value in this slot
-    unsafe {
-      core::ptr::copy_nonoverlapping(
-        &x_le as *const _ as *const u8,
-        self.0[0..].as_mut_ptr(),
-        core::mem::size_of::<<f32 as EndianScalar>::Scalar>(),
-      );
-    }
-  }
-
-  pub fn y(&self) -> f32 {
-    let mut mem = core::mem::MaybeUninit::<<f32 as EndianScalar>::Scalar>::uninit();
-    // Safety:
-    // Created from a valid Table for this object
-    // Which contains a valid value in this slot
-    EndianScalar::from_little_endian(unsafe {
-      core::ptr::copy_nonoverlapping(
-        self.0[4..].as_ptr(),
-        mem.as_mut_ptr() as *mut u8,
-        core::mem::size_of::<<f32 as EndianScalar>::Scalar>(),
-      );
-      mem.assume_init()
-    })
-  }
-
-  pub fn set_y(&mut self, x: f32) {
-    let x_le = x.to_little_endian();
-    // Safety:
-    // Created from a valid Table for this object
-    // Which contains a valid value in this slot
-    unsafe {
-      core::ptr::copy_nonoverlapping(
-        &x_le as *const _ as *const u8,
-        self.0[4..].as_mut_ptr(),
-        core::mem::size_of::<<f32 as EndianScalar>::Scalar>(),
-      );
-    }
-  }
-
-}
 
 pub enum ColorOffset {}
 #[derive(Copy, Clone, PartialEq)]
@@ -2253,6 +2144,347 @@ impl core::fmt::Debug for Options<'_> {
       ds.finish()
   }
 }
+pub enum SubscribeOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct Subscribe<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for Subscribe<'a> {
+  type Inner = Subscribe<'a>;
+  #[inline]
+  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    Self { _tab: flatbuffers::Table::new(buf, loc) }
+  }
+}
+
+impl<'a> Subscribe<'a> {
+  pub const VT_NAME: flatbuffers::VOffsetT = 4;
+  pub const VT_KEY: flatbuffers::VOffsetT = 6;
+  pub const VT_CONTINUOUS: flatbuffers::VOffsetT = 8;
+  pub const VT_CAPTURE_MOUSE: flatbuffers::VOffsetT = 10;
+  pub const VT_MIN_POSITION_CHANGE: flatbuffers::VOffsetT = 12;
+
+  #[inline]
+  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+    Subscribe { _tab: table }
+  }
+  #[allow(unused_mut)]
+  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
+    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
+    args: &'args SubscribeArgs<'args>
+  ) -> flatbuffers::WIPOffset<Subscribe<'bldr>> {
+    let mut builder = SubscribeBuilder::new(_fbb);
+    builder.add_min_position_change(args.min_position_change);
+    if let Some(x) = args.name { builder.add_name(x); }
+    builder.add_capture_mouse(args.capture_mouse);
+    builder.add_continuous(args.continuous);
+    builder.add_key(args.key);
+    builder.finish()
+  }
+
+
+  #[inline]
+  pub fn name(&self) -> Option<&'a str> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Subscribe::VT_NAME, None)}
+  }
+  #[inline]
+  pub fn key(&self) -> i8 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<i8>(Subscribe::VT_KEY, Some(0)).unwrap()}
+  }
+  #[inline]
+  pub fn continuous(&self) -> bool {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<bool>(Subscribe::VT_CONTINUOUS, Some(false)).unwrap()}
+  }
+  #[inline]
+  pub fn capture_mouse(&self) -> bool {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<bool>(Subscribe::VT_CAPTURE_MOUSE, Some(false)).unwrap()}
+  }
+  #[inline]
+  pub fn min_position_change(&self) -> f32 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<f32>(Subscribe::VT_MIN_POSITION_CHANGE, Some(0.001)).unwrap()}
+  }
+}
+
+impl flatbuffers::Verifiable for Subscribe<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("name", Self::VT_NAME, false)?
+     .visit_field::<i8>("key", Self::VT_KEY, false)?
+     .visit_field::<bool>("continuous", Self::VT_CONTINUOUS, false)?
+     .visit_field::<bool>("capture_mouse", Self::VT_CAPTURE_MOUSE, false)?
+     .visit_field::<f32>("min_position_change", Self::VT_MIN_POSITION_CHANGE, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct SubscribeArgs<'a> {
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub key: i8,
+    pub continuous: bool,
+    pub capture_mouse: bool,
+    pub min_position_change: f32,
+}
+impl<'a> Default for SubscribeArgs<'a> {
+  #[inline]
+  fn default() -> Self {
+    SubscribeArgs {
+      name: None,
+      key: 0,
+      continuous: false,
+      capture_mouse: false,
+      min_position_change: 0.001,
+    }
+  }
+}
+
+pub struct SubscribeBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> SubscribeBuilder<'a, 'b, A> {
+  #[inline]
+  pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Subscribe::VT_NAME, name);
+  }
+  #[inline]
+  pub fn add_key(&mut self, key: i8) {
+    self.fbb_.push_slot::<i8>(Subscribe::VT_KEY, key, 0);
+  }
+  #[inline]
+  pub fn add_continuous(&mut self, continuous: bool) {
+    self.fbb_.push_slot::<bool>(Subscribe::VT_CONTINUOUS, continuous, false);
+  }
+  #[inline]
+  pub fn add_capture_mouse(&mut self, capture_mouse: bool) {
+    self.fbb_.push_slot::<bool>(Subscribe::VT_CAPTURE_MOUSE, capture_mouse, false);
+  }
+  #[inline]
+  pub fn add_min_position_change(&mut self, min_position_change: f32) {
+    self.fbb_.push_slot::<f32>(Subscribe::VT_MIN_POSITION_CHANGE, min_position_change, 0.001);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> SubscribeBuilder<'a, 'b, A> {
+    let start = _fbb.start_table();
+    SubscribeBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<Subscribe<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl core::fmt::Debug for Subscribe<'_> {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    let mut ds = f.debug_struct("Subscribe");
+      ds.field("name", &self.name());
+      ds.field("key", &self.key());
+      ds.field("continuous", &self.continuous());
+      ds.field("capture_mouse", &self.capture_mouse());
+      ds.field("min_position_change", &self.min_position_change());
+      ds.finish()
+  }
+}
+pub enum UnsubscribeOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct Unsubscribe<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for Unsubscribe<'a> {
+  type Inner = Unsubscribe<'a>;
+  #[inline]
+  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    Self { _tab: flatbuffers::Table::new(buf, loc) }
+  }
+}
+
+impl<'a> Unsubscribe<'a> {
+  pub const VT_KEY: flatbuffers::VOffsetT = 4;
+
+  #[inline]
+  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+    Unsubscribe { _tab: table }
+  }
+  #[allow(unused_mut)]
+  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
+    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
+    args: &'args UnsubscribeArgs
+  ) -> flatbuffers::WIPOffset<Unsubscribe<'bldr>> {
+    let mut builder = UnsubscribeBuilder::new(_fbb);
+    builder.add_key(args.key);
+    builder.finish()
+  }
+
+
+  #[inline]
+  pub fn key(&self) -> i8 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<i8>(Unsubscribe::VT_KEY, Some(0)).unwrap()}
+  }
+}
+
+impl flatbuffers::Verifiable for Unsubscribe<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<i8>("key", Self::VT_KEY, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct UnsubscribeArgs {
+    pub key: i8,
+}
+impl<'a> Default for UnsubscribeArgs {
+  #[inline]
+  fn default() -> Self {
+    UnsubscribeArgs {
+      key: 0,
+    }
+  }
+}
+
+pub struct UnsubscribeBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> UnsubscribeBuilder<'a, 'b, A> {
+  #[inline]
+  pub fn add_key(&mut self, key: i8) {
+    self.fbb_.push_slot::<i8>(Unsubscribe::VT_KEY, key, 0);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> UnsubscribeBuilder<'a, 'b, A> {
+    let start = _fbb.start_table();
+    UnsubscribeBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<Unsubscribe<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl core::fmt::Debug for Unsubscribe<'_> {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    let mut ds = f.debug_struct("Unsubscribe");
+      ds.field("key", &self.key());
+      ds.finish()
+  }
+}
+pub enum ReadEventsOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct ReadEvents<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for ReadEvents<'a> {
+  type Inner = ReadEvents<'a>;
+  #[inline]
+  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    Self { _tab: flatbuffers::Table::new(buf, loc) }
+  }
+}
+
+impl<'a> ReadEvents<'a> {
+
+  #[inline]
+  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+    ReadEvents { _tab: table }
+  }
+  #[allow(unused_mut)]
+  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
+    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
+    _args: &'args ReadEventsArgs
+  ) -> flatbuffers::WIPOffset<ReadEvents<'bldr>> {
+    let mut builder = ReadEventsBuilder::new(_fbb);
+    builder.finish()
+  }
+
+}
+
+impl flatbuffers::Verifiable for ReadEvents<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct ReadEventsArgs {
+}
+impl<'a> Default for ReadEventsArgs {
+  #[inline]
+  fn default() -> Self {
+    ReadEventsArgs {
+    }
+  }
+}
+
+pub struct ReadEventsBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ReadEventsBuilder<'a, 'b, A> {
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> ReadEventsBuilder<'a, 'b, A> {
+    let start = _fbb.start_table();
+    ReadEventsBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<ReadEvents<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl core::fmt::Debug for ReadEvents<'_> {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    let mut ds = f.debug_struct("ReadEvents");
+      ds.finish()
+  }
+}
 pub enum EndFrameOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -2509,6 +2741,20 @@ impl<'a> RewindMessage<'a> {
 
   #[inline]
   #[allow(non_snake_case)]
+  pub fn command_as_read_events(&self) -> Option<ReadEvents<'a>> {
+    if self.command_type() == Command::ReadEvents {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { ReadEvents::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
   pub fn command_as_rectangle(&self) -> Option<Rectangle<'a>> {
     if self.command_type() == Command::Rectangle {
       let u = self.command();
@@ -2516,6 +2762,20 @@ impl<'a> RewindMessage<'a> {
       // Created from a valid Table for this object
       // Which contains a valid union in this slot
       Some(unsafe { Rectangle::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_subscribe(&self) -> Option<Subscribe<'a>> {
+    if self.command_type() == Command::Subscribe {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { Subscribe::init_from_table(u) })
     } else {
       None
     }
@@ -2544,6 +2804,20 @@ impl<'a> RewindMessage<'a> {
       // Created from a valid Table for this object
       // Which contains a valid union in this slot
       Some(unsafe { Triangle::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_unsubscribe(&self) -> Option<Unsubscribe<'a>> {
+    if self.command_type() == Command::Unsubscribe {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { Unsubscribe::init_from_table(u) })
     } else {
       None
     }
@@ -2583,9 +2857,12 @@ impl flatbuffers::Verifiable for RewindMessage<'_> {
           Command::Polyline => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Polyline>>("Command::Polyline", pos),
           Command::Popup => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Popup>>("Command::Popup", pos),
           Command::PopupRound => v.verify_union_variant::<flatbuffers::ForwardsUOffset<PopupRound>>("Command::PopupRound", pos),
+          Command::ReadEvents => v.verify_union_variant::<flatbuffers::ForwardsUOffset<ReadEvents>>("Command::ReadEvents", pos),
           Command::Rectangle => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Rectangle>>("Command::Rectangle", pos),
+          Command::Subscribe => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Subscribe>>("Command::Subscribe", pos),
           Command::Tiles => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Tiles>>("Command::Tiles", pos),
           Command::Triangle => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Triangle>>("Command::Triangle", pos),
+          Command::Unsubscribe => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Unsubscribe>>("Command::Unsubscribe", pos),
           Command::EndFrame => v.verify_union_variant::<flatbuffers::ForwardsUOffset<EndFrame>>("Command::EndFrame", pos),
           _ => Ok(()),
         }
@@ -2705,8 +2982,22 @@ impl core::fmt::Debug for RewindMessage<'_> {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
           }
         },
+        Command::ReadEvents => {
+          if let Some(x) = self.command_as_read_events() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
         Command::Rectangle => {
           if let Some(x) = self.command_as_rectangle() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::Subscribe => {
+          if let Some(x) = self.command_as_subscribe() {
             ds.field("command", &x)
           } else {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
@@ -2721,6 +3012,13 @@ impl core::fmt::Debug for RewindMessage<'_> {
         },
         Command::Triangle => {
           if let Some(x) = self.command_as_triangle() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::Unsubscribe => {
+          if let Some(x) = self.command_as_unsubscribe() {
             ds.field("command", &x)
           } else {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")

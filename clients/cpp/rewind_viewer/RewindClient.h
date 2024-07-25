@@ -5,18 +5,25 @@
 #include <vector>
 
 #include "clsocket/ActiveSocket.h"
+#include "messages/rewind_event.fbs.h"
 #include "messages/rewind_message.fbs.h"
 
 namespace rewind_viewer {
 
 constexpr uint16_t MESSAGE_SCHEMA_VERSION = 5;
 
+template <typename Vec2T>
+struct RewindEvent {
+  char key;
+  std::vector<std::vector<Vec2T>> mouse_paths;
+};
+
 class RewindClient {
  public:
   RewindClient(const RewindClient &) = delete;
   RewindClient &operator=(const RewindClient &) = delete;
 
-  RewindClient(const std::string &host, uint16_t port) {
+  RewindClient(const std::string &host, uint16_t port) : read_buffer_(MAX_MESSAGE_SIZE) {
     socket_.Initialize();
     socket_.DisableNagleAlgoritm();
     if (!socket_.Open(host.c_str(), port)) {
@@ -317,6 +324,61 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  void subscribe(const std::string &name, char key, bool continuous, bool capture_mouse,
+                 double min_position_change = -1.0) {
+    builder_.Clear();
+    auto name_obj = builder_.CreateString(name);
+    flatbuffers::Offset<fbs::Subscribe> command;
+    if (min_position_change > 0.0) {
+      command = fbs::CreateSubscribe(builder_, name_obj, key, continuous, capture_mouse,
+                                     min_position_change);
+    } else {
+      command = fbs::CreateSubscribe(builder_, name_obj, key, continuous, capture_mouse);
+    }
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Subscribe, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
+  void unsubscribe(char key) {
+    builder_.Clear();
+    auto command = fbs::CreateUnsubscribe(builder_, key);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Unsubscribe, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
+  template <typename Vec2T>
+  std::vector<RewindEvent<Vec2T>> read_events() {
+    builder_.Clear();
+    auto command = fbs::CreateReadEvents(builder_);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_ReadEvents, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+
+    // Buffer to store the incoming message size and content
+    read_msg(read_buffer_.data());
+
+    // Parse the received message
+    auto event_list = fbs::GetRewindEventList(read_buffer_.data());
+    std::vector<RewindEvent<Vec2T>> events;
+
+    for (auto fbs_event : *event_list->events()) {
+      auto &event = events.emplace_back(RewindEvent<Vec2T>{.key = fbs_event->key()});
+      if (fbs_event->mouse_path()) {
+        for (auto fbs_path : *fbs_event->mouse_path()) {
+          auto &path = event.mouse_paths.emplace_back();
+          for (auto fbs_point : *fbs_path->points()) {
+            auto &point = path.emplace_back();
+            point.x = fbs_point->x();
+            point.y = fbs_point->y();
+          }
+        }
+      }
+    }
+    return events;
+  }
+
   void close() {
     if (socket_.IsSocketValid()) {
       if (!socket_.Shutdown(CSimpleSocket::CShutdownMode::Both)) {
@@ -329,6 +391,7 @@ class RewindClient {
  private:
   bool is_little_endian_;
   flatbuffers::FlatBufferBuilder builder_;
+  std::vector<uint8_t> read_buffer_;
   CActiveSocket socket_;
   uint32_t opacity_{0xFF000000};
   constexpr static uint64_t MAX_MESSAGE_SIZE = 1024 * 1024;  // 1MB
@@ -354,6 +417,39 @@ class RewindClient {
     }
     socket_.Send(buffer, sizeof(int32_t));
     socket_.Send(buf, buf_size);
+  }
+
+  void read_bytes(uint8_t *buffer, uint32_t size) {
+    if (!socket_.IsSocketValid()) {
+      throw std::runtime_error("Can't read bytes if socket is not valid.");
+    }
+    int pos = 0;
+    while (size > 0) {
+      int received = socket_.Receive(static_cast<int32_t>(size), buffer + pos);
+      if (received > 0) {
+        pos += received;
+        size -= received;
+      } else {
+        auto error = format("Can't read bytes: %s", socket_.DescribeError());
+        socket_.Close();
+        throw std::runtime_error(error);
+      }
+    }
+  }
+
+  uint32_t read_msg(uint8_t *buffer) {
+    uint32_t bytes_cnt;
+    read_bytes(reinterpret_cast<uint8_t *>(&bytes_cnt), sizeof(uint32_t));
+    if (!is_little_endian_) {
+      std::reverse(reinterpret_cast<uint8_t *>(&bytes_cnt),
+                   reinterpret_cast<uint8_t *>(&bytes_cnt) + sizeof(uint32_t));
+    }
+
+    if (bytes_cnt > MAX_MESSAGE_SIZE) {
+      throw std::runtime_error("Cannot read from socket: buffer's max size less than message size");
+    }
+    read_bytes(buffer, bytes_cnt);
+    return bytes_cnt;
   }
 
   template <typename... Args>

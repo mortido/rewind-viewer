@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <utility>
+// #include <nfd/nfd.h>
 
 #include "version.h"
 
@@ -18,6 +19,22 @@ inline bool key_modifier(const ImGuiIO &io) {
   return io.KeyCtrl;
 #endif
 }
+
+// std::string open_file_dialog() {
+//   nfdchar_t* out_path = nullptr;
+//   nfdresult_t result = NFD_OpenDialog(nullptr, nullptr, &out_path);
+//
+//   if (result == NFD_OKAY) {
+//     std::string file_path(out_path);
+//     free(out_path);  // remember to free the allocated memory
+//     return file_path;
+//   } else if (result == NFD_CANCEL) {
+//     return "";
+//   } else {
+//     LOG_ERROR("Error opening file: %s", NFD_GetError());
+//     return "";
+//   }
+// }
 
 }  // namespace
 
@@ -70,9 +87,18 @@ void RewindViewer::stop() {
 
 void RewindViewer::main_menu_bar() {
   if (ImGui::BeginMainMenuBar()) {
+    // TODO: Save/Open replays
+    //    if (ImGui::BeginMenu(ICON_FA_FILE " File", true)) {
+    //      if (ImGui::MenuItem("Open", "Ctrl+O")) {
+    //        std::string file_path = open_file_dialog();
+    //      }
+    //      if (ImGui::MenuItem("Save", "Ctrl+S")) {
+    //      }
+    //      ImGui::EndMenu();
+    //    }
     if (ImGui::BeginMenu(ICON_FA_EYE " View", true)) {
       ImGui::MenuItem("Status overlay", nullptr, &ui_state_.show_status_overlay);
-      ImGui::MenuItem("Frame info", nullptr, &ui_state_.show_frame_info);
+      ImGui::MenuItem("Control panel", nullptr, &ui_state_.show_frame_info);
       if (ui_state_.developer_mode) {
         ImGui::Separator();
         ImGui::MenuItem("Style editor", nullptr, &ui_state_.show_style_editor);
@@ -440,6 +466,7 @@ void RewindViewer::viewport() {
   //  mouse_pos.y = viewport_size.y - mouse_pos.y;
 
   scene_->camera.set_viewport_size(viewport_size);
+  ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
   if (!io.WantCaptureMouse) {
     if (io.MouseWheel != 0.0f) {
       float zoom_factor = std::exp(-io.MouseWheel * config_.scene->camera.zoom_speed);
@@ -455,20 +482,7 @@ void RewindViewer::viewport() {
 
       ui_state_.selected_camera.clear();
     }
-  }
-  if (!ui_state_.selected_camera.empty()) {
-    // TODO: cleean up logic...
-    if (current_frame_) {
-      const auto &cameras = current_frame_->get_cameras();
-      auto it = cameras.find(ui_state_.selected_camera);
-      if (it != cameras.end()) {
-        scene_->camera.set_view(it->second, ui_state_.ignore_frame_camera_viewport);
-      }
-    }
-  }
-  scene_->camera.update_projection();
 
-  if (!io.WantCaptureMouse) {
     auto mouse_game_pos = scene_->camera.screen_to_game(mouse_pos);
     if (config_.scene->show_game_coordinates) {
       ImGui::BeginTooltip();
@@ -490,7 +504,29 @@ void RewindViewer::viewport() {
         }
       }
     }
+
+    if (!io.WantTextInput) {
+      for (auto &server : servers_) {
+        auto events = server->get_events();
+        for (auto &[_, event] : *events) {
+          if (event->capture(mouse_game_pos)) {
+          }
+        }
+      }
+    }
   }
+
+  if (!ui_state_.selected_camera.empty()) {
+    // TODO: clean up logic...
+    if (current_frame_) {
+      const auto &cameras = current_frame_->get_cameras();
+      auto it = cameras.find(ui_state_.selected_camera);
+      if (it != cameras.end()) {
+        scene_->camera.set_view(it->second, ui_state_.ignore_frame_camera_viewport);
+      }
+    }
+  }
+  scene_->camera.update_projection();
 
   if (ui_state_.autoplay) {
     ui_state_.current_frame_idx++;
@@ -503,6 +539,10 @@ void RewindViewer::viewport() {
 }
 
 void RewindViewer::handle_keys() {
+  static const std::array<ImGuiKey, models::SceneConfig::LAYERS_COUNT> layer_shortcuts = {
+      ImGuiKey_1, ImGuiKey_2, ImGuiKey_3, ImGuiKey_4, ImGuiKey_5,
+      ImGuiKey_6, ImGuiKey_7, ImGuiKey_8, ImGuiKey_9, ImGuiKey_0,
+  };
   const auto &io = ImGui::GetIO();
 
   if (!io.WantTextInput) {
@@ -531,18 +571,19 @@ void RewindViewer::handle_keys() {
     if (ImGui::IsKeyPressed(ImGuiKey_Space)) {
       ui_state_.autoplay = !ui_state_.autoplay;
     }
-    if (ImGui::IsKeyPressed(ImGuiKey_G)) {
-      config_.scene->show_grid = !config_.scene->show_grid;
-    }
-    if (ImGui::IsKeyPressed(ImGuiKey_B)) {
-      config_.ui->buffered_mode = !config_.ui->buffered_mode;
-      scene_->frames.set_buffered_mode(config_.ui->buffered_mode);
-    }
-    if (ImGui::IsKeyPressed(ImGuiKey_P)) {
-      config_.scene->show_game_coordinates = !config_.scene->show_game_coordinates;
-    }
+
+    //    if (ImGui::IsKeyPressed(ImGuiKey_G)) {
+    //      config_.scene->show_grid = !config_.scene->show_grid;
+    //    }
+    //    if (ImGui::IsKeyPressed(ImGuiKey_B)) {
+    //      config_.ui->buffered_mode = !config_.ui->buffered_mode;
+    //      scene_->frames.set_buffered_mode(config_.ui->buffered_mode);
+    //    }
+    //    if (ImGui::IsKeyPressed(ImGuiKey_P)) {
+    //      config_.scene->show_game_coordinates = !config_.scene->show_game_coordinates;
+    //    }
+
     if (config_.ui->close_with_esc && ImGui::IsKeyPressed(ImGuiKey_Escape)) {
-      // TODO: should we call glfwSetWindowShouldClose(window, true); here or avoid extra deps?...
       ui_state_.close_requested = true;
     }
     if (ImGui::IsKeyChordPressed(ImGuiKey_D | ImGuiMod_Shortcut)) {
@@ -554,10 +595,6 @@ void RewindViewer::handle_keys() {
 
     // Layer toggle shortcuts
     auto &enabled_layers = config_.scene->enabled_layers;
-    static const std::array<ImGuiKey, models::SceneConfig::LAYERS_COUNT> layer_shortcuts = {
-        ImGuiKey_1, ImGuiKey_2, ImGuiKey_3, ImGuiKey_4, ImGuiKey_5,
-        ImGuiKey_6, ImGuiKey_7, ImGuiKey_8, ImGuiKey_9, ImGuiKey_0,
-    };
     for (size_t i = 0; i < layer_shortcuts.size(); ++i) {
       if (ImGui::IsKeyPressed(layer_shortcuts[i], false)) {
         enabled_layers[i] = !enabled_layers[i];

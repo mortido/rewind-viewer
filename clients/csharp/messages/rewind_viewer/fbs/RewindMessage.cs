@@ -31,9 +31,12 @@ public struct RewindMessage : IFlatbufferObject
   public rewind_viewer.fbs.Polyline CommandAsPolyline() { return Command<rewind_viewer.fbs.Polyline>().Value; }
   public rewind_viewer.fbs.Popup CommandAsPopup() { return Command<rewind_viewer.fbs.Popup>().Value; }
   public rewind_viewer.fbs.PopupRound CommandAsPopupRound() { return Command<rewind_viewer.fbs.PopupRound>().Value; }
+  public rewind_viewer.fbs.ReadEvents CommandAsReadEvents() { return Command<rewind_viewer.fbs.ReadEvents>().Value; }
   public rewind_viewer.fbs.Rectangle CommandAsRectangle() { return Command<rewind_viewer.fbs.Rectangle>().Value; }
+  public rewind_viewer.fbs.Subscribe CommandAsSubscribe() { return Command<rewind_viewer.fbs.Subscribe>().Value; }
   public rewind_viewer.fbs.Tiles CommandAsTiles() { return Command<rewind_viewer.fbs.Tiles>().Value; }
   public rewind_viewer.fbs.Triangle CommandAsTriangle() { return Command<rewind_viewer.fbs.Triangle>().Value; }
+  public rewind_viewer.fbs.Unsubscribe CommandAsUnsubscribe() { return Command<rewind_viewer.fbs.Unsubscribe>().Value; }
   public rewind_viewer.fbs.EndFrame CommandAsEndFrame() { return Command<rewind_viewer.fbs.EndFrame>().Value; }
 
   public static Offset<rewind_viewer.fbs.RewindMessage> CreateRewindMessage(FlatBufferBuilder builder,

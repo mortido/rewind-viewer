@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+project(nativefiledialog LANGUAGES CXX)
+
+if (WIN32)
+    set (SOURCES src/nfd_win.cpp)
+elseif (UNIX AND NOT APPLE)
+    set (SOURCES src/nfd_gtk.c)
+    find_package(PkgConfig)
+    pkg_check_modules(GTK "gtk+-3.0" REQUIRED)
+    include_directories (${GTK_INCLUDE_DIRS})
+#    target_link_libraries (${PROJECT_NAME} PRIVATE ${GTK_LIBRARIES}) ???
+elseif (APPLE)
+    set (SOURCES src/nfd_cocoa.m)
+else ()
+    message (FATAL_ERROR "Unsupported platform detected. Cannot use NFD.")
+endif ()
+
+add_library(${PROJECT_NAME} ${SOURCES} src/nfd_common.c)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
+target_include_directories(${PROJECT_NAME} PRIVATE include/nfd)

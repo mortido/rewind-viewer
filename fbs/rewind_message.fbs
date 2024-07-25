@@ -1,9 +1,6 @@
-namespace rewind_viewer.fbs;
+include "vector2f.fbs";
 
-struct Vector2f {
-  x:float = 0;
-  y:float = 0;
-}
+namespace rewind_viewer.fbs;
 
 table Color {
   value:uint32;
@@ -94,6 +91,21 @@ table Options {
   layer:Layer;
 }
 
+table Subscribe {
+  name:string;
+  key:byte;
+  continuous:bool = false;
+  capture_mouse:bool = false;
+  min_position_change:float = 0.001;
+}
+
+table Unsubscribe {
+  key:byte;
+}
+
+table ReadEvents {
+}
+
 table EndFrame {
 }
 
@@ -107,9 +119,12 @@ union Command {
   Polyline,
   Popup,
   PopupRound,
+  ReadEvents,
   Rectangle,
+  Subscribe,
   Tiles,
   Triangle,
+  Unsubscribe,
   EndFrame
 }
 

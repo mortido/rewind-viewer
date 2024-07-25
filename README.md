@@ -112,6 +112,7 @@ Project created with help of many great libraries:
  - [stb_image](https://github.com/nothings/stb) for images processing
  - [loguru](https://github.com/emilk/loguru) for logging support
  - [rapidyaml](https://github.com/biojppm/rapidyaml) for yaml configuration file
+ - [rapidjson](https://github.com/Tencent/rapidjson) for json messages
 
 Resources: 
  - [fontawesome](http://fontawesome.io/) icon font, embedded inside text in many UI elements

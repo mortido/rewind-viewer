@@ -12,9 +12,12 @@ import { Options } from '../../rewind-viewer/fbs/options.js';
 import { Polyline } from '../../rewind-viewer/fbs/polyline.js';
 import { Popup } from '../../rewind-viewer/fbs/popup.js';
 import { PopupRound } from '../../rewind-viewer/fbs/popup-round.js';
+import { ReadEvents } from '../../rewind-viewer/fbs/read-events.js';
 import { Rectangle } from '../../rewind-viewer/fbs/rectangle.js';
+import { Subscribe } from '../../rewind-viewer/fbs/subscribe.js';
 import { Tiles } from '../../rewind-viewer/fbs/tiles.js';
 import { Triangle } from '../../rewind-viewer/fbs/triangle.js';
+import { Unsubscribe } from '../../rewind-viewer/fbs/unsubscribe.js';
 
 
 export enum Command {
@@ -28,16 +31,19 @@ export enum Command {
   Polyline = 7,
   Popup = 8,
   PopupRound = 9,
-  Rectangle = 10,
-  Tiles = 11,
-  Triangle = 12,
-  EndFrame = 13
+  ReadEvents = 10,
+  Rectangle = 11,
+  Subscribe = 12,
+  Tiles = 13,
+  Triangle = 14,
+  Unsubscribe = 15,
+  EndFrame = 16
 }
 
 export function unionToCommand(
   type: Command,
-  accessor: (obj:Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Tiles|Triangle) => Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Tiles|Triangle|null
-): Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Tiles|Triangle|null {
+  accessor: (obj:Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null
+): Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null {
   switch(Command[type]) {
     case 'NONE': return null; 
     case 'Arc': return accessor(new Arc())! as Arc;
@@ -49,9 +55,12 @@ export function unionToCommand(
     case 'Polyline': return accessor(new Polyline())! as Polyline;
     case 'Popup': return accessor(new Popup())! as Popup;
     case 'PopupRound': return accessor(new PopupRound())! as PopupRound;
+    case 'ReadEvents': return accessor(new ReadEvents())! as ReadEvents;
     case 'Rectangle': return accessor(new Rectangle())! as Rectangle;
+    case 'Subscribe': return accessor(new Subscribe())! as Subscribe;
     case 'Tiles': return accessor(new Tiles())! as Tiles;
     case 'Triangle': return accessor(new Triangle())! as Triangle;
+    case 'Unsubscribe': return accessor(new Unsubscribe())! as Unsubscribe;
     case 'EndFrame': return accessor(new EndFrame())! as EndFrame;
     default: return null;
   }
@@ -59,9 +68,9 @@ export function unionToCommand(
 
 export function unionListToCommand(
   type: Command, 
-  accessor: (index: number, obj:Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Tiles|Triangle) => Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Tiles|Triangle|null, 
+  accessor: (index: number, obj:Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null, 
   index: number
-): Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Rectangle|Tiles|Triangle|null {
+): Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null {
   switch(Command[type]) {
     case 'NONE': return null; 
     case 'Arc': return accessor(index, new Arc())! as Arc;
@@ -73,9 +82,12 @@ export function unionListToCommand(
     case 'Polyline': return accessor(index, new Polyline())! as Polyline;
     case 'Popup': return accessor(index, new Popup())! as Popup;
     case 'PopupRound': return accessor(index, new PopupRound())! as PopupRound;
+    case 'ReadEvents': return accessor(index, new ReadEvents())! as ReadEvents;
     case 'Rectangle': return accessor(index, new Rectangle())! as Rectangle;
+    case 'Subscribe': return accessor(index, new Subscribe())! as Subscribe;
     case 'Tiles': return accessor(index, new Tiles())! as Tiles;
     case 'Triangle': return accessor(index, new Triangle())! as Triangle;
+    case 'Unsubscribe': return accessor(index, new Unsubscribe())! as Unsubscribe;
     case 'EndFrame': return accessor(index, new EndFrame())! as EndFrame;
     default: return null;
   }

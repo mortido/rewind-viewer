@@ -3,6 +3,7 @@
 #include <imgui/imgui_impl_opengl3.h>
 
 #include <filesystem>
+#include <thread>
 
 #include "common/logger.h"
 #include "gl/opengl.h"

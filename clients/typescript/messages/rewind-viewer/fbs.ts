@@ -2,22 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-export { Arc } from './fbs/arc.js';
-export { CameraView } from './fbs/camera-view.js';
-export { Circle } from './fbs/circle.js';
-export { CircleSegment } from './fbs/circle-segment.js';
-export { Color } from './fbs/color.js';
-export { Command } from './fbs/command.js';
-export { EndFrame } from './fbs/end-frame.js';
-export { Layer } from './fbs/layer.js';
-export { LogText } from './fbs/log-text.js';
-export { Map } from './fbs/map.js';
-export { Options } from './fbs/options.js';
-export { Polyline } from './fbs/polyline.js';
-export { Popup } from './fbs/popup.js';
-export { PopupRound } from './fbs/popup-round.js';
-export { Rectangle } from './fbs/rectangle.js';
-export { RewindMessage } from './fbs/rewind-message.js';
-export { Tiles } from './fbs/tiles.js';
-export { Triangle } from './fbs/triangle.js';
+export { MousePath } from './fbs/mouse-path.js';
+export { RewindEvent } from './fbs/rewind-event.js';
+export { RewindEventList } from './fbs/rewind-event-list.js';
 export { Vector2f } from './fbs/vector2f.js';

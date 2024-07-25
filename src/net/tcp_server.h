@@ -25,7 +25,7 @@ class TcpServer {
   uint16_t accept_connection();
   void discard_connection();
   uint32_t read_msg(uint8_t *buffer, uint32_t max_size);
-  void send_msg(uint8_t *buffer, uint32_t bytes_cnt);
+  void send_msg(const uint8_t *buffer, uint32_t bytes_cnt);
   uint16_t get_port() const;
 };
 

@@ -1,0 +1,6 @@
+namespace rewind_viewer.fbs;
+
+struct Vector2f {
+  x:float = 0;
+  y:float = 0;
+}

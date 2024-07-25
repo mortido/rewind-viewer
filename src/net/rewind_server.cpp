@@ -39,7 +39,7 @@ RewindServer::RewindServer(std::shared_ptr<models::Scene> scene, const std::stri
     : scene_{std::move(scene)}
     , master_{master}
     , tcp_server_(address, port)
-    , builder_(MAX_MESSAGE_SIZE)
+    , fbs_builder_(MAX_MESSAGE_SIZE)
     , read_buffer_(MAX_MESSAGE_SIZE)
     , state_{State::wait} {
   network_thread_ = std::thread(&RewindServer::network_loop, this);
@@ -57,39 +57,34 @@ void RewindServer::stop() {
   state_ = State::closed;
 }
 
-RewindServer::State RewindServer::get_state() const {
-  return state_.load(std::memory_order_relaxed);
-}
-
-uint16_t RewindServer::get_port() const {
-  return tcp_server_.get_port();
-}
-
 void RewindServer::network_loop() {
   // It is ok to crash thread on init error
   tcp_server_.initialize();
   while (state_.load(std::memory_order_relaxed) != State::closed) {
     // It is ok to crash thread on accept connection error
     LOG_INFO("Waiting new connection...");
-
-    uint16_t schema_version = 0;
-    while (schema_version == 0) {
-      schema_version = tcp_server_.accept_connection();
-      if (schema_version == 0) {
+    {
+      std::lock_guard<Spinlock> lock(events_mutex_);
+      events_.clear();
+    }
+    schema_version_ = 0;
+    while (schema_version_ == 0) {
+      schema_version_ = tcp_server_.accept_connection();
+      if (schema_version_ == 0) {
         // TODO: handle app exit better
         return;
       }
-      if (schema_version != MESSAGE_SCHEMA_VERSION &&
-          schema_version != JSON_MESSAGE_SCHEMA_VERSION) {
+      if (schema_version_ != MESSAGE_SCHEMA_VERSION &&
+          schema_version_ != JSON_MESSAGE_SCHEMA_VERSION) {
         LOG_ERROR("Incorrect schema version, got %u, required %u (flatbuffers) or %u (json)",
-                  schema_version, MESSAGE_SCHEMA_VERSION, JSON_MESSAGE_SCHEMA_VERSION);
+                  schema_version_, MESSAGE_SCHEMA_VERSION, JSON_MESSAGE_SCHEMA_VERSION);
         tcp_server_.discard_connection();
-        schema_version = 0;
+        schema_version_ = 0;
       }
     }
 
-    LOG_INFO("Schema version %u", schema_version);
-    if (schema_version == MESSAGE_SCHEMA_VERSION) {
+    LOG_INFO("Schema version %u", schema_version_);
+    if (schema_version_ == MESSAGE_SCHEMA_VERSION) {
       LOG_INFO("Using Flatbuffers serialization");
     } else {
       LOG_INFO("Using JSON serialization");
@@ -102,14 +97,15 @@ void RewindServer::network_loop() {
         try {
           uint32_t bytes = tcp_server_.read_msg(read_buffer_.data(), read_buffer_.size());
 
-          if (schema_version == MESSAGE_SCHEMA_VERSION) {
+          if (schema_version_ == MESSAGE_SCHEMA_VERSION) {
             auto msg = fbs::GetRewindMessage(read_buffer_.data());
             handle_message(msg);
           } else {
             std::string json_message(read_buffer_.begin(), read_buffer_.begin() + bytes);
             rapidjson::Document doc;
             if (doc.Parse(json_message.c_str()).HasParseError()) {
-              LOG_ERROR("JSON parse error: %s %s", rapidjson::GetParseError_En(doc.GetParseError()), json_message.c_str());
+              LOG_ERROR("JSON parse error: %s %s", rapidjson::GetParseError_En(doc.GetParseError()),
+                        json_message.c_str());
             } else {
               handle_message(doc);
             }
@@ -366,6 +362,50 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
       }
       break;
     }
+    case fbs::Command_Subscribe: {
+      LOG_V8("FlatBuffersHandler::SUBSCRIBE");
+      auto subscribe = message->command_as_Subscribe();
+      std::lock_guard<Spinlock> lock(events_mutex_);
+
+      if (events_.count(subscribe->key()) > 0) {
+        LOG_WARN("OVERRIDE EVENT FOR KEY %d", subscribe->key());
+      }
+      if (subscribe->capture_mouse()) {
+        events_[subscribe->key()] =
+            std::make_unique<CursorEvent>(subscribe->name()->str(), subscribe->continuous(),
+                                          subscribe->key(), subscribe->min_position_change());
+
+      } else {
+        events_[subscribe->key()] = std::make_unique<KeyEvent>(
+            subscribe->name()->str(), subscribe->continuous(), subscribe->key());
+      }
+      break;
+    }
+    case fbs::Command_Unsubscribe: {
+      LOG_V8("FlatBuffersHandler::UNSUBSCRIBE");
+      auto unsubscribe = message->command_as_Unsubscribe();
+      std::lock_guard<Spinlock> lock(events_mutex_);
+      events_.erase(unsubscribe->key());
+      break;
+    }
+    case fbs::Command_ReadEvents: {
+      LOG_V8("FlatBuffersHandler::READ_EVENTS");
+      std::lock_guard<Spinlock> lock(events_mutex_);
+      fbs_builder_.Clear();
+      std::vector<flatbuffers::Offset<rewind_viewer::fbs::RewindEvent>> event_offsets;
+      for (const auto& [_, event] : events_) {
+        if (event->is_triggered()) {
+          event_offsets.push_back(event->serialize(fbs_builder_));
+          event->reset_state();
+        }
+      }
+
+      auto events_vector = fbs_builder_.CreateVector(event_offsets);
+      auto event_list = rewind_viewer::fbs::CreateRewindEventList(fbs_builder_, events_vector);
+      fbs_builder_.Finish(event_list);
+      tcp_server_.send_msg(fbs_builder_.GetBufferPointer(), fbs_builder_.GetSize());
+      break;
+    }
     default: {
       LOG_ERROR("Unknown command type");
       break;
@@ -402,7 +442,8 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
       auto color_obj = data_obj["c"].GetObject();
       uint32_t color = color_obj["v"].GetUint();
       bool fill = color_obj["f"].GetBool();
-      draw_frame->layer_primitives(layer_id_)->add_circle(center, radius, convert_color(color), fill);
+      draw_frame->layer_primitives(layer_id_)->add_circle(center, radius, convert_color(color),
+                                                          fill);
     }
   } else if (cmd_type == "CS") {
     LOG_V8("JSONHandler::CIRCLE_SEGMENT");
@@ -411,15 +452,18 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
     float start_angle = data_obj["sa"].GetFloat();
     float end_angle = data_obj["ea"].GetFloat();
     if (radius <= 0.0f) {
-      throw std::runtime_error("Circle segment radius should be positive, got " + std::to_string(radius));
+      throw std::runtime_error("Circle segment radius should be positive, got " +
+                               std::to_string(radius));
     }
     if (!data_obj.HasMember("c")) {
-      draw_frame->layer_primitives(layer_id_)->add_stencil_segment(center, radius, start_angle, end_angle);
+      draw_frame->layer_primitives(layer_id_)->add_stencil_segment(center, radius, start_angle,
+                                                                   end_angle);
     } else {
       auto color_obj = data_obj["c"].GetObject();
       uint32_t color = color_obj["v"].GetUint();
       bool fill = color_obj["f"].GetBool();
-      draw_frame->layer_primitives(layer_id_)->add_segment(center, radius, start_angle, end_angle, convert_color(color), fill);
+      draw_frame->layer_primitives(layer_id_)->add_segment(center, radius, start_angle, end_angle,
+                                                           convert_color(color), fill);
     }
   } else if (cmd_type == "A") {
     LOG_V8("JSONHandler::ARC");
@@ -431,36 +475,42 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
       throw std::runtime_error("Arc radius should be positive, got " + std::to_string(radius));
     }
     if (!data_obj.HasMember("c")) {
-      draw_frame->layer_primitives(layer_id_)->add_stencil_arc(center, radius, start_angle, end_angle);
+      draw_frame->layer_primitives(layer_id_)->add_stencil_arc(center, radius, start_angle,
+                                                               end_angle);
     } else {
       auto color_obj = data_obj["c"].GetObject();
       uint32_t color = color_obj["v"].GetUint();
       bool fill = color_obj["f"].GetBool();
-      draw_frame->layer_primitives(layer_id_)->add_arc(center, radius, start_angle, end_angle, convert_color(color), fill);
+      draw_frame->layer_primitives(layer_id_)->add_arc(center, radius, start_angle, end_angle,
+                                                       convert_color(color), fill);
     }
   } else if (cmd_type == "TR") {
     LOG_V8("JSONHandler::TRIANGLE");
     const auto& points_array = data_obj["pts"].GetArray();
     if (points_array.Size() != 3) {
-      throw std::runtime_error("Triangle expects exactly 3 points, got " + std::to_string(points_array.Size()));
+      throw std::runtime_error("Triangle expects exactly 3 points, got " +
+                               std::to_string(points_array.Size()));
     }
     std::vector<glm::vec2> points;
     for (const auto& p : points_array) {
       points.emplace_back(p["x"].GetFloat(), p["y"].GetFloat());
     }
     if (!data_obj.HasMember("c")) {
-      draw_frame->layer_primitives(layer_id_)->add_stencil_triangle(points[0], points[1], points[2]);
+      draw_frame->layer_primitives(layer_id_)->add_stencil_triangle(points[0], points[1],
+                                                                    points[2]);
     } else {
       auto color_obj = data_obj["c"].GetObject();
       uint32_t color = color_obj["v"].GetUint();
       bool fill = color_obj["f"].GetBool();
-      draw_frame->layer_primitives(layer_id_)->add_triangle(points[0], points[1], points[2], convert_color(color), fill);
+      draw_frame->layer_primitives(layer_id_)->add_triangle(points[0], points[1], points[2],
+                                                            convert_color(color), fill);
     }
   } else if (cmd_type == "P") {
     LOG_V8("JSONHandler::POLYLINE");
     const auto& points_array = data_obj["pts"].GetArray();
     if (points_array.Size() < 2) {
-      throw std::runtime_error("Polyline expects 2 or more points, got " + std::to_string(points_array.Size()));
+      throw std::runtime_error("Polyline expects 2 or more points, got " +
+                               std::to_string(points_array.Size()));
     }
     if (!data_obj.HasMember("c")) {
       throw std::runtime_error("Polyline is not supported as a mask for now");
@@ -484,7 +534,8 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
       throw std::runtime_error("Rectangle width should be positive, got " + std::to_string(size.x));
     }
     if (size.y <= 0.0f) {
-      throw std::runtime_error("Rectangle height should be positive, got " + std::to_string(size.y));
+      throw std::runtime_error("Rectangle height should be positive, got " +
+                               std::to_string(size.y));
     }
     glm::vec2 top_left = position;
     glm::vec2 bottom_right{top_left.x + size.x, top_left.y + size.y};
@@ -495,17 +546,20 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
       auto color_obj = data_obj["c"].GetObject();
       uint32_t color = color_obj["v"].GetUint();
       bool fill = color_obj["f"].GetBool();
-      draw_frame->layer_primitives(layer_id_)->add_rectangle(top_left, bottom_right, convert_color(color), fill);
+      draw_frame->layer_primitives(layer_id_)->add_rectangle(top_left, bottom_right,
+                                                             convert_color(color), fill);
     }
   } else if (cmd_type == "PP") {
     LOG_V8("JSONHandler::POPUP");
     glm::vec2 area_position{data_obj["ap"]["x"].GetFloat(), data_obj["ap"]["y"].GetFloat()};
     glm::vec2 area_size{data_obj["as"]["x"].GetFloat(), data_obj["as"]["y"].GetFloat()};
     if (area_size.x <= 0.0f) {
-      throw std::runtime_error("Popup area width should be positive, got " + std::to_string(area_size.x));
+      throw std::runtime_error("Popup area width should be positive, got " +
+                               std::to_string(area_size.x));
     }
     if (area_size.y <= 0.0f) {
-      throw std::runtime_error("Popup area height should be positive, got " + std::to_string(area_size.y));
+      throw std::runtime_error("Popup area height should be positive, got " +
+                               std::to_string(area_size.y));
     }
     std::string text = data_obj["t"].GetString();
     frame->add_box_popup(layer_id_, area_position + 0.5f * area_size, area_size, text);
@@ -514,7 +568,8 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
     glm::vec2 area_center{data_obj["ac"]["x"].GetFloat(), data_obj["ac"]["y"].GetFloat()};
     float area_radius = data_obj["r"].GetFloat();
     if (area_radius <= 0.0f) {
-      throw std::runtime_error("Popup area radius should be positive, got " + std::to_string(area_radius));
+      throw std::runtime_error("Popup area radius should be positive, got " +
+                               std::to_string(area_radius));
     }
     std::string text = data_obj["t"].GetString();
     frame->add_round_popup(layer_id_, area_center, area_radius, text);
@@ -583,6 +638,50 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
         position.x += cell.x;
       }
     }
+  } else if (cmd_type == "S") {
+    LOG_V8("JSONHandler::SUBSCRIBE");
+    std::lock_guard<Spinlock> lock(events_mutex_);
+    bool continuous = data_obj.HasMember("c") && data_obj["c"].GetBool();
+    char key = static_cast<char>(data_obj["k"].GetInt());
+    std::string name = data_obj["n"].GetString();
+    if (events_.count(key) > 0) {
+      LOG_WARN("OVERRIDE EVENT FOR KEY %d", key);
+    }
+    if (data_obj["cm"].GetBool()) {
+      if (data_obj.HasMember("mpc")) {
+        double min_position_change = data_obj["mpc"].GetFloat();
+        events_[key] = std::make_unique<CursorEvent>(name, continuous, key, min_position_change);
+      } else {
+        events_[key] = std::make_unique<CursorEvent>(name, continuous, key);
+      }
+    } else {
+      events_[key] = std::make_unique<KeyEvent>(name, continuous, key);
+    }
+  } else if (cmd_type == "US") {
+    LOG_V8("JSONHandler::UNSUBSCRIBE");
+    std::lock_guard<Spinlock> lock(events_mutex_);
+    events_.erase(static_cast<char>(data_obj["k"].GetInt()));
+  } else if (cmd_type == "RE") {
+    LOG_V8("JSONHandler::READ_EVENTS");
+    std::lock_guard<Spinlock> lock(events_mutex_);
+
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    writer.StartObject();
+    writer.Key("events");
+    writer.StartArray();
+
+    for (const auto& [_, event] : events_) {
+      if (event->is_triggered()) {
+        event->serialize(writer);
+        event->reset_state();
+      }
+    }
+
+    writer.EndArray();
+    writer.EndObject();
+
+    tcp_server_.send_msg(reinterpret_cast<const uint8_t*>(buffer.GetString()), static_cast<uint32_t>(buffer.GetSize()));
   } else {
     LOG_ERROR("Unknown command type");
   }

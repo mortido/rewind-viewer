@@ -15,12 +15,15 @@ public final class Command {
   public static final byte Polyline = 7;
   public static final byte Popup = 8;
   public static final byte PopupRound = 9;
-  public static final byte Rectangle = 10;
-  public static final byte Tiles = 11;
-  public static final byte Triangle = 12;
-  public static final byte EndFrame = 13;
+  public static final byte ReadEvents = 10;
+  public static final byte Rectangle = 11;
+  public static final byte Subscribe = 12;
+  public static final byte Tiles = 13;
+  public static final byte Triangle = 14;
+  public static final byte Unsubscribe = 15;
+  public static final byte EndFrame = 16;
 
-  public static final String[] names = { "NONE", "Arc", "CameraView", "Circle", "CircleSegment", "LogText", "Options", "Polyline", "Popup", "PopupRound", "Rectangle", "Tiles", "Triangle", "EndFrame", };
+  public static final String[] names = { "NONE", "Arc", "CameraView", "Circle", "CircleSegment", "LogText", "Options", "Polyline", "Popup", "PopupRound", "ReadEvents", "Rectangle", "Subscribe", "Tiles", "Triangle", "Unsubscribe", "EndFrame", };
 
   public static String name(int e) { return names[e]; }
 }

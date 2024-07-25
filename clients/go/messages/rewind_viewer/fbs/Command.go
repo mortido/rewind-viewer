@@ -17,10 +17,13 @@ const (
 	CommandPolyline      Command = 7
 	CommandPopup         Command = 8
 	CommandPopupRound    Command = 9
-	CommandRectangle     Command = 10
-	CommandTiles         Command = 11
-	CommandTriangle      Command = 12
-	CommandEndFrame      Command = 13
+	CommandReadEvents    Command = 10
+	CommandRectangle     Command = 11
+	CommandSubscribe     Command = 12
+	CommandTiles         Command = 13
+	CommandTriangle      Command = 14
+	CommandUnsubscribe   Command = 15
+	CommandEndFrame      Command = 16
 )
 
 var EnumNamesCommand = map[Command]string{
@@ -34,9 +37,12 @@ var EnumNamesCommand = map[Command]string{
 	CommandPolyline:      "Polyline",
 	CommandPopup:         "Popup",
 	CommandPopupRound:    "PopupRound",
+	CommandReadEvents:    "ReadEvents",
 	CommandRectangle:     "Rectangle",
+	CommandSubscribe:     "Subscribe",
 	CommandTiles:         "Tiles",
 	CommandTriangle:      "Triangle",
+	CommandUnsubscribe:   "Unsubscribe",
 	CommandEndFrame:      "EndFrame",
 }
 
@@ -51,9 +57,12 @@ var EnumValuesCommand = map[string]Command{
 	"Polyline":      CommandPolyline,
 	"Popup":         CommandPopup,
 	"PopupRound":    CommandPopupRound,
+	"ReadEvents":    CommandReadEvents,
 	"Rectangle":     CommandRectangle,
+	"Subscribe":     CommandSubscribe,
 	"Tiles":         CommandTiles,
 	"Triangle":      CommandTriangle,
+	"Unsubscribe":   CommandUnsubscribe,
 	"EndFrame":      CommandEndFrame,
 }
 

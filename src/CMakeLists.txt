@@ -27,7 +27,8 @@ set(SOURCES
 
         net/rewind_server.cpp
         net/tcp_server.cpp
-        )
+
+        net/events.h)
 
 #set(MACOSX_BUNDLE_BUNDLE_NAME "MyApp")
 #set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.example.myapp")
@@ -45,7 +46,9 @@ add_dependencies(${APP_NAME} CopyResources)
 target_include_directories(${APP_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_definitions(${APP_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)
 
-target_link_libraries(${APP_NAME} Glad glfw glm ImGui stb_image clsocket loguru flatbuffers rapidjson rapidyaml)
+target_link_libraries(${APP_NAME} Glad glfw glm ImGui stb_image clsocket loguru flatbuffers rapidjson rapidyaml
+        #        nativefiledialog
+        )
 
 set_target_properties(${APP_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
@@ -55,5 +58,5 @@ endif ()
 
 if (MSVC)
     target_compile_options(${APP_NAME} PUBLIC "/Zc:__cplusplus")
-endif()
+endif ()
 

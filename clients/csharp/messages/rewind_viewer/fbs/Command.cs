@@ -17,10 +17,13 @@ public enum Command : byte
   Polyline = 7,
   Popup = 8,
   PopupRound = 9,
-  Rectangle = 10,
-  Tiles = 11,
-  Triangle = 12,
-  EndFrame = 13,
+  ReadEvents = 10,
+  Rectangle = 11,
+  Subscribe = 12,
+  Tiles = 13,
+  Triangle = 14,
+  Unsubscribe = 15,
+  EndFrame = 16,
 };
 
 
@@ -59,14 +62,23 @@ static public class CommandVerify
       case Command.PopupRound:
         result = rewind_viewer.fbs.PopupRoundVerify.Verify(verifier, tablePos);
         break;
+      case Command.ReadEvents:
+        result = rewind_viewer.fbs.ReadEventsVerify.Verify(verifier, tablePos);
+        break;
       case Command.Rectangle:
         result = rewind_viewer.fbs.RectangleVerify.Verify(verifier, tablePos);
+        break;
+      case Command.Subscribe:
+        result = rewind_viewer.fbs.SubscribeVerify.Verify(verifier, tablePos);
         break;
       case Command.Tiles:
         result = rewind_viewer.fbs.TilesVerify.Verify(verifier, tablePos);
         break;
       case Command.Triangle:
         result = rewind_viewer.fbs.TriangleVerify.Verify(verifier, tablePos);
+        break;
+      case Command.Unsubscribe:
+        result = rewind_viewer.fbs.UnsubscribeVerify.Verify(verifier, tablePos);
         break;
       case Command.EndFrame:
         result = rewind_viewer.fbs.EndFrameVerify.Verify(verifier, tablePos);
