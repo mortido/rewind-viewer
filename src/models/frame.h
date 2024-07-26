@@ -2,10 +2,12 @@
 
 #include <array>
 #include <map>
+#include <memory>
 #include <vector>
 
 #include "common/lock.h"
 #include "gl/primitives_collection.h"
+#include "gl/renderer.h"
 #include "models/camera.h"
 #include "models/popup.h"
 
@@ -17,11 +19,26 @@ class Frame {
   using PrimitivesT = std::array<gl::PrimitivesCollection, LAYERS_COUNT>;
 
   void transfer_from(Frame &other);
-  ScopeLockedRefWrapper<const PrimitivesT, Spinlock> all_primitives() const;
-  ScopeLockedRefWrapper<gl::PrimitivesCollection, Spinlock> layer_primitives(size_t layer);
+  const PrimitivesT& all_primitives() const;
+  gl::PrimitivesCollection& layer_primitives(size_t layer);
+
+  Frame() : primitives_{std::make_shared<gl::PrimitivesStorage>()} {
+    for (size_t i = 0; i < LAYERS_COUNT; i++) {
+      contexts_[i].buffer = primitives_;
+    }
+  }
+
+  void lock() {
+    mutex_.lock();
+  }
+
+  void unlock() {
+    mutex_.unlock();
+  }
 
  protected:
   mutable Spinlock mutex_;
+  std::shared_ptr<gl::PrimitivesStorage> primitives_;
   PrimitivesT contexts_;
 };
 

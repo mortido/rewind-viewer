@@ -6,28 +6,13 @@
 
 namespace {
 
-void normalize(glm::vec2& min_corner, glm::vec2& max_corner) {
+void fix_AABB(glm::vec2& min_corner, glm::vec2& max_corner) {
   if (min_corner.x > max_corner.x) {
     std::swap(min_corner.x, max_corner.x);
   }
   if (min_corner.y > max_corner.y) {
     std::swap(min_corner.y, max_corner.y);
   }
-}
-
-glm::vec4 convert_color(uint32_t value) {
-  glm::vec4 result;
-  result.r = static_cast<float>((value & 0xFF0000) >> 16) / 255.0f;
-  result.g = static_cast<float>((value & 0x00FF00) >> 8) / 255.0f;
-  result.b = static_cast<float>((value & 0x0000FF)) / 255.0f;
-
-  uint8_t alpha = ((value & 0xFF000000) >> 24);
-  if (alpha > 0) {
-    result.a = static_cast<float>(alpha) / 255.0f;
-  } else {
-    result.a = 1.0f;
-  }
-  return result;
 }
 
 }  // namespace
@@ -141,13 +126,14 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
         throw ParsingError{"Circle radius should be positive, got " +
                            std::to_string(circle->radius())};
       }
+      std::lock_guard lock(*draw_frame);
       if (circle->color() == nullptr) {
-        draw_frame->layer_primitives(layer_id_)->add_stencil_circle(
+        draw_frame->layer_primitives(layer_id_).add_stencil_circle(
             {circle->center()->x(), circle->center()->y()}, circle->radius());
       } else {
-        draw_frame->layer_primitives(layer_id_)->add_circle(
+        draw_frame->layer_primitives(layer_id_).add_circle(
             {circle->center()->x(), circle->center()->y()}, circle->radius(),
-            convert_color(circle->color()->value()), circle->color()->fill());
+            circle->color()->value(), circle->color()->fill());
       }
       break;
     }
@@ -158,14 +144,15 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
         throw ParsingError{"Circle segment radius should be positive, got " +
                            std::to_string(segment->radius())};
       }
+      std::lock_guard lock(*draw_frame);
       if (segment->color() == nullptr) {
-        draw_frame->layer_primitives(layer_id_)->add_stencil_segment(
+        draw_frame->layer_primitives(layer_id_).add_stencil_segment(
             {segment->center()->x(), segment->center()->y()}, segment->radius(),
             segment->start_angle(), segment->end_angle());
       } else {
-        draw_frame->layer_primitives(layer_id_)->add_segment(
+        draw_frame->layer_primitives(layer_id_).add_segment(
             {segment->center()->x(), segment->center()->y()}, segment->radius(),
-            segment->start_angle(), segment->end_angle(), convert_color(segment->color()->value()),
+            segment->start_angle(), segment->end_angle(), segment->color()->value(),
             segment->color()->fill());
       }
       break;
@@ -176,14 +163,15 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
       if (arc->radius() <= 0.0) {
         throw ParsingError{"Arc radius should be positive, got " + std::to_string(arc->radius())};
       }
+      std::lock_guard lock(*draw_frame);
       if (arc->color() == nullptr) {
-        draw_frame->layer_primitives(layer_id_)->add_stencil_arc(
+        draw_frame->layer_primitives(layer_id_).add_stencil_arc(
             {arc->center()->x(), arc->center()->y()}, arc->radius(), arc->start_angle(),
             arc->end_angle());
       } else {
-        draw_frame->layer_primitives(layer_id_)->add_arc(
+        draw_frame->layer_primitives(layer_id_).add_arc(
             {arc->center()->x(), arc->center()->y()}, arc->radius(), arc->start_angle(),
-            arc->end_angle(), convert_color(arc->color()->value()), arc->color()->fill());
+            arc->end_angle(), arc->color()->value(), arc->color()->fill());
       }
       break;
     }
@@ -198,14 +186,14 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
       for (auto p : *triangle->points()) {
         points.emplace_back(p->x(), p->y());
       }
+      std::lock_guard lock(*draw_frame);
       if (triangle->color() == nullptr) {
-        draw_frame->layer_primitives(layer_id_)->add_stencil_triangle(points[0], points[1],
+        draw_frame->layer_primitives(layer_id_).add_stencil_triangle(points[0], points[1],
                                                                       points[2]);
       } else {
         // TODO: support for gradient colors
-        draw_frame->layer_primitives(layer_id_)->add_triangle(
-            points[0], points[1], points[2], convert_color(triangle->color()->value()),
-            triangle->color()->fill());
+        draw_frame->layer_primitives(layer_id_).add_triangle(
+            points[0], points[1], points[2], triangle->color()->value(), triangle->color()->fill());
       }
       break;
     }
@@ -226,8 +214,8 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
       for (auto p : *polyline->points()) {
         points.emplace_back(p->x(), p->y());
       }
-      draw_frame->layer_primitives(layer_id_)->add_polyline(
-          points, convert_color(polyline->color()->value()));
+      std::lock_guard lock(*draw_frame);
+      draw_frame->layer_primitives(layer_id_).add_polyline(points, polyline->color()->value());
       break;
     }
     case fbs::Command_Rectangle: {
@@ -244,14 +232,13 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
       glm::vec2 top_left{rectangle->position()->x(), rectangle->position()->y()};
       glm::vec2 bottom_right{top_left.x + rectangle->size()->x(),
                              top_left.y + rectangle->size()->y()};
-      normalize(top_left, bottom_right);
+      fix_AABB(top_left, bottom_right);
+      std::lock_guard lock(*draw_frame);
       if (rectangle->color() == nullptr) {
-        draw_frame->layer_primitives(layer_id_)->add_stencil_rectangle(top_left, bottom_right);
+        draw_frame->layer_primitives(layer_id_).add_stencil_rectangle(top_left, bottom_right);
       } else {
-        // TODO: support for gradient colors
-        draw_frame->layer_primitives(layer_id_)->add_rectangle(
-            top_left, bottom_right, convert_color(rectangle->color()->value()),
-            rectangle->color()->fill());
+        draw_frame->layer_primitives(layer_id_).add_rectangle(
+            top_left, bottom_right, rectangle->color()->value(), rectangle->color()->fill());
       }
       break;
     }
@@ -266,6 +253,7 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
         throw ParsingError{"Popup area height should be positive, got " +
                            std::to_string(popup->area_size()->y())};
       }
+
       frame->add_box_popup(layer_id_,
                            {popup->area_position()->x() + 0.5 * popup->area_size()->x(),
                             popup->area_position()->y() + 0.5 * popup->area_size()->y()},
@@ -280,6 +268,7 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
         throw ParsingError{"Popup area radius should be positive, got " +
                            std::to_string(popup->area_radius())};
       }
+
       frame->add_round_popup(layer_id_, {popup->area_center()->x(), popup->area_center()->y()},
                              popup->area_radius(), popup->text()->str());
       break;
@@ -290,6 +279,7 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
       models::CameraView cam_view{
           {cam_view_msg->position()->x(), cam_view_msg->position()->y()},
           {cam_view_msg->view_radius() * 2.0f, cam_view_msg->view_radius() * 2.0f}};
+
       frame->add_camera_view(cam_view_msg->name()->str(), cam_view);
       break;
     }
@@ -325,6 +315,7 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
     case fbs::Command_LogText: {
       LOG_V8("FlatBuffersHandler::LOG_TEXT");
       auto logText = message->command_as_LogText();
+
       frame->add_user_text(logText->text()->str());
       break;
     }
@@ -346,11 +337,12 @@ void RewindServer::handle_message(const fbs::RewindMessage* message) {
       if (row_size == 0) {
         throw ParsingError{"Tiles row size should be greater than 0"};
       }
-      auto primitives = draw_frame->layer_primitives(layer_id_);
+      std::lock_guard lock(*draw_frame);
+      auto& primitives = draw_frame->layer_primitives(layer_id_);
       size_t i = 0;
       for (auto color : *tiles->colors()) {
         if (color & 0xFF000000) {  // Ignore transparent
-          primitives->add_rectangle(position, position + cell, convert_color(color), true);
+          primitives.add_rectangle(position, position + cell, color, true);
         }
         if (++i == row_size) {
           i = 0;
@@ -436,14 +428,14 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
     if (radius <= 0.0f) {
       throw std::runtime_error("Circle radius should be positive, got " + std::to_string(radius));
     }
+    std::lock_guard lock(*draw_frame);
     if (!data_obj.HasMember("c")) {
-      draw_frame->layer_primitives(layer_id_)->add_stencil_circle(center, radius);
+      draw_frame->layer_primitives(layer_id_).add_stencil_circle(center, radius);
     } else {
       auto color_obj = data_obj["c"].GetObject();
       uint32_t color = color_obj["v"].GetUint();
       bool fill = color_obj["f"].GetBool();
-      draw_frame->layer_primitives(layer_id_)->add_circle(center, radius, convert_color(color),
-                                                          fill);
+      draw_frame->layer_primitives(layer_id_).add_circle(center, radius, color, fill);
     }
   } else if (cmd_type == "CS") {
     LOG_V8("JSONHandler::CIRCLE_SEGMENT");
@@ -455,15 +447,16 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
       throw std::runtime_error("Circle segment radius should be positive, got " +
                                std::to_string(radius));
     }
+    std::lock_guard lock(*draw_frame);
     if (!data_obj.HasMember("c")) {
-      draw_frame->layer_primitives(layer_id_)->add_stencil_segment(center, radius, start_angle,
+      draw_frame->layer_primitives(layer_id_).add_stencil_segment(center, radius, start_angle,
                                                                    end_angle);
     } else {
       auto color_obj = data_obj["c"].GetObject();
       uint32_t color = color_obj["v"].GetUint();
       bool fill = color_obj["f"].GetBool();
-      draw_frame->layer_primitives(layer_id_)->add_segment(center, radius, start_angle, end_angle,
-                                                           convert_color(color), fill);
+      draw_frame->layer_primitives(layer_id_).add_segment(center, radius, start_angle, end_angle,
+                                                           color, fill);
     }
   } else if (cmd_type == "A") {
     LOG_V8("JSONHandler::ARC");
@@ -474,15 +467,16 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
     if (radius <= 0.0f) {
       throw std::runtime_error("Arc radius should be positive, got " + std::to_string(radius));
     }
+    std::lock_guard lock(*draw_frame);
     if (!data_obj.HasMember("c")) {
-      draw_frame->layer_primitives(layer_id_)->add_stencil_arc(center, radius, start_angle,
+      draw_frame->layer_primitives(layer_id_).add_stencil_arc(center, radius, start_angle,
                                                                end_angle);
     } else {
       auto color_obj = data_obj["c"].GetObject();
       uint32_t color = color_obj["v"].GetUint();
       bool fill = color_obj["f"].GetBool();
-      draw_frame->layer_primitives(layer_id_)->add_arc(center, radius, start_angle, end_angle,
-                                                       convert_color(color), fill);
+      draw_frame->layer_primitives(layer_id_).add_arc(center, radius, start_angle, end_angle,
+                                                       color, fill);
     }
   } else if (cmd_type == "TR") {
     LOG_V8("JSONHandler::TRIANGLE");
@@ -495,15 +489,16 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
     for (const auto& p : points_array) {
       points.emplace_back(p["x"].GetFloat(), p["y"].GetFloat());
     }
+    std::lock_guard lock(*draw_frame);
     if (!data_obj.HasMember("c")) {
-      draw_frame->layer_primitives(layer_id_)->add_stencil_triangle(points[0], points[1],
+      draw_frame->layer_primitives(layer_id_).add_stencil_triangle(points[0], points[1],
                                                                     points[2]);
     } else {
       auto color_obj = data_obj["c"].GetObject();
       uint32_t color = color_obj["v"].GetUint();
       bool fill = color_obj["f"].GetBool();
-      draw_frame->layer_primitives(layer_id_)->add_triangle(points[0], points[1], points[2],
-                                                            convert_color(color), fill);
+      draw_frame->layer_primitives(layer_id_).add_triangle(points[0], points[1], points[2], color,
+                                                            fill);
     }
   } else if (cmd_type == "P") {
     LOG_V8("JSONHandler::POLYLINE");
@@ -525,7 +520,8 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
     for (const auto& p : points_array) {
       points.emplace_back(p["x"].GetFloat(), p["y"].GetFloat());
     }
-    draw_frame->layer_primitives(layer_id_)->add_polyline(points, convert_color(color));
+    std::lock_guard lock(*draw_frame);
+    draw_frame->layer_primitives(layer_id_).add_polyline(points, color);
   } else if (cmd_type == "R") {
     LOG_V8("JSONHandler::RECTANGLE");
     glm::vec2 position{data_obj["p"]["x"].GetFloat(), data_obj["p"]["y"].GetFloat()};
@@ -539,15 +535,15 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
     }
     glm::vec2 top_left = position;
     glm::vec2 bottom_right{top_left.x + size.x, top_left.y + size.y};
-    normalize(top_left, bottom_right);
+    fix_AABB(top_left, bottom_right);
+    std::lock_guard lock(*draw_frame);
     if (!data_obj.HasMember("c")) {
-      draw_frame->layer_primitives(layer_id_)->add_stencil_rectangle(top_left, bottom_right);
+      draw_frame->layer_primitives(layer_id_).add_stencil_rectangle(top_left, bottom_right);
     } else {
       auto color_obj = data_obj["c"].GetObject();
       uint32_t color = color_obj["v"].GetUint();
       bool fill = color_obj["f"].GetBool();
-      draw_frame->layer_primitives(layer_id_)->add_rectangle(top_left, bottom_right,
-                                                             convert_color(color), fill);
+      draw_frame->layer_primitives(layer_id_).add_rectangle(top_left, bottom_right, color, fill);
     }
   } else if (cmd_type == "PP") {
     LOG_V8("JSONHandler::POPUP");
@@ -562,6 +558,7 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
                                std::to_string(area_size.y));
     }
     std::string text = data_obj["t"].GetString();
+
     frame->add_box_popup(layer_id_, area_position + 0.5f * area_size, area_size, text);
   } else if (cmd_type == "PR") {
     LOG_V8("JSONHandler::POPUP_ROUND");
@@ -572,12 +569,14 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
                                std::to_string(area_radius));
     }
     std::string text = data_obj["t"].GetString();
+
     frame->add_round_popup(layer_id_, area_center, area_radius, text);
   } else if (cmd_type == "CV") {
     LOG_V8("JSONHandler::CAMERA_VIEW");
     glm::vec2 position{data_obj["p"]["x"].GetFloat(), data_obj["p"]["y"].GetFloat()};
     float view_radius = data_obj["vr"].GetFloat();
     models::CameraView cam_view{position, {view_radius * 2.0f, view_radius * 2.0f}};
+
     frame->add_camera_view(data_obj["n"].GetString(), cam_view);
   } else if (cmd_type == "O") {
     LOG_V8("JSONHandler::OPTIONS");
@@ -608,6 +607,7 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
   } else if (cmd_type == "LT") {
     LOG_V8("JSONHandler::LOG_TEXT");
     std::string text = data_obj["t"].GetString();
+
     frame->add_user_text(text);
   } else if (cmd_type == "EF") {
     LOG_V8("JSONHandler::END_FRAME");
@@ -623,12 +623,13 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
     if (row_size == 0) {
       throw std::runtime_error("Tiles row size should be greater than 0");
     }
-    auto primitives = draw_frame->layer_primitives(layer_id_);
+    std::lock_guard lock(*draw_frame);
+    auto& primitives = draw_frame->layer_primitives(layer_id_);
     size_t i = 0;
     for (const auto& color : data_obj["clrs"].GetArray()) {
       uint32_t color_value = color.GetUint();
       if (color_value & 0xFF000000) {  // Ignore transparent
-        primitives->add_rectangle(position, position + cell, convert_color(color_value), true);
+        primitives.add_rectangle(position, position + cell, color_value, true);
       }
       if (++i == row_size) {
         i = 0;
@@ -681,7 +682,8 @@ void RewindServer::handle_message(const rapidjson::Document& doc) {
     writer.EndArray();
     writer.EndObject();
 
-    tcp_server_.send_msg(reinterpret_cast<const uint8_t*>(buffer.GetString()), static_cast<uint32_t>(buffer.GetSize()));
+    tcp_server_.send_msg(reinterpret_cast<const uint8_t*>(buffer.GetString()),
+                         static_cast<uint32_t>(buffer.GetSize()));
   } else {
     LOG_ERROR("Unknown command type");
   }

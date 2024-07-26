@@ -20,6 +20,7 @@ class Renderer {
   void new_frame(const models::Camera &cam);
   void render_canvas(glm::vec3 color);
   void render_grid(glm::vec3 color);
+  void load_primitives(const PrimitivesStorage &storage);
   void render_primitives(const PrimitivesCollection &primitives);
   void update_canvas(const glm::vec2 &position, const glm::vec2 &size, const glm::u16vec2 &cells);
 

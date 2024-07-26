@@ -6,25 +6,27 @@ void Frame::transfer_from(Frame& other) {
   std::lock_guard<Spinlock> lock1(mutex_);
   std::lock_guard<Spinlock> lock2(other.mutex_);
   for (size_t i = 0; i < contexts_.size(); ++i) {
-    contexts_[i].update_from(other.contexts_[i]);
-    other.contexts_[i].clear();
+    contexts_[i].transfer_from(other.contexts_[i]);
   }
+  primitives_->transfer_from(*other.primitives_);
 }
 
-ScopeLockedRefWrapper<const Frame::PrimitivesT, Spinlock> Frame::all_primitives() const {
-  return {contexts_, mutex_};
+const Frame::PrimitivesT& Frame::all_primitives() const {
+  return contexts_;
 }
 
-ScopeLockedRefWrapper<gl::PrimitivesCollection, Spinlock> Frame::layer_primitives(size_t layer) {
+gl::PrimitivesCollection& Frame::layer_primitives(size_t layer) {
   layer = std::min(layer, LAYERS_COUNT - 1ul);
-  return {contexts_[layer], mutex_};
+  return contexts_[layer];
 }
 
 void UIFrame::add_camera_view(const std::string& name, CameraView view) {
+  std::lock_guard<Spinlock> lock(mutex_);
   camera_views_[name] = view;
 }
 
 const std::map<std::string, CameraView>& UIFrame::get_cameras() const {
+  std::lock_guard<Spinlock> lock(mutex_);
   return camera_views_;
 }
 

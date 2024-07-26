@@ -174,34 +174,35 @@ int main(int argc, char *argv[]) {
       plot_x += 1.0;
     }
 
+    rewind_client.set_opacity(0xff);
     rewind_client.set_layer(9, true);
     plot.draw_new(rewind_client, true);
 
     rewind_client.end_frame();
   }
 
-  rewind_client.set_layer(5);
-  Vec2D position{800.0,0.0};
-  for (int i = 0; i < 1000; i++) {
-
-    auto events = rewind_client.read_events<Vec2D>();
-    for (auto &event : events) {
-      if (event.key == 'a') {
-        position.x -= 5.0;
-      } else if (event.key == 'd') {
-        position.x += 5.0;
-      } else if (event.key == 's') {
-        position.y -= 5.0;
-      } else if (event.key == 'w') {
-        position.y += 5.0;
-      }
-    }
-
-    rewind_client.circle(position, 5, orange::OrangeRed, true);
-
-    std::this_thread::sleep_for(50ms);
-    rewind_client.end_frame();
-  }
+//  rewind_client.set_layer(5);
+//  Vec2D position{800.0,0.0};
+//  for (int i = 0; i < 1000; i++) {
+//
+//    auto events = rewind_client.read_events<Vec2D>();
+//    for (auto &event : events) {
+//      if (event.key == 'a') {
+//        position.x -= 5.0;
+//      } else if (event.key == 'd') {
+//        position.x += 5.0;
+//      } else if (event.key == 's') {
+//        position.y -= 5.0;
+//      } else if (event.key == 'w') {
+//        position.y += 5.0;
+//      }
+//    }
+//
+//    rewind_client.circle(position, 5, orange::OrangeRed, true);
+//
+//    std::this_thread::sleep_for(50ms);
+//    rewind_client.end_frame();
+//  }
 
   return EXIT_SUCCESS;
 }

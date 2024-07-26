@@ -75,6 +75,7 @@ void Renderer::update_canvas([[maybe_unused]] const glm::vec2 &position, const g
 
   // TODO: support position for canvas model
   canvas_model = glm::scale(glm::mat4(1.0f), {size, 1.0f});
+  //  canvas_model = glm::translate(canvas_model, {position,1.0});
 
   grid.clear();
   const float step_x = 1.0f / static_cast<float>(cells.x);
@@ -146,30 +147,52 @@ void Renderer::render_grid(glm::vec3 color) {
   glBindVertexArray(0);
 }
 
-void Renderer::render_primitives(const PrimitivesCollection &primitives) {
+void Renderer::load_primitives(const PrimitivesStorage &storage) {
   glCheckError();
+  glBindBuffer(GL_ARRAY_BUFFER, context_.color_vertex_vbo);
+  glBufferData(GL_ARRAY_BUFFER,
+               static_cast<GLsizeiptr>(storage.color_vertexes.size() * sizeof(ColorVertex)),
+               storage.color_vertexes.data(), GL_DYNAMIC_DRAW);
+
+  glBindBuffer(GL_ARRAY_BUFFER, context_.color_circle_vbo);
+  glBufferData(GL_ARRAY_BUFFER,
+               static_cast<GLsizeiptr>(storage.color_circles.size() * sizeof(ColorCircle)),
+               storage.color_circles.data(), GL_DYNAMIC_DRAW);
+
+  glBindBuffer(GL_ARRAY_BUFFER, context_.vertex_vbo);
+  glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(storage.vertexes.size() * sizeof(Vertex)),
+               storage.vertexes.data(), GL_DYNAMIC_DRAW);
+
+  glBindBuffer(GL_ARRAY_BUFFER, context_.circle_vbo);
+  glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(storage.circles.size() * sizeof(Circle)),
+               storage.circles.data(), GL_DYNAMIC_DRAW);
+}
+
+void Renderer::render_primitives(const PrimitivesCollection &primitives) {
+//  glCheckError();
   // glLineWidth(2);
   // glEnable(GL_LINE_SMOOTH);
 
   // Load data
-  glBindBuffer(GL_ARRAY_BUFFER, context_.color_vertex_vbo);
-  glBufferData(GL_ARRAY_BUFFER,
-               static_cast<GLsizeiptr>(primitives.color_vertexes.size() * sizeof(ColorVertex)),
-               primitives.color_vertexes.data(), GL_DYNAMIC_DRAW);
-
-  glBindBuffer(GL_ARRAY_BUFFER, context_.color_circle_vbo);
-  glBufferData(GL_ARRAY_BUFFER,
-               static_cast<GLsizeiptr>(primitives.color_circles.size() * sizeof(ColorCircle)),
-               primitives.color_circles.data(), GL_DYNAMIC_DRAW);
-
-  glBindBuffer(GL_ARRAY_BUFFER, context_.vertex_vbo);
-  glBufferData(GL_ARRAY_BUFFER,
-               static_cast<GLsizeiptr>(primitives.vertexes.size() * sizeof(Vertex)),
-               primitives.vertexes.data(), GL_DYNAMIC_DRAW);
-
-  glBindBuffer(GL_ARRAY_BUFFER, context_.circle_vbo);
-  glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(primitives.circles.size() * sizeof(Circle)),
-               primitives.circles.data(), GL_DYNAMIC_DRAW);
+  //  glBindBuffer(GL_ARRAY_BUFFER, context_.color_vertex_vbo);
+  //  glBufferData(GL_ARRAY_BUFFER,
+  //               static_cast<GLsizeiptr>(primitives.color_vertexes.size() * sizeof(ColorVertex)),
+  //               primitives.color_vertexes.data(), GL_DYNAMIC_DRAW);
+  //
+  //  glBindBuffer(GL_ARRAY_BUFFER, context_.color_circle_vbo);
+  //  glBufferData(GL_ARRAY_BUFFER,
+  //               static_cast<GLsizeiptr>(primitives.color_circles.size() * sizeof(ColorCircle)),
+  //               primitives.color_circles.data(), GL_DYNAMIC_DRAW);
+  //
+  //  glBindBuffer(GL_ARRAY_BUFFER, context_.vertex_vbo);
+  //  glBufferData(GL_ARRAY_BUFFER,
+  //               static_cast<GLsizeiptr>(primitives.vertexes.size() * sizeof(Vertex)),
+  //               primitives.vertexes.data(), GL_DYNAMIC_DRAW);
+  //
+  //  glBindBuffer(GL_ARRAY_BUFFER, context_.circle_vbo);
+  //  glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(primitives.circles.size() *
+  //  sizeof(Circle)),
+  //               primitives.circles.data(), GL_DYNAMIC_DRAW);
 
   // Stencil drawings
   glEnable(GL_STENCIL_TEST);
@@ -180,21 +203,21 @@ void Renderer::render_primitives(const PrimitivesCollection &primitives) {
 
   shaders_.uniform_color.use();
   glBindVertexArray(context_.vertex_vao);
-  load_indices(primitives.stencil_triangle_indices);
-  glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(primitives.stencil_triangle_indices.size()),
+  load_indices(primitives.stencil_triangles);
+  glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(primitives.stencil_triangles.size()),
                  GL_UNSIGNED_INT, nullptr);
 
   shaders_.uniform_color_circle.use();
   shaders_.uniform_color_circle.set_int("is_segment", 0);
   glBindVertexArray(context_.circle_vao);
-  load_indices(primitives.stencil_circle_indices);
-  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.stencil_circle_indices.size()),
+  load_indices(primitives.stencil_circles);
+  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.stencil_circles.size()),
                  GL_UNSIGNED_INT, nullptr);
 
   shaders_.uniform_color_circle.set_int("is_segment", 1);
   glBindVertexArray(context_.circle_vao);
-  load_indices(primitives.stencil_segment_indices);
-  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.stencil_segment_indices.size()),
+  load_indices(primitives.stencil_segments);
+  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.stencil_segments.size()),
                  GL_UNSIGNED_INT, nullptr);
 
   // Normal drawings
@@ -205,31 +228,30 @@ void Renderer::render_primitives(const PrimitivesCollection &primitives) {
   // Simple pass shader - triangles and lines
   shaders_.color_pass.use();
   glBindVertexArray(context_.color_vertex_vao);
-  load_indices(primitives.triangle_indices);
-  glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(primitives.triangle_indices.size()),
-                 GL_UNSIGNED_INT, nullptr);
-
-  load_indices(primitives.line_indices);
-  glDrawElements(GL_LINES, static_cast<GLsizei>(primitives.line_indices.size()), GL_UNSIGNED_INT,
+  load_indices(primitives.triangles);
+  glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(primitives.triangles.size()), GL_UNSIGNED_INT,
                  nullptr);
+
+  load_indices(primitives.lines);
+  glDrawElements(GL_LINES, static_cast<GLsizei>(primitives.lines.size()), GL_UNSIGNED_INT, nullptr);
 
   // Circles shader
   shaders_.color_circle.use();
   glBindVertexArray(context_.color_circle_vao);
   shaders_.color_circle.set_int("is_segment", 0);
   shaders_.color_circle.set_uint("line_width", 1);
-  load_indices(primitives.thin_circle_indices);
-  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.thin_circle_indices.size()),
-                 GL_UNSIGNED_INT, nullptr);
+  load_indices(primitives.thin_circles);
+  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.thin_circles.size()), GL_UNSIGNED_INT,
+                 nullptr);
 
   shaders_.color_circle.set_uint("line_width", 0);
-  load_indices(primitives.filled_circle_indices);
-  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.filled_circle_indices.size()),
-                 GL_UNSIGNED_INT, nullptr);
+  load_indices(primitives.filled_circles);
+  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.filled_circles.size()), GL_UNSIGNED_INT,
+                 nullptr);
 
   shaders_.color_circle.set_int("is_segment", 1);
-  load_indices(primitives.filled_segment_indices);
-  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.filled_segment_indices.size()),
+  load_indices(primitives.filled_segments);
+  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.filled_segments.size()),
                  GL_UNSIGNED_INT, nullptr);
 
   // glLineWidth(1);

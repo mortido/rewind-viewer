@@ -22,14 +22,27 @@ void Scene::render(size_t frame_idx) {
 
   auto [perma_frame, frame] = frames.get_frame(&frame_idx);
   if (frame) {
-    auto perma_frame_primitives = perma_frame->all_primitives();
-    auto frame_primitives = frame->all_primitives();
-    for (size_t idx = 0; idx < Frame::LAYERS_COUNT; ++idx) {
-      if (config_->enabled_permanent_layers[idx]) {
-        renderer_.render_primitives((*perma_frame_primitives)[idx]);
+    {
+      std::lock_guard lock(*frame);
+      auto frame_primitives = frame->all_primitives();
+      renderer_.load_primitives(*frame_primitives[0].buffer);
+
+      for (size_t idx = 0; idx < Frame::LAYERS_COUNT; ++idx) {
+        if (config_->enabled_layers[idx]) {
+          renderer_.render_primitives(frame_primitives[idx]);
+        }
       }
-      if (config_->enabled_layers[idx]) {
-        renderer_.render_primitives((*frame_primitives)[idx]);
+    }
+
+    {
+      std::lock_guard lock(*perma_frame);
+      auto perma_frame_primitives = perma_frame->all_primitives();
+      renderer_.load_primitives(*perma_frame_primitives[0].buffer);
+
+      for (size_t idx = 0; idx < Frame::LAYERS_COUNT; ++idx) {
+        if (config_->enabled_permanent_layers[idx]) {
+          renderer_.render_primitives(perma_frame_primitives[idx]);
+        }
       }
     }
   }

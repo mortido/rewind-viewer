@@ -79,7 +79,7 @@ class RewindClient {
   }
 
   template <typename Vec2T>
-  void circle(const Vec2T &center, double r, uint32_t color, bool fill = false) {
+  void circle(const Vec2T &center, float r, uint32_t color, bool fill = false) {
     builder_.Clear();
     auto color_obj = fbs::CreateColor(builder_, color | opacity_, fill);
     auto center_obj = fbs::Vector2f(static_cast<float>(center.x), static_cast<float>(center.y));
@@ -90,7 +90,7 @@ class RewindClient {
   }
 
   template <typename Vec2T>
-  void arc(const Vec2T &center, double r, double start_angle, double end_angle, uint32_t color,
+  void arc(const Vec2T &center, float r, float start_angle, float end_angle, uint32_t color,
            bool fill = false) {
     builder_.Clear();
     auto color_obj = fbs::CreateColor(builder_, color | opacity_, fill);
@@ -103,7 +103,7 @@ class RewindClient {
   }
 
   template <typename Vec2T>
-  void mask_arc(const Vec2T &center, double r, double start_angle, double end_angle) {
+  void mask_arc(const Vec2T &center, float r, float start_angle, float end_angle) {
     builder_.Clear();
     auto center_obj = fbs::Vector2f(static_cast<float>(center.x), static_cast<float>(center.y));
     auto command = fbs::CreateArc(builder_, 0, &center_obj, static_cast<float>(r),
@@ -114,7 +114,7 @@ class RewindClient {
   }
 
   template <typename Vec2T>
-  void circle_segment(const Vec2T &center, double r, double start_angle, double end_angle,
+  void circle_segment(const Vec2T &center, float r, float start_angle, float end_angle,
                       uint32_t color, bool fill = false) {
     builder_.Clear();
     auto color_obj = fbs::CreateColor(builder_, color | opacity_, fill);
@@ -128,7 +128,7 @@ class RewindClient {
   }
 
   template <typename Vec2T>
-  void mask_circle_segment(const Vec2T &center, double r, double start_angle, double end_angle) {
+  void mask_circle_segment(const Vec2T &center, float r, float start_angle, float end_angle) {
     builder_.Clear();
     auto center_obj = fbs::Vector2f(static_cast<float>(center.x), static_cast<float>(center.y));
     auto command =
@@ -140,7 +140,7 @@ class RewindClient {
   }
 
   template <typename Vec2T>
-  void mask_circle(const Vec2T &center, double r) {
+  void mask_circle(const Vec2T &center, float r) {
     builder_.Clear();
     auto center_obj = fbs::Vector2f(static_cast<float>(center.x), static_cast<float>(center.y));
     auto command = fbs::CreateCircle(builder_, 0, &center_obj, static_cast<float>(r));
@@ -291,7 +291,7 @@ class RewindClient {
   }
 
   template <typename Vec2T, typename... Args>
-  void popup_round(const Vec2T &pos, double r, const char *fmt, Args... args) {
+  void popup_round(const Vec2T &pos, float r, const char *fmt, Args... args) {
     builder_.Clear();
     auto str = builder_.CreateString(format(fmt, args...));
     fbs::Vector2f center_obj{static_cast<float>(pos.x), static_cast<float>(pos.y)};
@@ -314,7 +314,7 @@ class RewindClient {
   }
 
   template <typename Vec2T>
-  void camera_view(const std::string &name, const Vec2T &pos, double r) {
+  void camera_view(const std::string &name, const Vec2T &pos, float r) {
     builder_.Clear();
     auto name_obj = builder_.CreateString(name);
     fbs::Vector2f pos_obj{static_cast<float>(pos.x), static_cast<float>(pos.y)};
@@ -325,7 +325,7 @@ class RewindClient {
   }
 
   void subscribe(const std::string &name, char key, bool continuous, bool capture_mouse,
-                 double min_position_change = -1.0) {
+                 float min_position_change = -1.0) {
     builder_.Clear();
     auto name_obj = builder_.CreateString(name);
     flatbuffers::Offset<fbs::Subscribe> command;

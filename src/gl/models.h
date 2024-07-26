@@ -11,7 +11,7 @@ struct Vertex {
 };
 
 struct ColorVertex {
-  glm::vec4 color;
+  uint32_t color;
   glm::vec2 position;
 };
 
@@ -23,7 +23,7 @@ struct Circle {
 };
 
 struct ColorCircle {
-  glm::vec4 color;
+  uint32_t color;
   glm::vec2 center;
   float radius;
   float start_angle;
