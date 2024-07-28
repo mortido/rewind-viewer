@@ -7,13 +7,15 @@
 #include <rapidjson/writer.h>
 
 #include <exception>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <utility>
 
-#include "net/messages/rewind_event.fbs.h"
+#include "common/lock.h"
+#include "gateway/messages/rewind_event.fbs.h"
 
-namespace rewind_viewer::net {
+namespace rewind_viewer::gateway {
 
 class Event {
  protected:
@@ -61,13 +63,77 @@ class Event {
       , key_char_(key_char) {}
 
   virtual ~Event() = default;
-  virtual bool capture(const glm::vec2& mouse_position) = 0;
+  virtual void capture(const glm::vec2& mouse_position) = 0;
   virtual void reset_state() = 0;
   virtual bool is_triggered() const = 0;
 
   virtual flatbuffers::Offset<rewind_viewer::fbs::RewindEvent> serialize(
       flatbuffers::FlatBufferBuilder& builder) const = 0;
   virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const = 0;
+};
+
+class EventsCollection {
+ public:
+  void capture(const glm::vec2& mouse_position) {
+    std::lock_guard lock(mutex_);
+    for (auto& [_, event] : events_) {
+      event->capture(mouse_position);
+    }
+  }
+
+  std::vector<flatbuffers::Offset<rewind_viewer::fbs::RewindEvent>> serialize(
+      flatbuffers::FlatBufferBuilder& builder) {
+    std::lock_guard lock(mutex_);
+    std::vector<flatbuffers::Offset<rewind_viewer::fbs::RewindEvent>> event_offsets;
+    for (const auto& [_, event] : events_) {
+      if (event->is_triggered()) {
+        event_offsets.push_back(event->serialize(builder));
+      }
+    }
+    return event_offsets;
+  }
+
+  void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) {
+    std::lock_guard lock(mutex_);
+    writer.StartObject();
+    writer.Key("events");
+    writer.StartArray();
+    for (const auto& [_, event] : events_) {
+      if (event->is_triggered()) {
+        event->serialize(writer);
+      }
+    }
+    writer.EndArray();
+    writer.EndObject();
+  }
+
+  void reset() {
+    std::lock_guard lock(mutex_);
+    for (const auto& [_, event] : events_) {
+      if (event->is_triggered()) {
+        event->reset_state();
+      }
+    }
+  }
+
+  void remove(char key) {
+    std::lock_guard lock(mutex_);
+    events_.erase(key);
+  }
+
+  void clear() {
+    std::lock_guard lock(mutex_);
+    events_.clear();
+  }
+
+  void add(char key, std::unique_ptr<gateway::Event> event) {
+    std::lock_guard lock(mutex_);
+    events_.emplace(key, std::move(event));
+  }
+
+ private:
+  mutable Spinlock mutex_;
+  std::map<char, std::unique_ptr<gateway::Event>> events_;
 };
 
 class CursorEvent : public Event {
@@ -79,11 +145,10 @@ class CursorEvent : public Event {
   CursorEvent(std::string name, bool continuous, char key_char, double min_position_change = 1e-3)
       : Event(std::move(name), continuous, key_char), min_position_change_(min_position_change) {}
 
-  bool capture(const glm::vec2& position) override {
+  void capture(const glm::vec2& position) override {
     if (ImGui::IsKeyPressed(key_, !continuous_)) {
       positions_.emplace_back(std::vector<glm::vec2>{position});
       prev_pos_ = position;
-      return true;
     } else if (continuous_ && ImGui::IsKeyDown(key_)) {
       ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
       ImGui::BeginTooltip();
@@ -98,9 +163,7 @@ class CursorEvent : public Event {
         positions_.back().emplace_back(position);
         prev_pos_ = position;
       }
-      return true;
     }
-    return false;
   }
 
   [[nodiscard]] bool is_triggered() const override {
@@ -159,12 +222,10 @@ class KeyEvent : public Event {
   KeyEvent(std::string name, bool continuous, char key_char)
       : Event(std::move(name), continuous, key_char) {}
 
-  bool capture(const glm::vec2&) override {
+  void capture(const glm::vec2&) override {
     if (ImGui::IsKeyPressed(key_, true) || (continuous_ && ImGui::IsKeyDown(key_))) {
       triggered_ = true;
-      return true;
     }
-    return false;
   }
 
   [[nodiscard]] bool is_triggered() const override {
@@ -188,4 +249,4 @@ class KeyEvent : public Event {
   }
 };
 
-}  // namespace rewind_viewer::net
+}  // namespace rewind_viewer::gateway

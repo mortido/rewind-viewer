@@ -143,7 +143,7 @@ impl<'a> flatbuffers::Follow<'a> for RewindEvent<'a> {
 
 impl<'a> RewindEvent<'a> {
   pub const VT_KEY: flatbuffers::VOffsetT = 4;
-  pub const VT_MOUSE_PATH: flatbuffers::VOffsetT = 6;
+  pub const VT_MOUSE_PATHS: flatbuffers::VOffsetT = 6;
 
   #[inline]
   pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
@@ -155,7 +155,7 @@ impl<'a> RewindEvent<'a> {
     args: &'args RewindEventArgs<'args>
   ) -> flatbuffers::WIPOffset<RewindEvent<'bldr>> {
     let mut builder = RewindEventBuilder::new(_fbb);
-    if let Some(x) = args.mouse_path { builder.add_mouse_path(x); }
+    if let Some(x) = args.mouse_paths { builder.add_mouse_paths(x); }
     builder.add_key(args.key);
     builder.finish()
   }
@@ -169,11 +169,11 @@ impl<'a> RewindEvent<'a> {
     unsafe { self._tab.get::<i8>(RewindEvent::VT_KEY, Some(0)).unwrap()}
   }
   #[inline]
-  pub fn mouse_path(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MousePath<'a>>>> {
+  pub fn mouse_paths(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MousePath<'a>>>> {
     // Safety:
     // Created from valid Table for this object
     // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MousePath>>>>(RewindEvent::VT_MOUSE_PATH, None)}
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MousePath>>>>(RewindEvent::VT_MOUSE_PATHS, None)}
   }
 }
 
@@ -185,21 +185,21 @@ impl flatbuffers::Verifiable for RewindEvent<'_> {
     use self::flatbuffers::Verifiable;
     v.visit_table(pos)?
      .visit_field::<i8>("key", Self::VT_KEY, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<MousePath>>>>("mouse_path", Self::VT_MOUSE_PATH, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<MousePath>>>>("mouse_paths", Self::VT_MOUSE_PATHS, false)?
      .finish();
     Ok(())
   }
 }
 pub struct RewindEventArgs<'a> {
     pub key: i8,
-    pub mouse_path: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MousePath<'a>>>>>,
+    pub mouse_paths: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MousePath<'a>>>>>,
 }
 impl<'a> Default for RewindEventArgs<'a> {
   #[inline]
   fn default() -> Self {
     RewindEventArgs {
       key: 0,
-      mouse_path: None,
+      mouse_paths: None,
     }
   }
 }
@@ -214,8 +214,8 @@ impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> RewindEventBuilder<'a, 'b, A> {
     self.fbb_.push_slot::<i8>(RewindEvent::VT_KEY, key, 0);
   }
   #[inline]
-  pub fn add_mouse_path(&mut self, mouse_path: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<MousePath<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(RewindEvent::VT_MOUSE_PATH, mouse_path);
+  pub fn add_mouse_paths(&mut self, mouse_paths: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<MousePath<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(RewindEvent::VT_MOUSE_PATHS, mouse_paths);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> RewindEventBuilder<'a, 'b, A> {
@@ -236,7 +236,7 @@ impl core::fmt::Debug for RewindEvent<'_> {
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
     let mut ds = f.debug_struct("RewindEvent");
       ds.field("key", &self.key());
-      ds.field("mouse_path", &self.mouse_path());
+      ds.field("mouse_paths", &self.mouse_paths());
       ds.finish()
   }
 }

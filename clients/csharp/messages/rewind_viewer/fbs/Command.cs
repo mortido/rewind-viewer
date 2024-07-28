@@ -23,7 +23,8 @@ public enum Command : byte
   Tiles = 13,
   Triangle = 14,
   Unsubscribe = 15,
-  EndFrame = 16,
+  Primitives = 16,
+  EndFrame = 17,
 };
 
 
@@ -79,6 +80,9 @@ static public class CommandVerify
         break;
       case Command.Unsubscribe:
         result = rewind_viewer.fbs.UnsubscribeVerify.Verify(verifier, tablePos);
+        break;
+      case Command.Primitives:
+        result = rewind_viewer.fbs.PrimitivesVerify.Verify(verifier, tablePos);
         break;
       case Command.EndFrame:
         result = rewind_viewer.fbs.EndFrameVerify.Verify(verifier, tablePos);

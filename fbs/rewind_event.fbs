@@ -8,7 +8,7 @@ table MousePath {
 
 table RewindEvent {
   key: byte;
-  mouse_path: [MousePath];
+  mouse_paths: [MousePath];
 }
 
 table RewindEventList {

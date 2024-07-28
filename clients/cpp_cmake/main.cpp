@@ -2,9 +2,9 @@
 #include <random>
 #include <thread>
 
-#include "rewind_viewer/RewindClient.h"
 #include "rewind_viewer/colors.h"
 #include "rewind_viewer/plot.h"
+#include "rewind_viewer/rewind_client.h"
 
 using namespace rewind_viewer::colors;
 using namespace std::chrono_literals;
@@ -71,6 +71,7 @@ int main(int argc, char *argv[]) {
   // Pass it via reference, shared_ptr ot create singleton to access it.
   // Assume rewind viewer is started on the same host with default port.
   rewind_viewer::RewindClient rewind_client("127.0.0.1", 9111);
+//  rewind_viewer::rewind_client rewind_client("example_output.rwn");
   subscribe(rewind_client);
 
   std::random_device rd;
@@ -109,6 +110,7 @@ int main(int argc, char *argv[]) {
   plot.set_axis_color(yellow::LightGoldenrodYellow);
   plot.add_series("value_1", blue::Aquamarine);
   plot.add_series("value_2", orange::OrangeRed);
+  rewind_client.set_layer(9, true);
   plot.draw_axes_lines(rewind_client, Vec2D{-100.0, -50.0}, Vec2D{100.0, 50.0});
 
   double plot_x = -100.0;

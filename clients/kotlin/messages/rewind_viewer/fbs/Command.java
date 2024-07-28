@@ -21,9 +21,10 @@ public final class Command {
   public static final byte Tiles = 13;
   public static final byte Triangle = 14;
   public static final byte Unsubscribe = 15;
-  public static final byte EndFrame = 16;
+  public static final byte Primitives = 16;
+  public static final byte EndFrame = 17;
 
-  public static final String[] names = { "NONE", "Arc", "CameraView", "Circle", "CircleSegment", "LogText", "Options", "Polyline", "Popup", "PopupRound", "ReadEvents", "Rectangle", "Subscribe", "Tiles", "Triangle", "Unsubscribe", "EndFrame", };
+  public static final String[] names = { "NONE", "Arc", "CameraView", "Circle", "CircleSegment", "LogText", "Options", "Polyline", "Popup", "PopupRound", "ReadEvents", "Rectangle", "Subscribe", "Tiles", "Triangle", "Unsubscribe", "Primitives", "EndFrame", };
 
   public static String name(int e) { return names[e]; }
 }

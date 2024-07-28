@@ -53,7 +53,7 @@ func (rcv *RewindEvent) MutateKey(n int8) bool {
 	return rcv._tab.MutateInt8Slot(4, n)
 }
 
-func (rcv *RewindEvent) MousePath(obj *MousePath, j int) bool {
+func (rcv *RewindEvent) MousePaths(obj *MousePath, j int) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
@@ -65,7 +65,7 @@ func (rcv *RewindEvent) MousePath(obj *MousePath, j int) bool {
 	return false
 }
 
-func (rcv *RewindEvent) MousePathLength() int {
+func (rcv *RewindEvent) MousePathsLength() int {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
@@ -79,10 +79,10 @@ func RewindEventStart(builder *flatbuffers.Builder) {
 func RewindEventAddKey(builder *flatbuffers.Builder, key int8) {
 	builder.PrependInt8Slot(0, key, 0)
 }
-func RewindEventAddMousePath(builder *flatbuffers.Builder, mousePath flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(mousePath), 0)
+func RewindEventAddMousePaths(builder *flatbuffers.Builder, mousePaths flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(mousePaths), 0)
 }
-func RewindEventStartMousePathVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+func RewindEventStartMousePathsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func RewindEventEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {

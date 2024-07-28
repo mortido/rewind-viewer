@@ -9,7 +9,7 @@ add_subdirectory(3rdparty/loguru)
 add_subdirectory(3rdparty/rapidjson)
 add_subdirectory(3rdparty/rapidyaml)
 add_subdirectory(3rdparty/flatbuffers)
-#add_subdirectory(3rdparty/nfd)
+add_subdirectory(3rdparty/nfd)
 
 #if(UNIX)
 #    find_library(Glfw_LIBRARY glfw)

@@ -20,6 +20,8 @@ Key differences with original rewind viewer:
  - YAML configuration;
  - UI updates;
  - Updated 3rd party libs;
+ - Even more OpenGL optimizations
+ - Mouse and keyboard events
  - Bugfixes.
 
 Original features:

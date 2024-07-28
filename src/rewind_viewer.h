@@ -6,7 +6,7 @@
 #include "models/camera.h"
 #include "models/config.h"
 #include "models/scene.h"
-#include "net/rewind_server.h"
+#include "gateway/client_gateway.h"
 
 namespace rewind_viewer {
 
@@ -28,7 +28,7 @@ class RewindViewer {
  private:
   models::Config& config_;
   std::shared_ptr<models::Scene> scene_;
-  std::vector<std::unique_ptr<net::RewindServer>> servers_;
+  std::vector<std::unique_ptr<gateway::ClientGateway>> gateways_;
   std::shared_ptr<models::UIFrame> current_frame_;
 
   struct {
@@ -48,6 +48,7 @@ class RewindViewer {
     bool show_style_editor = false;
 
     bool autoplay = false;
+    double last_frame_time = ImGui::GetTime();
     bool ignore_frame_camera_viewport = false;
     bool close_requested = false;
     std::string selected_camera;

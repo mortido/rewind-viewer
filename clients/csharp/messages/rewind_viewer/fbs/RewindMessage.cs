@@ -37,6 +37,7 @@ public struct RewindMessage : IFlatbufferObject
   public rewind_viewer.fbs.Tiles CommandAsTiles() { return Command<rewind_viewer.fbs.Tiles>().Value; }
   public rewind_viewer.fbs.Triangle CommandAsTriangle() { return Command<rewind_viewer.fbs.Triangle>().Value; }
   public rewind_viewer.fbs.Unsubscribe CommandAsUnsubscribe() { return Command<rewind_viewer.fbs.Unsubscribe>().Value; }
+  public rewind_viewer.fbs.Primitives CommandAsPrimitives() { return Command<rewind_viewer.fbs.Primitives>().Value; }
   public rewind_viewer.fbs.EndFrame CommandAsEndFrame() { return Command<rewind_viewer.fbs.EndFrame>().Value; }
 
   public static Offset<rewind_viewer.fbs.RewindMessage> CreateRewindMessage(FlatBufferBuilder builder,

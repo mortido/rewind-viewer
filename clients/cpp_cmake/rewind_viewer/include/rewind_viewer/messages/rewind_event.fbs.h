@@ -82,20 +82,20 @@ struct RewindEvent FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef RewindEventBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_KEY = 4,
-    VT_MOUSE_PATH = 6
+    VT_MOUSE_PATHS = 6
   };
   int8_t key() const {
     return GetField<int8_t>(VT_KEY, 0);
   }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>> *mouse_path() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>> *>(VT_MOUSE_PATH);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>> *mouse_paths() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>> *>(VT_MOUSE_PATHS);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_KEY, 1) &&
-           VerifyOffset(verifier, VT_MOUSE_PATH) &&
-           verifier.VerifyVector(mouse_path()) &&
-           verifier.VerifyVectorOfTables(mouse_path()) &&
+           VerifyOffset(verifier, VT_MOUSE_PATHS) &&
+           verifier.VerifyVector(mouse_paths()) &&
+           verifier.VerifyVectorOfTables(mouse_paths()) &&
            verifier.EndTable();
   }
 };
@@ -107,8 +107,8 @@ struct RewindEventBuilder {
   void add_key(int8_t key) {
     fbb_.AddElement<int8_t>(RewindEvent::VT_KEY, key, 0);
   }
-  void add_mouse_path(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>>> mouse_path) {
-    fbb_.AddOffset(RewindEvent::VT_MOUSE_PATH, mouse_path);
+  void add_mouse_paths(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>>> mouse_paths) {
+    fbb_.AddOffset(RewindEvent::VT_MOUSE_PATHS, mouse_paths);
   }
   explicit RewindEventBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -124,9 +124,9 @@ struct RewindEventBuilder {
 inline ::flatbuffers::Offset<RewindEvent> CreateRewindEvent(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int8_t key = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>>> mouse_path = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>>> mouse_paths = 0) {
   RewindEventBuilder builder_(_fbb);
-  builder_.add_mouse_path(mouse_path);
+  builder_.add_mouse_paths(mouse_paths);
   builder_.add_key(key);
   return builder_.Finish();
 }
@@ -134,12 +134,12 @@ inline ::flatbuffers::Offset<RewindEvent> CreateRewindEvent(
 inline ::flatbuffers::Offset<RewindEvent> CreateRewindEventDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int8_t key = 0,
-    const std::vector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>> *mouse_path = nullptr) {
-  auto mouse_path__ = mouse_path ? _fbb.CreateVector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>>(*mouse_path) : 0;
+    const std::vector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>> *mouse_paths = nullptr) {
+  auto mouse_paths__ = mouse_paths ? _fbb.CreateVector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>>(*mouse_paths) : 0;
   return rewind_viewer::fbs::CreateRewindEvent(
       _fbb,
       key,
-      mouse_path__);
+      mouse_paths__);
 }
 
 struct RewindEventList FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {

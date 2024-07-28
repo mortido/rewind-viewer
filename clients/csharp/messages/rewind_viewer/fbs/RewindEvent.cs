@@ -20,26 +20,26 @@ public struct RewindEvent : IFlatbufferObject
   public RewindEvent __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public sbyte Key { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetSbyte(o + __p.bb_pos) : (sbyte)0; } }
-  public rewind_viewer.fbs.MousePath? MousePath(int j) { int o = __p.__offset(6); return o != 0 ? (rewind_viewer.fbs.MousePath?)(new rewind_viewer.fbs.MousePath()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
-  public int MousePathLength { get { int o = __p.__offset(6); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public rewind_viewer.fbs.MousePath? MousePaths(int j) { int o = __p.__offset(6); return o != 0 ? (rewind_viewer.fbs.MousePath?)(new rewind_viewer.fbs.MousePath()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int MousePathsLength { get { int o = __p.__offset(6); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static Offset<rewind_viewer.fbs.RewindEvent> CreateRewindEvent(FlatBufferBuilder builder,
       sbyte key = 0,
-      VectorOffset mouse_pathOffset = default(VectorOffset)) {
+      VectorOffset mouse_pathsOffset = default(VectorOffset)) {
     builder.StartTable(2);
-    RewindEvent.AddMousePath(builder, mouse_pathOffset);
+    RewindEvent.AddMousePaths(builder, mouse_pathsOffset);
     RewindEvent.AddKey(builder, key);
     return RewindEvent.EndRewindEvent(builder);
   }
 
   public static void StartRewindEvent(FlatBufferBuilder builder) { builder.StartTable(2); }
   public static void AddKey(FlatBufferBuilder builder, sbyte key) { builder.AddSbyte(0, key, 0); }
-  public static void AddMousePath(FlatBufferBuilder builder, VectorOffset mousePathOffset) { builder.AddOffset(1, mousePathOffset.Value, 0); }
-  public static VectorOffset CreateMousePathVector(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.MousePath>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
-  public static VectorOffset CreateMousePathVectorBlock(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.MousePath>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
-  public static VectorOffset CreateMousePathVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<rewind_viewer.fbs.MousePath>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
-  public static VectorOffset CreateMousePathVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<rewind_viewer.fbs.MousePath>>(dataPtr, sizeInBytes); return builder.EndVector(); }
-  public static void StartMousePathVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddMousePaths(FlatBufferBuilder builder, VectorOffset mousePathsOffset) { builder.AddOffset(1, mousePathsOffset.Value, 0); }
+  public static VectorOffset CreateMousePathsVector(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.MousePath>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreateMousePathsVectorBlock(FlatBufferBuilder builder, Offset<rewind_viewer.fbs.MousePath>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateMousePathsVectorBlock(FlatBufferBuilder builder, ArraySegment<Offset<rewind_viewer.fbs.MousePath>> data) { builder.StartVector(4, data.Count, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateMousePathsVectorBlock(FlatBufferBuilder builder, IntPtr dataPtr, int sizeInBytes) { builder.StartVector(1, sizeInBytes, 1); builder.Add<Offset<rewind_viewer.fbs.MousePath>>(dataPtr, sizeInBytes); return builder.EndVector(); }
+  public static void StartMousePathsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static Offset<rewind_viewer.fbs.RewindEvent> EndRewindEvent(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<rewind_viewer.fbs.RewindEvent>(o);
@@ -53,7 +53,7 @@ static public class RewindEventVerify
   {
     return verifier.VerifyTableStart(tablePos)
       && verifier.VerifyField(tablePos, 4 /*Key*/, 1 /*sbyte*/, 1, false)
-      && verifier.VerifyVectorOfTables(tablePos, 6 /*MousePath*/, rewind_viewer.fbs.MousePathVerify.Verify, false)
+      && verifier.VerifyVectorOfTables(tablePos, 6 /*MousePaths*/, rewind_viewer.fbs.MousePathVerify.Verify, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

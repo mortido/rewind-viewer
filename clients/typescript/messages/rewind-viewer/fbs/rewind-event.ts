@@ -30,12 +30,12 @@ key():number {
   return offset ? this.bb!.readInt8(this.bb_pos + offset) : 0;
 }
 
-mousePath(index: number, obj?:MousePath):MousePath|null {
+mousePaths(index: number, obj?:MousePath):MousePath|null {
   const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? (obj || new MousePath()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
-mousePathLength():number {
+mousePathsLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
@@ -48,11 +48,11 @@ static addKey(builder:flatbuffers.Builder, key:number) {
   builder.addFieldInt8(0, key, 0);
 }
 
-static addMousePath(builder:flatbuffers.Builder, mousePathOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(1, mousePathOffset, 0);
+static addMousePaths(builder:flatbuffers.Builder, mousePathsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, mousePathsOffset, 0);
 }
 
-static createMousePathVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+static createMousePathsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addOffset(data[i]!);
@@ -60,7 +60,7 @@ static createMousePathVector(builder:flatbuffers.Builder, data:flatbuffers.Offse
   return builder.endVector();
 }
 
-static startMousePathVector(builder:flatbuffers.Builder, numElems:number) {
+static startMousePathsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
@@ -69,10 +69,10 @@ static endRewindEvent(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createRewindEvent(builder:flatbuffers.Builder, key:number, mousePathOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createRewindEvent(builder:flatbuffers.Builder, key:number, mousePathsOffset:flatbuffers.Offset):flatbuffers.Offset {
   RewindEvent.startRewindEvent(builder);
   RewindEvent.addKey(builder, key);
-  RewindEvent.addMousePath(builder, mousePathOffset);
+  RewindEvent.addMousePaths(builder, mousePathsOffset);
   return RewindEvent.endRewindEvent(builder);
 }
 }

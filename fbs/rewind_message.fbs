@@ -109,6 +109,36 @@ table ReadEvents {
 table EndFrame {
 }
 
+// Internal messages
+
+table ColorPoint {
+  color:uint32;
+  position:Vector2f (required);
+}
+
+table PrimitiveStorage {
+  color_vertexes:[ColorPoint];
+  color_circles:[CircleSegment];
+  vertexes:[Vector2f];
+  circles:[CircleSegment];
+}
+
+table PrimitiveIndices {
+  stencil_circles:[uint32];
+  stencil_segments:[uint32];
+  stencil_triangles:[uint32];
+  filled_circles:[uint32];
+  filled_segments:[uint32];
+  thin_circles:[uint32];
+  triangles:[uint32];
+  lines:[uint32];
+}
+
+table Primitives {
+  storage:PrimitiveStorage (required);
+  indices:[PrimitiveIndices] (required);
+}
+
 union Command {
   Arc,
   CameraView,
@@ -125,7 +155,8 @@ union Command {
   Tiles,
   Triangle,
   Unsubscribe,
-  EndFrame
+  Primitives,
+  EndFrame,
 }
 
 table RewindMessage {

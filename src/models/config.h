@@ -116,6 +116,7 @@ struct UIConfig : public YamlConfig {
   bool update_unfocused = false;
   int utility_width = 300;
   bool buffered_mode = true;
+  int replay_fps = 240;
   glm::vec3 canvas_background_color = {0.2, 0.3, 0.3};
   std::string icon_file = "resources/icon.png";
   std::vector<std::string> font_files = {"resources/fonts/fa-regular-400.ttf",
@@ -140,6 +141,9 @@ struct UIConfig : public YamlConfig {
     }
     if (node.has_child("buffered_mode")) {
       node["buffered_mode"] >> buffered_mode;
+    }
+    if (node.has_child("replay_fps")) {
+      node["replay_fps"] >> replay_fps;
     }
     if (node.has_child("canvas_background_color")) {
       read("canvas_background_color", node["canvas_background_color"], canvas_background_color);
@@ -167,6 +171,7 @@ struct UIConfig : public YamlConfig {
     node["close_with_esc"] << close_with_esc;
     node["update_unfocused"] << update_unfocused;
     node["buffered_mode"] << buffered_mode;
+    node["replay_fps"] << replay_fps;
     write(node["canvas_background_color"], canvas_background_color);
     const char* style_str = "";
     switch (style) {

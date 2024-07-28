@@ -28,26 +28,26 @@ public final class RewindEvent extends Table {
   public RewindEvent __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public byte key() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  public rewind_viewer.fbs.MousePath mousePath(int j) { return mousePath(new rewind_viewer.fbs.MousePath(), j); }
-  public rewind_viewer.fbs.MousePath mousePath(rewind_viewer.fbs.MousePath obj, int j) { int o = __offset(6); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
-  public int mousePathLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
-  public rewind_viewer.fbs.MousePath.Vector mousePathVector() { return mousePathVector(new rewind_viewer.fbs.MousePath.Vector()); }
-  public rewind_viewer.fbs.MousePath.Vector mousePathVector(rewind_viewer.fbs.MousePath.Vector obj) { int o = __offset(6); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
+  public rewind_viewer.fbs.MousePath mousePaths(int j) { return mousePaths(new rewind_viewer.fbs.MousePath(), j); }
+  public rewind_viewer.fbs.MousePath mousePaths(rewind_viewer.fbs.MousePath obj, int j) { int o = __offset(6); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public int mousePathsLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
+  public rewind_viewer.fbs.MousePath.Vector mousePathsVector() { return mousePathsVector(new rewind_viewer.fbs.MousePath.Vector()); }
+  public rewind_viewer.fbs.MousePath.Vector mousePathsVector(rewind_viewer.fbs.MousePath.Vector obj) { int o = __offset(6); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
 
   public static int createRewindEvent(FlatBufferBuilder builder,
       byte key,
-      int mousePathOffset) {
+      int mousePathsOffset) {
     builder.startTable(2);
-    RewindEvent.addMousePath(builder, mousePathOffset);
+    RewindEvent.addMousePaths(builder, mousePathsOffset);
     RewindEvent.addKey(builder, key);
     return RewindEvent.endRewindEvent(builder);
   }
 
   public static void startRewindEvent(FlatBufferBuilder builder) { builder.startTable(2); }
   public static void addKey(FlatBufferBuilder builder, byte key) { builder.addByte(0, key, 0); }
-  public static void addMousePath(FlatBufferBuilder builder, int mousePathOffset) { builder.addOffset(1, mousePathOffset, 0); }
-  public static int createMousePathVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
-  public static void startMousePathVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addMousePaths(FlatBufferBuilder builder, int mousePathsOffset) { builder.addOffset(1, mousePathsOffset, 0); }
+  public static int createMousePathsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
+  public static void startMousePathsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static int endRewindEvent(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;

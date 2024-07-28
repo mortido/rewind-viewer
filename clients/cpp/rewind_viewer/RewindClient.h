@@ -1,16 +1,20 @@
 #pragma once
 #include <cstdio>
+#include <filesystem>
+#include <fstream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include "clsocket/ActiveSocket.h"
 #include "messages/rewind_event.fbs.h"
 #include "messages/rewind_message.fbs.h"
+#include "tcp_client.h"
+#include "utils.h"
 
 namespace rewind_viewer {
 
-constexpr uint16_t MESSAGE_SCHEMA_VERSION = 5;
+constexpr uint16_t MESSAGE_SCHEMA_VERSION = 7;
 
 template <typename Vec2T>
 struct RewindEvent {
@@ -19,29 +23,55 @@ struct RewindEvent {
 };
 
 class RewindClient {
+ private:
+  constexpr static uint64_t MAX_MESSAGE_SIZE = 1024 * 1024;  // 1MB
+
+  flatbuffers::FlatBufferBuilder builder_;
+  std::vector<uint8_t> read_buffer_;
+  uint32_t opacity_{0xFF000000};
+  std::unique_ptr<rewind_viewer::TcpClient> tcp_client_;
+  std::ofstream file_;
+
+  void send(const uint8_t *buf, uint64_t buf_size) {
+    if (buf_size > MAX_MESSAGE_SIZE) {
+      throw std::runtime_error("Rewind message size can't be more than 1MB");
+    }
+    if (file_.is_open()) {
+      file_.write(reinterpret_cast<const char *>(&buf_size), sizeof(buf_size));
+      file_.write(reinterpret_cast<const char *>(buf), static_cast<long>(buf_size));
+    } else {
+      tcp_client_->send_msg(buf, static_cast<uint32_t>(buf_size));
+    }
+  }
+
  public:
   RewindClient(const RewindClient &) = delete;
   RewindClient &operator=(const RewindClient &) = delete;
 
-  RewindClient(const std::string &host, uint16_t port) : read_buffer_(MAX_MESSAGE_SIZE) {
-    socket_.Initialize();
-    socket_.DisableNagleAlgoritm();
-    if (!socket_.Open(host.c_str(), port)) {
-      fprintf(stderr, "RewindClient:: Cannot open viewer socket. Launch viewer before behavior\n");
+  RewindClient(const std::string &host, uint16_t port)
+      : tcp_client_(std::make_unique<rewind_viewer::TcpClient>(host, port))
+      , read_buffer_(MAX_MESSAGE_SIZE) {
+    tcp_client_->connect(MESSAGE_SCHEMA_VERSION);
+  }
+
+  RewindClient(const std::filesystem::path &filename) : read_buffer_(MAX_MESSAGE_SIZE) {
+    if (filename.empty()) {
+      throw std::runtime_error("File path is empty");
     }
-
-    // Could be std::endian::native == std::endian::little in c++20
-    const int32_t value{0x01};
-    const void *address{static_cast<const void *>(&value)};
-    const unsigned char *least_significant_address{static_cast<const unsigned char *>(address)};
-    is_little_endian_ = *least_significant_address == 0x01;
-
-    // Send protocol version 1 time on connection.
-    send_protocol_version();
+    auto parent_path = filename.parent_path();
+    if (!parent_path.empty()) {
+      std::filesystem::create_directories(filename.parent_path());
+    }
+    file_.open(filename, std::ios::binary | std::ios::trunc);
+    if (!file_.is_open()) {
+      throw std::runtime_error("Failed to open file: " + filename.string());
+    }
   }
 
   ~RewindClient() {
-    close();
+    if (tcp_client_) {
+      tcp_client_->disconnect();
+    }
   }
 
   void set_opacity(uint32_t opacity) {
@@ -283,7 +313,7 @@ class RewindClient {
   template <typename... Args>
   void log_text(const char *fmt, Args... args) {
     builder_.Clear();
-    auto str = builder_.CreateString(format(fmt, args...));
+    auto str = builder_.CreateString(str_format(fmt, args...));
     auto command = fbs::CreateLogText(builder_, str);
     auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_LogText, command.Union());
     builder_.Finish(msg);
@@ -293,7 +323,7 @@ class RewindClient {
   template <typename Vec2T, typename... Args>
   void popup_round(const Vec2T &pos, float r, const char *fmt, Args... args) {
     builder_.Clear();
-    auto str = builder_.CreateString(format(fmt, args...));
+    auto str = builder_.CreateString(str_format(fmt, args...));
     fbs::Vector2f center_obj{static_cast<float>(pos.x), static_cast<float>(pos.y)};
     auto command = fbs::CreatePopupRound(builder_, str, &center_obj, r);
     auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_PopupRound, command.Union());
@@ -304,7 +334,7 @@ class RewindClient {
   template <typename Vec2T, typename... Args>
   void popup(const Vec2T &position, const Vec2T &size, const char *fmt, Args... args) {
     builder_.Clear();
-    auto str = builder_.CreateString(format(fmt, args...));
+    auto str = builder_.CreateString(str_format(fmt, args...));
     fbs::Vector2f position_obj{static_cast<float>(position.x), static_cast<float>(position.y)};
     fbs::Vector2f size_obj{static_cast<float>(size.x), static_cast<float>(size.y)};
     auto command = fbs::CreatePopup(builder_, str, &position_obj, &size_obj);
@@ -350,6 +380,10 @@ class RewindClient {
 
   template <typename Vec2T>
   std::vector<RewindEvent<Vec2T>> read_events() {
+    if (file_.is_open()) {
+      return {};  // Return an empty event list if using file
+    }
+
     builder_.Clear();
     auto command = fbs::CreateReadEvents(builder_);
     auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_ReadEvents, command.Union());
@@ -357,7 +391,7 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
 
     // Buffer to store the incoming message size and content
-    read_msg(read_buffer_.data());
+    tcp_client_->read_msg(read_buffer_.data(), MAX_MESSAGE_SIZE);
 
     // Parse the received message
     auto event_list = fbs::GetRewindEventList(read_buffer_.data());
@@ -377,92 +411,6 @@ class RewindClient {
       }
     }
     return events;
-  }
-
-  void close() {
-    if (socket_.IsSocketValid()) {
-      if (!socket_.Shutdown(CSimpleSocket::CShutdownMode::Both)) {
-        // ???
-      }
-      socket_.Close();
-    }
-  }
-
- private:
-  bool is_little_endian_;
-  flatbuffers::FlatBufferBuilder builder_;
-  std::vector<uint8_t> read_buffer_;
-  CActiveSocket socket_;
-  uint32_t opacity_{0xFF000000};
-  constexpr static uint64_t MAX_MESSAGE_SIZE = 1024 * 1024;  // 1MB
-
-  void send_protocol_version() {
-    static uint8_t buffer[sizeof(int16_t)];
-    if (!is_little_endian_) {
-      std::reverse(buffer, buffer + sizeof(uint16_t));
-    }
-    memcpy(buffer, &MESSAGE_SCHEMA_VERSION, sizeof(int16_t));
-    socket_.Send(buffer, sizeof(int16_t));
-  }
-
-  void send(const uint8_t *buf, uint64_t buf_size) {
-    //    if (buf_size > std::numeric_limits<uint32_t>::max()) {
-    if (buf_size > MAX_MESSAGE_SIZE) {
-      throw std::runtime_error("Rewind message size can't be more then 1MB");
-    }
-    static uint8_t buffer[sizeof(int32_t)];
-    memcpy(buffer, &buf_size, sizeof(int32_t));
-    if (!is_little_endian_) {
-      std::reverse(buffer, buffer + sizeof(uint32_t));
-    }
-    socket_.Send(buffer, sizeof(int32_t));
-    socket_.Send(buf, buf_size);
-  }
-
-  void read_bytes(uint8_t *buffer, uint32_t size) {
-    if (!socket_.IsSocketValid()) {
-      throw std::runtime_error("Can't read bytes if socket is not valid.");
-    }
-    int pos = 0;
-    while (size > 0) {
-      int received = socket_.Receive(static_cast<int32_t>(size), buffer + pos);
-      if (received > 0) {
-        pos += received;
-        size -= received;
-      } else {
-        auto error = format("Can't read bytes: %s", socket_.DescribeError());
-        socket_.Close();
-        throw std::runtime_error(error);
-      }
-    }
-  }
-
-  uint32_t read_msg(uint8_t *buffer) {
-    uint32_t bytes_cnt;
-    read_bytes(reinterpret_cast<uint8_t *>(&bytes_cnt), sizeof(uint32_t));
-    if (!is_little_endian_) {
-      std::reverse(reinterpret_cast<uint8_t *>(&bytes_cnt),
-                   reinterpret_cast<uint8_t *>(&bytes_cnt) + sizeof(uint32_t));
-    }
-
-    if (bytes_cnt > MAX_MESSAGE_SIZE) {
-      throw std::runtime_error("Cannot read from socket: buffer's max size less than message size");
-    }
-    read_bytes(buffer, bytes_cnt);
-    return bytes_cnt;
-  }
-
-  template <typename... Args>
-  static inline std::string format(const char *fmt, Args... args) {
-    thread_local char buf[2048];
-    int bytes = snprintf(buf, sizeof(buf), fmt, args...);
-    if (bytes < 0) {
-      throw std::runtime_error("Encoding error in snprintf");
-    }
-    if (bytes >= sizeof(buf)) {
-      throw std::runtime_error("Buffer size is too small for formatted string");
-    }
-    return {buf};
   }
 };
 

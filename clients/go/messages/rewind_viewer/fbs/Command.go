@@ -23,7 +23,8 @@ const (
 	CommandTiles         Command = 13
 	CommandTriangle      Command = 14
 	CommandUnsubscribe   Command = 15
-	CommandEndFrame      Command = 16
+	CommandPrimitives    Command = 16
+	CommandEndFrame      Command = 17
 )
 
 var EnumNamesCommand = map[Command]string{
@@ -43,6 +44,7 @@ var EnumNamesCommand = map[Command]string{
 	CommandTiles:         "Tiles",
 	CommandTriangle:      "Triangle",
 	CommandUnsubscribe:   "Unsubscribe",
+	CommandPrimitives:    "Primitives",
 	CommandEndFrame:      "EndFrame",
 }
 
@@ -63,6 +65,7 @@ var EnumValuesCommand = map[string]Command{
 	"Tiles":         CommandTiles,
 	"Triangle":      CommandTriangle,
 	"Unsubscribe":   CommandUnsubscribe,
+	"Primitives":    CommandPrimitives,
 	"EndFrame":      CommandEndFrame,
 }
 

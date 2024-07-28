@@ -1,4 +1,4 @@
-#include "net/tcp_server.h"
+#include "gateway/tcp_server.h"
 
 #include <algorithm>
 
@@ -15,7 +15,7 @@ void swap_bytes(T &value) {
 
 }  // namespace
 
-namespace rewind_viewer::net {
+namespace rewind_viewer::gateway {
 
 void TcpServer::read_bytes(uint8_t *buffer, uint32_t size) {
   if (!client_) {
@@ -135,4 +135,4 @@ uint16_t TcpServer::get_port() const {
   return port_;
 }
 
-}  // namespace rewind_viewer::net
+}  // namespace rewind_viewer::gateway

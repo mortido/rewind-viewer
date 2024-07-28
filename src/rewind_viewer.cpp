@@ -3,10 +3,10 @@
 #include <imgui/fontawesome.h>
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_opengl3.h>
+#include <nfd/nfd.h>
 
 #include <algorithm>
 #include <utility>
-// #include <nfd/nfd.h>
 
 #include "version.h"
 
@@ -20,21 +20,37 @@ inline bool key_modifier(const ImGuiIO &io) {
 #endif
 }
 
-// std::string open_file_dialog() {
-//   nfdchar_t* out_path = nullptr;
-//   nfdresult_t result = NFD_OpenDialog(nullptr, nullptr, &out_path);
-//
-//   if (result == NFD_OKAY) {
-//     std::string file_path(out_path);
-//     free(out_path);  // remember to free the allocated memory
-//     return file_path;
-//   } else if (result == NFD_CANCEL) {
-//     return "";
-//   } else {
-//     LOG_ERROR("Error opening file: %s", NFD_GetError());
-//     return "";
-//   }
-// }
+std::string open_file_dialog() {
+  nfdchar_t *out_path = nullptr;
+  nfdresult_t result = NFD_OpenDialog("rwn", nullptr, &out_path);
+
+  if (result == NFD_OKAY) {
+    std::string file_path(out_path);
+    free(out_path);  // remember to free the allocated memory
+    return file_path;
+  } else if (result == NFD_CANCEL) {
+    return "";
+  } else {
+    LOG_ERROR("Error opening file: %s", NFD_GetError());
+    return "";
+  }
+}
+
+std::string save_file_dialog() {
+  nfdchar_t *out_path = nullptr;
+  nfdresult_t result = NFD_SaveDialog("rwn", nullptr, &out_path);
+
+  if (result == NFD_OKAY) {
+    std::string file_path(out_path);
+    free(out_path);  // remember to free the allocated memory
+    return file_path;
+  } else if (result == NFD_CANCEL) {
+    return "";
+  } else {
+    LOG_ERROR("Error opening file: %s", NFD_GetError());
+    return "";
+  }
+}
 
 }  // namespace
 
@@ -44,12 +60,12 @@ RewindViewer::RewindViewer(models::Config &config)
     : config_{config}
     , scene_{std::make_shared<models::Scene>(config_.scene, config_.ui->buffered_mode)} {
   uint16_t port = config_.network->start_port;
-  servers_.emplace_back(
-      std::make_unique<net::RewindServer>(scene_, config_.network->host, port++, true));
+  gateways_.emplace_back(
+      std::make_unique<gateway::ClientGateway>(scene_, config_.network->host, port++, true));
 
   for (int i = 0; i < config_.network->slave_connections; i++) {
-    servers_.emplace_back(
-        std::make_unique<net::RewindServer>(scene_, config_.network->host, port++, false));
+    gateways_.emplace_back(
+        std::make_unique<gateway::ClientGateway>(scene_, config_.network->host, port++, false));
   }
 
   ImGuiIO &io = ImGui::GetIO();
@@ -62,9 +78,7 @@ RewindViewer::RewindViewer(models::Config &config)
 void RewindViewer::render() {
   // Handle keyboard before anything else
   handle_keys();
-
-  auto [perma_frame, frame] = scene_->frames.get_frame(&ui_state_.current_frame_idx);
-  current_frame_ = std::move(frame);
+  current_frame_ = scene_->get_frame(&ui_state_.current_frame_idx);
 
   main_menu_bar();
   status_overlay();
@@ -80,7 +94,7 @@ void RewindViewer::render() {
 }
 
 void RewindViewer::stop() {
-  for (auto &s : servers_) {
+  for (auto &s : gateways_) {
     s->stop();
   }
 }
@@ -88,14 +102,15 @@ void RewindViewer::stop() {
 void RewindViewer::main_menu_bar() {
   if (ImGui::BeginMainMenuBar()) {
     // TODO: Save/Open replays
-    //    if (ImGui::BeginMenu(ICON_FA_FILE " File", true)) {
-    //      if (ImGui::MenuItem("Open", "Ctrl+O")) {
-    //        std::string file_path = open_file_dialog();
-    //      }
-    //      if (ImGui::MenuItem("Save", "Ctrl+S")) {
-    //      }
-    //      ImGui::EndMenu();
-    //    }
+    if (ImGui::BeginMenu(ICON_FA_FILE " File", true)) {
+      if (ImGui::MenuItem("Open Replay...")) {
+        std::string file_path = open_file_dialog();
+      }
+      if (ImGui::MenuItem("Save Replay...")) {
+        std::string file_path = save_file_dialog();
+      }
+      ImGui::EndMenu();
+    }
     if (ImGui::BeginMenu(ICON_FA_EYE " View", true)) {
       ImGui::MenuItem("Status overlay", nullptr, &ui_state_.show_status_overlay);
       ImGui::MenuItem("Control panel", nullptr, &ui_state_.show_frame_info);
@@ -141,17 +156,17 @@ void RewindViewer::status_overlay() {
     std::string strstatus;
     ImVec4 color;
     static const float intensity = 1.0;
-    for (const auto &server : servers_) {
+    for (const auto &server : gateways_) {
       switch (server->get_state()) {
-        case net::RewindServer::State::wait:
+        case gateway::ClientGateway::State::wait:
           strstatus = "WAITING";
           color = {intensity, intensity, 0.0, 1.0};
           break;
-        case net::RewindServer::State::established:
+        case gateway::ClientGateway::State::established:
           strstatus = "CONNECTED";
           color = {0.0, intensity, 0.0, 1.0};
           break;
-        case net::RewindServer::State::closed:
+        case gateway::ClientGateway::State::closed:
           strstatus = "CLOSED";
           color = {intensity, 0.0, 0.0, 1.0};
           break;
@@ -190,7 +205,7 @@ void RewindViewer::frame_info() {
       ImGui::Checkbox("Close window by Escape key", &config_.ui->close_with_esc);
       ImGui::Checkbox("Update window when not in focus", &config_.ui->update_unfocused);
       if (ImGui::Checkbox("Buffered mode", &config_.ui->buffered_mode)) {
-        scene_->frames.set_buffered_mode(config_.ui->buffered_mode);
+        scene_->set_buffered_mode(config_.ui->buffered_mode);
       }
       ImGui::SameLine();
       ImGui::TextDisabled("(?)");
@@ -206,13 +221,12 @@ void RewindViewer::frame_info() {
       if (ImGui::Combo("Theme", (int *)&config_.ui->style, "Light\0Dark\0ImGui Classic")) {
         setup_style();
       }
-      ImGui::SetColorEditOptions(ImGuiColorEditFlags_NoInputs);
-      ImGui::ColorEdit3("Background", (float *)&config_.ui->canvas_background_color);
     }
     ImGui::TreePop();
   }
   if (ImGui::CollapsingHeader(ICON_FA_MAP " Map", flags)) {
     ImGui::SetColorEditOptions(ImGuiColorEditFlags_NoInputs);
+    ImGui::ColorEdit3("Background", (float *)&config_.ui->canvas_background_color);
     ImGui::Checkbox("##show_grid", &config_.scene->show_grid);
     ImGui::SameLine();
     ImGui::ColorEdit3("Grid", (float *)&config_.scene->grid_color);
@@ -354,6 +368,19 @@ void RewindViewer::playback_controls() {
       ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
   if (ImGui::Begin("Playback control", &ui_state_.show_playback_controls, flags)) {
     ImGui::BeginGroup();
+
+    ImGui::PushItemWidth(40);
+    if (ImGui::InputInt("FPS", &config_.ui->replay_fps, 0)) {
+      if (config_.ui->replay_fps < 1) {
+        config_.ui->replay_fps = 1;
+      }
+      if (config_.ui->replay_fps > 240) {
+        config_.ui->replay_fps = 240;
+      }
+    }
+    ImGui::PopItemWidth();
+
+    ImGui::SameLine();
     if (ImGui::Button(ICON_FA_BACKWARD_FAST "##fastprev", button_size)) {
       //    if (ImGui::IsItemActive()) { in case if long press will be needed
       if (ui_state_.current_frame_idx > config_.ui->fast_skip_speed) {
@@ -393,7 +420,7 @@ void RewindViewer::playback_controls() {
 
     ImGui::SameLine();
     // Tick is one indexed
-    const size_t frames_cnt = scene_->frames.size();
+    const size_t frames_cnt = scene_->frames_count();
     if (frames_cnt > 0ul) {
       ui_state_.current_frame_idx = std::min(frames_cnt, ui_state_.current_frame_idx);
       ImGui::PushItemWidth(-1);
@@ -490,28 +517,18 @@ void RewindViewer::viewport() {
       ImGui::EndTooltip();
     }
     if (current_frame_) {
-      auto popups = current_frame_->get_popups();
-      for (size_t idx = 0; idx < popups->size(); ++idx) {
-        if (!config_.scene->enabled_layers[idx]) {
-          continue;
-        }
-        for (const auto &popup : (*popups)[idx]) {
-          if (popup.hit_test(mouse_game_pos)) {
-            ImGui::BeginTooltip();
-            ImGui::Text("%s", popup.text());
-            ImGui::EndTooltip();
-          }
-        }
+      auto popup_text =
+          current_frame_->get_popup_text(mouse_game_pos, config_.scene->enabled_layers);
+      if (!popup_text.empty()) {
+        ImGui::BeginTooltip();
+        ImGui::Text("%s", popup_text.c_str());
+        ImGui::EndTooltip();
       }
     }
 
     if (!io.WantTextInput) {
-      for (auto &server : servers_) {
-        auto events = server->get_events();
-        for (auto &[_, event] : *events) {
-          if (event->capture(mouse_game_pos)) {
-          }
-        }
+      for (auto &server : gateways_) {
+        server->get_events().capture(mouse_game_pos);
       }
     }
   }
@@ -529,7 +546,12 @@ void RewindViewer::viewport() {
   scene_->camera.update_projection();
 
   if (ui_state_.autoplay) {
-    ui_state_.current_frame_idx++;
+    double delta_time = ImGui::GetTime() - ui_state_.last_frame_time;
+    double frame_time = 1.0 / static_cast<double>(config_.ui->replay_fps);
+    if (delta_time >= frame_time) {
+      ui_state_.current_frame_idx++;
+      ui_state_.last_frame_time = ImGui::GetTime();
+    }
   }
   scene_->render(ui_state_.current_frame_idx);
 
@@ -590,7 +612,7 @@ void RewindViewer::handle_keys() {
       ui_state_.developer_mode = true;
     }
     if (ImGui::IsKeyChordPressed(ImGuiKey_R | ImGuiMod_Shortcut)) {
-      scene_->frames.clear();
+      scene_->clear();
     }
 
     // Layer toggle shortcuts

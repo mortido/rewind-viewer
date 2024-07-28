@@ -1,9 +1,10 @@
 #pragma once
+#include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
-#include <string>
-#include <stdexcept>
-#include "RewindClient.h"
+
+#include "rewind_client.h"
 
 namespace rewind_viewer {
 

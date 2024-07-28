@@ -6,10 +6,15 @@ namespace rewind_viewer::models {
 
 Scene::Scene(std::shared_ptr<const SceneConfig> config, bool buffered_mode)
     : camera{config->camera.position, config->camera.scale, config->camera.y_axis_up}
-    , frames{buffered_mode}
     , config_{std::move(config)}
-    , renderer_{config_->shaders_dir, config_->canvas_position, config_->canvas_size,
-                config_->grid_cells} {}
+    , frame_context_{gl_resources_}
+    , permanent_frame_context_{gl_resources_}
+    , renderer_{gl_resources_, config_->shaders_dir, config_->canvas_position, config_->canvas_size,
+                config_->grid_cells}
+    , buffered_mode_{buffered_mode}
+    , buffer_frame_{std::make_shared<UIFrame>()}
+    , buffer_permanent_frame_{std::make_shared<Frame>()}
+    , permanent_frame_{std::make_shared<Frame>()} {}
 
 void Scene::render(size_t frame_idx) {
   renderer_.new_frame(camera);
@@ -20,31 +25,11 @@ void Scene::render(size_t frame_idx) {
     renderer_.render_grid(config_->grid_color);
   }
 
-  auto [perma_frame, frame] = frames.get_frame(&frame_idx);
+  auto frame = get_frame(&frame_idx);
   if (frame) {
-    {
-      std::lock_guard lock(*frame);
-      auto frame_primitives = frame->all_primitives();
-      renderer_.load_primitives(*frame_primitives[0].buffer);
-
-      for (size_t idx = 0; idx < Frame::LAYERS_COUNT; ++idx) {
-        if (config_->enabled_layers[idx]) {
-          renderer_.render_primitives(frame_primitives[idx]);
-        }
-      }
-    }
-
-    {
-      std::lock_guard lock(*perma_frame);
-      auto perma_frame_primitives = perma_frame->all_primitives();
-      renderer_.load_primitives(*perma_frame_primitives[0].buffer);
-
-      for (size_t idx = 0; idx < Frame::LAYERS_COUNT; ++idx) {
-        if (config_->enabled_permanent_layers[idx]) {
-          renderer_.render_primitives(perma_frame_primitives[idx]);
-        }
-      }
-    }
+    frame->render(frame_context_, renderer_, config_->enabled_layers, prev_rendered_frame_ != frame_idx);
+    permanent_frame_->render(permanent_frame_context_, renderer_, config_->enabled_layers);
+    prev_rendered_frame_ = frame_idx;
   }
 }
 
@@ -52,7 +37,78 @@ void Scene::set_canvas_config(const glm::vec2& position, const glm::vec2& size,
                               const glm::u16vec2& grid) {
   CameraView view{position + size * 0.5f, size * 1.25f};
   camera.set_view(view);
+  std::lock_guard<Spinlock> lock(mutex_);
+
+  frames_.clear();
+  buffer_frame_ = std::make_shared<UIFrame>();
+  permanent_frame_ = std::make_shared<Frame>();
+  buffer_permanent_frame_ = std::make_shared<Frame>();
   renderer_.update_canvas(position, size, grid);
+}
+
+size_t Scene::frames_count() const {
+  std::lock_guard<Spinlock> lock(mutex_);
+  if (buffered_mode_) {
+    return frames_.size();
+  } else {
+    return frames_.size() + 1;
+  }
+}
+
+std::shared_ptr<UIFrame> Scene::get_frame(size_t* idx) {
+  std::lock_guard<Spinlock> lock(mutex_);
+  if (buffered_mode_) {
+    if (frames_.empty()) {
+      return nullptr;
+    }
+    *idx = std::min(*idx, frames_.size() - 1ul);
+  } else {
+    *idx = std::min(*idx, frames_.size());
+    if (*idx == frames_.size()) {
+      return buffer_frame_;
+    }
+  }
+  return frames_[*idx];
+}
+
+void Scene::set_buffered_mode(bool mode) {
+  std::lock_guard<Spinlock> lock(mutex_);
+  if (buffered_mode_ == mode) {
+    return;
+  }
+  buffered_mode_ = mode;
+  if (!buffered_mode_) {
+    permanent_frame_->transfer_from(*buffer_permanent_frame_);
+  }
+}
+
+void Scene::clear() {
+  std::lock_guard<Spinlock> lock(mutex_);
+  frames_.clear();
+  buffer_frame_ = std::make_shared<UIFrame>();
+  permanent_frame_ = std::make_shared<Frame>();
+  buffer_permanent_frame_ = std::make_shared<Frame>();
+}
+
+std::shared_ptr<UIFrame> Scene::get_ui_frame() {
+  std::lock_guard<Spinlock> lock(mutex_);
+  return buffer_frame_;
+}
+
+std::shared_ptr<Frame> Scene::get_draw_frame(bool permanent) {
+  std::lock_guard<Spinlock> lock(mutex_);
+  if (buffered_mode_) {
+    return permanent ? buffer_permanent_frame_ : buffer_frame_;
+  } else {
+    return permanent ? permanent_frame_ : buffer_frame_;
+  }
+}
+
+void Scene::commit_frame() {
+  std::lock_guard<Spinlock> lock(mutex_);
+  frames_.emplace_back(std::move(buffer_frame_));
+  buffer_frame_ = std::make_shared<UIFrame>();
+  permanent_frame_->transfer_from(*buffer_permanent_frame_);
 }
 
 }  // namespace rewind_viewer::models

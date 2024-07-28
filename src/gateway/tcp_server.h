@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace rewind_viewer::net {
+namespace rewind_viewer::gateway {
 
 class TcpServer {
  private:
@@ -29,4 +29,4 @@ class TcpServer {
   uint16_t get_port() const;
 };
 
-}  // namespace rewind_viewer::net
+}  // namespace rewind_viewer::gateway

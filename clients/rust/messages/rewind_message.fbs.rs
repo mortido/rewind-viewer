@@ -32,10 +32,10 @@ pub mod fbs {
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 pub const ENUM_MIN_COMMAND: u8 = 0;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
-pub const ENUM_MAX_COMMAND: u8 = 16;
+pub const ENUM_MAX_COMMAND: u8 = 17;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_COMMAND: [Command; 17] = [
+pub const ENUM_VALUES_COMMAND: [Command; 18] = [
   Command::NONE,
   Command::Arc,
   Command::CameraView,
@@ -52,6 +52,7 @@ pub const ENUM_VALUES_COMMAND: [Command; 17] = [
   Command::Tiles,
   Command::Triangle,
   Command::Unsubscribe,
+  Command::Primitives,
   Command::EndFrame,
 ];
 
@@ -76,10 +77,11 @@ impl Command {
   pub const Tiles: Self = Self(13);
   pub const Triangle: Self = Self(14);
   pub const Unsubscribe: Self = Self(15);
-  pub const EndFrame: Self = Self(16);
+  pub const Primitives: Self = Self(16);
+  pub const EndFrame: Self = Self(17);
 
   pub const ENUM_MIN: u8 = 0;
-  pub const ENUM_MAX: u8 = 16;
+  pub const ENUM_MAX: u8 = 17;
   pub const ENUM_VALUES: &'static [Self] = &[
     Self::NONE,
     Self::Arc,
@@ -97,6 +99,7 @@ impl Command {
     Self::Tiles,
     Self::Triangle,
     Self::Unsubscribe,
+    Self::Primitives,
     Self::EndFrame,
   ];
   /// Returns the variant's name or "" if unknown.
@@ -118,6 +121,7 @@ impl Command {
       Self::Tiles => Some("Tiles"),
       Self::Triangle => Some("Triangle"),
       Self::Unsubscribe => Some("Unsubscribe"),
+      Self::Primitives => Some("Primitives"),
       Self::EndFrame => Some("EndFrame"),
       _ => None,
     }
@@ -2564,6 +2568,601 @@ impl core::fmt::Debug for EndFrame<'_> {
       ds.finish()
   }
 }
+pub enum ColorPointOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct ColorPoint<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for ColorPoint<'a> {
+  type Inner = ColorPoint<'a>;
+  #[inline]
+  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    Self { _tab: flatbuffers::Table::new(buf, loc) }
+  }
+}
+
+impl<'a> ColorPoint<'a> {
+  pub const VT_COLOR: flatbuffers::VOffsetT = 4;
+  pub const VT_POSITION: flatbuffers::VOffsetT = 6;
+
+  #[inline]
+  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+    ColorPoint { _tab: table }
+  }
+  #[allow(unused_mut)]
+  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
+    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
+    args: &'args ColorPointArgs<'args>
+  ) -> flatbuffers::WIPOffset<ColorPoint<'bldr>> {
+    let mut builder = ColorPointBuilder::new(_fbb);
+    if let Some(x) = args.position { builder.add_position(x); }
+    builder.add_color(args.color);
+    builder.finish()
+  }
+
+
+  #[inline]
+  pub fn color(&self) -> u32 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<u32>(ColorPoint::VT_COLOR, Some(0)).unwrap()}
+  }
+  #[inline]
+  pub fn position(&self) -> &'a Vector2f {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<Vector2f>(ColorPoint::VT_POSITION, None).unwrap()}
+  }
+}
+
+impl flatbuffers::Verifiable for ColorPoint<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<u32>("color", Self::VT_COLOR, false)?
+     .visit_field::<Vector2f>("position", Self::VT_POSITION, true)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct ColorPointArgs<'a> {
+    pub color: u32,
+    pub position: Option<&'a Vector2f>,
+}
+impl<'a> Default for ColorPointArgs<'a> {
+  #[inline]
+  fn default() -> Self {
+    ColorPointArgs {
+      color: 0,
+      position: None, // required field
+    }
+  }
+}
+
+pub struct ColorPointBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ColorPointBuilder<'a, 'b, A> {
+  #[inline]
+  pub fn add_color(&mut self, color: u32) {
+    self.fbb_.push_slot::<u32>(ColorPoint::VT_COLOR, color, 0);
+  }
+  #[inline]
+  pub fn add_position(&mut self, position: &Vector2f) {
+    self.fbb_.push_slot_always::<&Vector2f>(ColorPoint::VT_POSITION, position);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> ColorPointBuilder<'a, 'b, A> {
+    let start = _fbb.start_table();
+    ColorPointBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<ColorPoint<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    self.fbb_.required(o, ColorPoint::VT_POSITION,"position");
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl core::fmt::Debug for ColorPoint<'_> {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    let mut ds = f.debug_struct("ColorPoint");
+      ds.field("color", &self.color());
+      ds.field("position", &self.position());
+      ds.finish()
+  }
+}
+pub enum PrimitiveStorageOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct PrimitiveStorage<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for PrimitiveStorage<'a> {
+  type Inner = PrimitiveStorage<'a>;
+  #[inline]
+  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    Self { _tab: flatbuffers::Table::new(buf, loc) }
+  }
+}
+
+impl<'a> PrimitiveStorage<'a> {
+  pub const VT_COLOR_VERTEXES: flatbuffers::VOffsetT = 4;
+  pub const VT_COLOR_CIRCLES: flatbuffers::VOffsetT = 6;
+  pub const VT_VERTEXES: flatbuffers::VOffsetT = 8;
+  pub const VT_CIRCLES: flatbuffers::VOffsetT = 10;
+
+  #[inline]
+  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+    PrimitiveStorage { _tab: table }
+  }
+  #[allow(unused_mut)]
+  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
+    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
+    args: &'args PrimitiveStorageArgs<'args>
+  ) -> flatbuffers::WIPOffset<PrimitiveStorage<'bldr>> {
+    let mut builder = PrimitiveStorageBuilder::new(_fbb);
+    if let Some(x) = args.circles { builder.add_circles(x); }
+    if let Some(x) = args.vertexes { builder.add_vertexes(x); }
+    if let Some(x) = args.color_circles { builder.add_color_circles(x); }
+    if let Some(x) = args.color_vertexes { builder.add_color_vertexes(x); }
+    builder.finish()
+  }
+
+
+  #[inline]
+  pub fn color_vertexes(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ColorPoint<'a>>>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ColorPoint>>>>(PrimitiveStorage::VT_COLOR_VERTEXES, None)}
+  }
+  #[inline]
+  pub fn color_circles(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<CircleSegment<'a>>>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<CircleSegment>>>>(PrimitiveStorage::VT_COLOR_CIRCLES, None)}
+  }
+  #[inline]
+  pub fn vertexes(&self) -> Option<flatbuffers::Vector<'a, Vector2f>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, Vector2f>>>(PrimitiveStorage::VT_VERTEXES, None)}
+  }
+  #[inline]
+  pub fn circles(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<CircleSegment<'a>>>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<CircleSegment>>>>(PrimitiveStorage::VT_CIRCLES, None)}
+  }
+}
+
+impl flatbuffers::Verifiable for PrimitiveStorage<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<ColorPoint>>>>("color_vertexes", Self::VT_COLOR_VERTEXES, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<CircleSegment>>>>("color_circles", Self::VT_COLOR_CIRCLES, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, Vector2f>>>("vertexes", Self::VT_VERTEXES, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<CircleSegment>>>>("circles", Self::VT_CIRCLES, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct PrimitiveStorageArgs<'a> {
+    pub color_vertexes: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ColorPoint<'a>>>>>,
+    pub color_circles: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<CircleSegment<'a>>>>>,
+    pub vertexes: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, Vector2f>>>,
+    pub circles: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<CircleSegment<'a>>>>>,
+}
+impl<'a> Default for PrimitiveStorageArgs<'a> {
+  #[inline]
+  fn default() -> Self {
+    PrimitiveStorageArgs {
+      color_vertexes: None,
+      color_circles: None,
+      vertexes: None,
+      circles: None,
+    }
+  }
+}
+
+pub struct PrimitiveStorageBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> PrimitiveStorageBuilder<'a, 'b, A> {
+  #[inline]
+  pub fn add_color_vertexes(&mut self, color_vertexes: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<ColorPoint<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(PrimitiveStorage::VT_COLOR_VERTEXES, color_vertexes);
+  }
+  #[inline]
+  pub fn add_color_circles(&mut self, color_circles: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<CircleSegment<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(PrimitiveStorage::VT_COLOR_CIRCLES, color_circles);
+  }
+  #[inline]
+  pub fn add_vertexes(&mut self, vertexes: flatbuffers::WIPOffset<flatbuffers::Vector<'b , Vector2f>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(PrimitiveStorage::VT_VERTEXES, vertexes);
+  }
+  #[inline]
+  pub fn add_circles(&mut self, circles: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<CircleSegment<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(PrimitiveStorage::VT_CIRCLES, circles);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> PrimitiveStorageBuilder<'a, 'b, A> {
+    let start = _fbb.start_table();
+    PrimitiveStorageBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<PrimitiveStorage<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl core::fmt::Debug for PrimitiveStorage<'_> {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    let mut ds = f.debug_struct("PrimitiveStorage");
+      ds.field("color_vertexes", &self.color_vertexes());
+      ds.field("color_circles", &self.color_circles());
+      ds.field("vertexes", &self.vertexes());
+      ds.field("circles", &self.circles());
+      ds.finish()
+  }
+}
+pub enum PrimitiveIndicesOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct PrimitiveIndices<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for PrimitiveIndices<'a> {
+  type Inner = PrimitiveIndices<'a>;
+  #[inline]
+  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    Self { _tab: flatbuffers::Table::new(buf, loc) }
+  }
+}
+
+impl<'a> PrimitiveIndices<'a> {
+  pub const VT_STENCIL_CIRCLES: flatbuffers::VOffsetT = 4;
+  pub const VT_STENCIL_SEGMENTS: flatbuffers::VOffsetT = 6;
+  pub const VT_STENCIL_TRIANGLES: flatbuffers::VOffsetT = 8;
+  pub const VT_FILLED_CIRCLES: flatbuffers::VOffsetT = 10;
+  pub const VT_FILLED_SEGMENTS: flatbuffers::VOffsetT = 12;
+  pub const VT_THIN_CIRCLES: flatbuffers::VOffsetT = 14;
+  pub const VT_TRIANGLES: flatbuffers::VOffsetT = 16;
+  pub const VT_LINES: flatbuffers::VOffsetT = 18;
+
+  #[inline]
+  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+    PrimitiveIndices { _tab: table }
+  }
+  #[allow(unused_mut)]
+  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
+    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
+    args: &'args PrimitiveIndicesArgs<'args>
+  ) -> flatbuffers::WIPOffset<PrimitiveIndices<'bldr>> {
+    let mut builder = PrimitiveIndicesBuilder::new(_fbb);
+    if let Some(x) = args.lines { builder.add_lines(x); }
+    if let Some(x) = args.triangles { builder.add_triangles(x); }
+    if let Some(x) = args.thin_circles { builder.add_thin_circles(x); }
+    if let Some(x) = args.filled_segments { builder.add_filled_segments(x); }
+    if let Some(x) = args.filled_circles { builder.add_filled_circles(x); }
+    if let Some(x) = args.stencil_triangles { builder.add_stencil_triangles(x); }
+    if let Some(x) = args.stencil_segments { builder.add_stencil_segments(x); }
+    if let Some(x) = args.stencil_circles { builder.add_stencil_circles(x); }
+    builder.finish()
+  }
+
+
+  #[inline]
+  pub fn stencil_circles(&self) -> Option<flatbuffers::Vector<'a, u32>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(PrimitiveIndices::VT_STENCIL_CIRCLES, None)}
+  }
+  #[inline]
+  pub fn stencil_segments(&self) -> Option<flatbuffers::Vector<'a, u32>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(PrimitiveIndices::VT_STENCIL_SEGMENTS, None)}
+  }
+  #[inline]
+  pub fn stencil_triangles(&self) -> Option<flatbuffers::Vector<'a, u32>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(PrimitiveIndices::VT_STENCIL_TRIANGLES, None)}
+  }
+  #[inline]
+  pub fn filled_circles(&self) -> Option<flatbuffers::Vector<'a, u32>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(PrimitiveIndices::VT_FILLED_CIRCLES, None)}
+  }
+  #[inline]
+  pub fn filled_segments(&self) -> Option<flatbuffers::Vector<'a, u32>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(PrimitiveIndices::VT_FILLED_SEGMENTS, None)}
+  }
+  #[inline]
+  pub fn thin_circles(&self) -> Option<flatbuffers::Vector<'a, u32>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(PrimitiveIndices::VT_THIN_CIRCLES, None)}
+  }
+  #[inline]
+  pub fn triangles(&self) -> Option<flatbuffers::Vector<'a, u32>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(PrimitiveIndices::VT_TRIANGLES, None)}
+  }
+  #[inline]
+  pub fn lines(&self) -> Option<flatbuffers::Vector<'a, u32>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(PrimitiveIndices::VT_LINES, None)}
+  }
+}
+
+impl flatbuffers::Verifiable for PrimitiveIndices<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("stencil_circles", Self::VT_STENCIL_CIRCLES, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("stencil_segments", Self::VT_STENCIL_SEGMENTS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("stencil_triangles", Self::VT_STENCIL_TRIANGLES, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("filled_circles", Self::VT_FILLED_CIRCLES, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("filled_segments", Self::VT_FILLED_SEGMENTS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("thin_circles", Self::VT_THIN_CIRCLES, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("triangles", Self::VT_TRIANGLES, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("lines", Self::VT_LINES, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct PrimitiveIndicesArgs<'a> {
+    pub stencil_circles: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub stencil_segments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub stencil_triangles: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub filled_circles: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub filled_segments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub thin_circles: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub triangles: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub lines: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+}
+impl<'a> Default for PrimitiveIndicesArgs<'a> {
+  #[inline]
+  fn default() -> Self {
+    PrimitiveIndicesArgs {
+      stencil_circles: None,
+      stencil_segments: None,
+      stencil_triangles: None,
+      filled_circles: None,
+      filled_segments: None,
+      thin_circles: None,
+      triangles: None,
+      lines: None,
+    }
+  }
+}
+
+pub struct PrimitiveIndicesBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> PrimitiveIndicesBuilder<'a, 'b, A> {
+  #[inline]
+  pub fn add_stencil_circles(&mut self, stencil_circles: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(PrimitiveIndices::VT_STENCIL_CIRCLES, stencil_circles);
+  }
+  #[inline]
+  pub fn add_stencil_segments(&mut self, stencil_segments: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(PrimitiveIndices::VT_STENCIL_SEGMENTS, stencil_segments);
+  }
+  #[inline]
+  pub fn add_stencil_triangles(&mut self, stencil_triangles: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(PrimitiveIndices::VT_STENCIL_TRIANGLES, stencil_triangles);
+  }
+  #[inline]
+  pub fn add_filled_circles(&mut self, filled_circles: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(PrimitiveIndices::VT_FILLED_CIRCLES, filled_circles);
+  }
+  #[inline]
+  pub fn add_filled_segments(&mut self, filled_segments: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(PrimitiveIndices::VT_FILLED_SEGMENTS, filled_segments);
+  }
+  #[inline]
+  pub fn add_thin_circles(&mut self, thin_circles: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(PrimitiveIndices::VT_THIN_CIRCLES, thin_circles);
+  }
+  #[inline]
+  pub fn add_triangles(&mut self, triangles: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(PrimitiveIndices::VT_TRIANGLES, triangles);
+  }
+  #[inline]
+  pub fn add_lines(&mut self, lines: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(PrimitiveIndices::VT_LINES, lines);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> PrimitiveIndicesBuilder<'a, 'b, A> {
+    let start = _fbb.start_table();
+    PrimitiveIndicesBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<PrimitiveIndices<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl core::fmt::Debug for PrimitiveIndices<'_> {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    let mut ds = f.debug_struct("PrimitiveIndices");
+      ds.field("stencil_circles", &self.stencil_circles());
+      ds.field("stencil_segments", &self.stencil_segments());
+      ds.field("stencil_triangles", &self.stencil_triangles());
+      ds.field("filled_circles", &self.filled_circles());
+      ds.field("filled_segments", &self.filled_segments());
+      ds.field("thin_circles", &self.thin_circles());
+      ds.field("triangles", &self.triangles());
+      ds.field("lines", &self.lines());
+      ds.finish()
+  }
+}
+pub enum PrimitivesOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct Primitives<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for Primitives<'a> {
+  type Inner = Primitives<'a>;
+  #[inline]
+  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    Self { _tab: flatbuffers::Table::new(buf, loc) }
+  }
+}
+
+impl<'a> Primitives<'a> {
+  pub const VT_STORAGE: flatbuffers::VOffsetT = 4;
+  pub const VT_INDICES: flatbuffers::VOffsetT = 6;
+
+  #[inline]
+  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+    Primitives { _tab: table }
+  }
+  #[allow(unused_mut)]
+  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
+    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
+    args: &'args PrimitivesArgs<'args>
+  ) -> flatbuffers::WIPOffset<Primitives<'bldr>> {
+    let mut builder = PrimitivesBuilder::new(_fbb);
+    if let Some(x) = args.indices { builder.add_indices(x); }
+    if let Some(x) = args.storage { builder.add_storage(x); }
+    builder.finish()
+  }
+
+
+  #[inline]
+  pub fn storage(&self) -> PrimitiveStorage<'a> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<PrimitiveStorage>>(Primitives::VT_STORAGE, None).unwrap()}
+  }
+  #[inline]
+  pub fn indices(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<PrimitiveIndices<'a>>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<PrimitiveIndices>>>>(Primitives::VT_INDICES, None).unwrap()}
+  }
+}
+
+impl flatbuffers::Verifiable for Primitives<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<PrimitiveStorage>>("storage", Self::VT_STORAGE, true)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<PrimitiveIndices>>>>("indices", Self::VT_INDICES, true)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct PrimitivesArgs<'a> {
+    pub storage: Option<flatbuffers::WIPOffset<PrimitiveStorage<'a>>>,
+    pub indices: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<PrimitiveIndices<'a>>>>>,
+}
+impl<'a> Default for PrimitivesArgs<'a> {
+  #[inline]
+  fn default() -> Self {
+    PrimitivesArgs {
+      storage: None, // required field
+      indices: None, // required field
+    }
+  }
+}
+
+pub struct PrimitivesBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> PrimitivesBuilder<'a, 'b, A> {
+  #[inline]
+  pub fn add_storage(&mut self, storage: flatbuffers::WIPOffset<PrimitiveStorage<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<PrimitiveStorage>>(Primitives::VT_STORAGE, storage);
+  }
+  #[inline]
+  pub fn add_indices(&mut self, indices: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<PrimitiveIndices<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Primitives::VT_INDICES, indices);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> PrimitivesBuilder<'a, 'b, A> {
+    let start = _fbb.start_table();
+    PrimitivesBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<Primitives<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    self.fbb_.required(o, Primitives::VT_STORAGE,"storage");
+    self.fbb_.required(o, Primitives::VT_INDICES,"indices");
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl core::fmt::Debug for Primitives<'_> {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    let mut ds = f.debug_struct("Primitives");
+      ds.field("storage", &self.storage());
+      ds.field("indices", &self.indices());
+      ds.finish()
+  }
+}
 pub enum RewindMessageOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -2825,6 +3424,20 @@ impl<'a> RewindMessage<'a> {
 
   #[inline]
   #[allow(non_snake_case)]
+  pub fn command_as_primitives(&self) -> Option<Primitives<'a>> {
+    if self.command_type() == Command::Primitives {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { Primitives::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
   pub fn command_as_end_frame(&self) -> Option<EndFrame<'a>> {
     if self.command_type() == Command::EndFrame {
       let u = self.command();
@@ -2863,6 +3476,7 @@ impl flatbuffers::Verifiable for RewindMessage<'_> {
           Command::Tiles => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Tiles>>("Command::Tiles", pos),
           Command::Triangle => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Triangle>>("Command::Triangle", pos),
           Command::Unsubscribe => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Unsubscribe>>("Command::Unsubscribe", pos),
+          Command::Primitives => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Primitives>>("Command::Primitives", pos),
           Command::EndFrame => v.verify_union_variant::<flatbuffers::ForwardsUOffset<EndFrame>>("Command::EndFrame", pos),
           _ => Ok(()),
         }
@@ -3019,6 +3633,13 @@ impl core::fmt::Debug for RewindMessage<'_> {
         },
         Command::Unsubscribe => {
           if let Some(x) = self.command_as_unsubscribe() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::Primitives => {
+          if let Some(x) = self.command_as_primitives() {
             ds.field("command", &x)
           } else {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")

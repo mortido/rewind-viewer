@@ -12,6 +12,7 @@ import { Options } from '../../rewind-viewer/fbs/options.js';
 import { Polyline } from '../../rewind-viewer/fbs/polyline.js';
 import { Popup } from '../../rewind-viewer/fbs/popup.js';
 import { PopupRound } from '../../rewind-viewer/fbs/popup-round.js';
+import { Primitives } from '../../rewind-viewer/fbs/primitives.js';
 import { ReadEvents } from '../../rewind-viewer/fbs/read-events.js';
 import { Rectangle } from '../../rewind-viewer/fbs/rectangle.js';
 import { Subscribe } from '../../rewind-viewer/fbs/subscribe.js';
@@ -37,13 +38,14 @@ export enum Command {
   Tiles = 13,
   Triangle = 14,
   Unsubscribe = 15,
-  EndFrame = 16
+  Primitives = 16,
+  EndFrame = 17
 }
 
 export function unionToCommand(
   type: Command,
-  accessor: (obj:Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null
-): Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null {
+  accessor: (obj:Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Primitives|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Primitives|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null
+): Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Primitives|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null {
   switch(Command[type]) {
     case 'NONE': return null; 
     case 'Arc': return accessor(new Arc())! as Arc;
@@ -61,6 +63,7 @@ export function unionToCommand(
     case 'Tiles': return accessor(new Tiles())! as Tiles;
     case 'Triangle': return accessor(new Triangle())! as Triangle;
     case 'Unsubscribe': return accessor(new Unsubscribe())! as Unsubscribe;
+    case 'Primitives': return accessor(new Primitives())! as Primitives;
     case 'EndFrame': return accessor(new EndFrame())! as EndFrame;
     default: return null;
   }
@@ -68,9 +71,9 @@ export function unionToCommand(
 
 export function unionListToCommand(
   type: Command, 
-  accessor: (index: number, obj:Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null, 
+  accessor: (index: number, obj:Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Primitives|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Primitives|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null, 
   index: number
-): Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null {
+): Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Primitives|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null {
   switch(Command[type]) {
     case 'NONE': return null; 
     case 'Arc': return accessor(index, new Arc())! as Arc;
@@ -88,6 +91,7 @@ export function unionListToCommand(
     case 'Tiles': return accessor(index, new Tiles())! as Tiles;
     case 'Triangle': return accessor(index, new Triangle())! as Triangle;
     case 'Unsubscribe': return accessor(index, new Unsubscribe())! as Unsubscribe;
+    case 'Primitives': return accessor(index, new Primitives())! as Primitives;
     case 'EndFrame': return accessor(index, new EndFrame())! as EndFrame;
     default: return null;
   }
