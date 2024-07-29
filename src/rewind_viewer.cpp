@@ -156,8 +156,8 @@ void RewindViewer::status_overlay() {
     std::string strstatus;
     ImVec4 color;
     static const float intensity = 1.0;
-    for (const auto &server : gateways_) {
-      switch (server->get_state()) {
+    for (const auto &gateway : gateways_) {
+      switch (gateway->get_state()) {
         case gateway::ClientGateway::State::wait:
           strstatus = "WAITING";
           color = {intensity, intensity, 0.0, 1.0};
@@ -171,7 +171,17 @@ void RewindViewer::status_overlay() {
           color = {intensity, 0.0, 0.0, 1.0};
           break;
       }
-      ImGui::TextColored(color, ICON_FA_PLUG "%u: %s", server->get_port(), strstatus.c_str());
+
+      if (gateway->get_source() == gateway::ClientGateway::Source::tcp) {
+        ImGui::TextColored(color, ICON_FA_WIFI "%s: %s", gateway->get_name().c_str(),
+                           strstatus.c_str());
+      } else if (gateway->get_source() == gateway::ClientGateway::Source::file) {
+        ImGui::TextColored(color, ICON_FA_FILE_EXPORT "%s: %s", gateway->get_name().c_str(),
+                           strstatus.c_str());
+      } else {
+        ImGui::TextColored(color, ICON_FA_QUESTION " %s: %s", gateway->get_name().c_str(),
+                           strstatus.c_str());
+      }
     }
     const ImVec4 mode_color = {0.3f, 0.0f, 0.0f, 1.000f};
     if (!config_.ui->buffered_mode) {
@@ -279,7 +289,7 @@ void RewindViewer::frame_info() {
       ImGui::PopTextWrapPos();
       ImGui::EndTooltip();
     }
-    if (ImGui::BeginListBox("Frame Cameras",
+    if (ImGui::BeginListBox("##frame_cameras",
                             ImVec2(-FLT_MIN, 3 * ImGui::GetTextLineHeightWithSpacing()))) {
       bool is_selected = ui_state_.selected_camera.empty();
       if (ImGui::Selectable("Free camera", is_selected)) {
@@ -369,7 +379,7 @@ void RewindViewer::playback_controls() {
   if (ImGui::Begin("Playback control", &ui_state_.show_playback_controls, flags)) {
     ImGui::BeginGroup();
 
-    ImGui::PushItemWidth(40);
+    ImGui::PushItemWidth(30);
     if (ImGui::InputInt("FPS", &config_.ui->replay_fps, 0)) {
       if (config_.ui->replay_fps < 1) {
         config_.ui->replay_fps = 1;

@@ -16,3 +16,9 @@ std::string str_format(const char *format, Args... args) {
   std::snprintf(buf.get(), size, format, args...);
   return {buf.get(), buf.get() + size - 1};
 }
+
+template <typename T>
+void swap_bytes(T &value) {
+  auto *bytes = reinterpret_cast<uint8_t *>(&value);
+  std::reverse(bytes, bytes + sizeof(T));
+}

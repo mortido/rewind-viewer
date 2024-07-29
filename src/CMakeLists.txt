@@ -26,7 +26,7 @@ set(SOURCES
         models/frame_editor.cpp
 
         gateway/client_gateway.cpp
-        gateway/tcp_server.cpp
+        gateway/transport/tcp_server.cpp
         )
 
 #set(MACOSX_BUNDLE_BUNDLE_NAME "MyApp")
@@ -40,7 +40,7 @@ set(SOURCES
 #add_executable(${APP_NAME} MACOSX_BUNDLE ${Sources})
 
 add_executable(${APP_NAME} ${SOURCES})
-target_compile_features(${APP_NAME} PUBLIC cxx_std_17)
+target_compile_features(${APP_NAME} PUBLIC cxx_std_20)
 add_dependencies(${APP_NAME} CopyResources)
 target_include_directories(${APP_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 target_compile_definitions(${APP_NAME} PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)

@@ -1,6 +1,6 @@
 #pragma once
 #include "models/frame_editor.h"
-#include "gateway/tcp_server.h"
+#include "gateway/transport/transport.h"
 #include "gateway/events.h"
 
 namespace rewind_viewer::gateway {
@@ -13,7 +13,7 @@ class MessageHandler {
  public:
   virtual ~MessageHandler() = default;
   virtual void handle_message(const uint8_t* buffer, uint32_t size, EventsCollection& events,
-                              models::FrameEditor& frame_editor, TcpServer& server) = 0;
+                              models::FrameEditor& frame_editor, Transport& transport) = 0;
 
  protected:
   static void normalize_AABB(glm::vec2& min_corner, glm::vec2& max_corner) {

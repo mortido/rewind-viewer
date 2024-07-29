@@ -14,7 +14,7 @@ class JsonMessageHandler : public MessageHandler {
 
  public:
   void handle_message(const uint8_t* buffer, uint32_t, EventsCollection& events,
-                      models::FrameEditor& frame_editor, TcpServer& server) override {
+                      models::FrameEditor& frame_editor, Transport& transport) override {
     rapidjson::Document doc;
     // TODO: zero terminated?
     if (doc.Parse(reinterpret_cast<const char*>(buffer)).HasParseError()) {
@@ -259,11 +259,11 @@ class JsonMessageHandler : public MessageHandler {
       rapidjson::Writer<rapidjson::StringBuffer> writer(json_buffer_);
       events.serialize(writer);
       events.reset();
-      server.send_msg(reinterpret_cast<const uint8_t*>(json_buffer_.GetString()),
-                      static_cast<uint32_t>(json_buffer_.GetSize()));
+      transport.send_msg(reinterpret_cast<const uint8_t*>(json_buffer_.GetString()),
+                         static_cast<uint32_t>(json_buffer_.GetSize()));
     } else {
       LOG_ERROR("Unknown command type");
     }
   }
 };
-}  // namespace rewind_viewer::net
+}  // namespace rewind_viewer::gateway

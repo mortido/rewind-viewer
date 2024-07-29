@@ -103,6 +103,12 @@ table Unsubscribe {
   key:byte;
 }
 
+// TODO: custom buttons with inputs (int, double, dropdown, etc)
+// TODO: enum SubscriptionType : byte { Double = 1, Integer, Select... }
+
+//union Subscription {
+//}
+
 table ReadEvents {
 }
 

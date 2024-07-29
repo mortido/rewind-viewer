@@ -13,7 +13,7 @@ class FlatbuffersMessageHandler : public MessageHandler {
 
  public:
   void handle_message(const uint8_t* buffer, uint32_t, EventsCollection& events,
-                      models::FrameEditor& frame_editor, TcpServer& server) override {
+                      models::FrameEditor& frame_editor, Transport& transport) override {
     auto message = fbs::GetRewindMessage(buffer);
     switch (message->command_type()) {
       case fbs::Command_Circle: {
@@ -264,7 +264,7 @@ class FlatbuffersMessageHandler : public MessageHandler {
         auto events_vector = builder_.CreateVector(event_offsets);
         auto event_list = rewind_viewer::fbs::CreateRewindEventList(builder_, events_vector);
         builder_.Finish(event_list);
-        server.send_msg(builder_.GetBufferPointer(), builder_.GetSize());
+        transport.send_msg(builder_.GetBufferPointer(), builder_.GetSize());
         break;
       }
       default: {

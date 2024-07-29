@@ -57,7 +57,7 @@ Linux:
 
 ```bash
 # Install dependencies
-sudo apt-get update && sudo apt-get install -y libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libwayland-dev libxkbcommon-dev libxi-dev
+sudo apt-get update && sudo apt-get install -y libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libwayland-dev libxkbcommon-dev libxi-dev libgtk-3-dev
 
 mkdir build
 cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
