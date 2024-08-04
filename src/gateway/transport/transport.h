@@ -43,8 +43,17 @@ class Transport {
     return value;
   }
 
+  virtual void close_connection() = 0;
+  virtual bool is_connected() const = 0;
+  virtual const std::string& get_name() const = 0;
+
  protected:
   virtual void read_bytes(uint8_t *buffer, uint32_t size) = 0;
   virtual void send_bytes(const uint8_t *buffer, uint32_t size) = 0;
+};
+
+class ReusableTransport: public Transport {
+ public:
+  virtual bool accept_connection(int timout) = 0;
 };
 }  // namespace rewind_viewer::gateway

@@ -1,28 +1,27 @@
 #pragma once
 
 #include <flatbuffers/flatbuffers.h>
+#include <imgui/fontawesome.h>
 #include <imgui/imgui.h>
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
 #include <exception>
-#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <utility>
 
-#include "common/lock.h"
 #include "gateway/messages/rewind_event.fbs.h"
 
 namespace rewind_viewer::gateway {
 
 class Event {
  protected:
-  std::string name_;
-  bool continuous_ = false;
   ImGuiKey key_ = ImGuiKey_None;
   char key_char_;
+  std::string name_;
+  bool continuous_ = false;
 
   // Mapping from character to ImGuiKey
   ImGuiKey map_char_to_key(char key_char) {
@@ -56,84 +55,29 @@ class Event {
   }
 
  public:
-  Event(std::string name, bool continuous, char key_char)
-      : name_(std::move(name))
-      , continuous_(continuous)
-      , key_(map_char_to_key(key_char))
-      , key_char_(key_char) {}
+  Event(char key_char, std::string name, bool continuous)
+      : key_(map_char_to_key(key_char))
+      , key_char_(key_char)
+      , name_(std::move(name))
+      , continuous_(continuous) {}
 
   virtual ~Event() = default;
   virtual void capture(const glm::vec2& mouse_position) = 0;
   virtual void reset_state() = 0;
   virtual bool is_triggered() const = 0;
 
-  virtual flatbuffers::Offset<rewind_viewer::fbs::RewindEvent> serialize(
+  void render() {
+    static const ImVec4 triggered_color = ImVec4(0.741f, 0.38f, 0.229f, 1.0f);
+    ImGui::Text("[%c] - %s", key_char_, name_.c_str());
+    if (is_triggered()) {
+      ImGui::SameLine();
+      ImGui::TextColored(triggered_color, ICON_FA_ARROW_UP_FROM_BRACKET);
+    }
+  }
+
+  virtual flatbuffers::Offset<rewind_viewer::fbs::KeyEvent> serialize(
       flatbuffers::FlatBufferBuilder& builder) const = 0;
   virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const = 0;
-};
-
-class EventsCollection {
- public:
-  void capture(const glm::vec2& mouse_position) {
-    std::lock_guard lock(mutex_);
-    for (auto& [_, event] : events_) {
-      event->capture(mouse_position);
-    }
-  }
-
-  std::vector<flatbuffers::Offset<rewind_viewer::fbs::RewindEvent>> serialize(
-      flatbuffers::FlatBufferBuilder& builder) {
-    std::lock_guard lock(mutex_);
-    std::vector<flatbuffers::Offset<rewind_viewer::fbs::RewindEvent>> event_offsets;
-    for (const auto& [_, event] : events_) {
-      if (event->is_triggered()) {
-        event_offsets.push_back(event->serialize(builder));
-      }
-    }
-    return event_offsets;
-  }
-
-  void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) {
-    std::lock_guard lock(mutex_);
-    writer.StartObject();
-    writer.Key("events");
-    writer.StartArray();
-    for (const auto& [_, event] : events_) {
-      if (event->is_triggered()) {
-        event->serialize(writer);
-      }
-    }
-    writer.EndArray();
-    writer.EndObject();
-  }
-
-  void reset() {
-    std::lock_guard lock(mutex_);
-    for (const auto& [_, event] : events_) {
-      if (event->is_triggered()) {
-        event->reset_state();
-      }
-    }
-  }
-
-  void remove(char key) {
-    std::lock_guard lock(mutex_);
-    events_.erase(key);
-  }
-
-  void clear() {
-    std::lock_guard lock(mutex_);
-    events_.clear();
-  }
-
-  void add(char key, std::unique_ptr<gateway::Event> event) {
-    std::lock_guard lock(mutex_);
-    events_.emplace(key, std::move(event));
-  }
-
- private:
-  mutable Spinlock mutex_;
-  std::map<char, std::unique_ptr<gateway::Event>> events_;
 };
 
 class CursorEvent : public Event {
@@ -142,8 +86,8 @@ class CursorEvent : public Event {
   glm::vec2 prev_pos_{-100.0, -100.0};
 
  public:
-  CursorEvent(std::string name, bool continuous, char key_char, double min_position_change = 1e-3)
-      : Event(std::move(name), continuous, key_char), min_position_change_(min_position_change) {}
+  CursorEvent(char key_char, std::string name, bool continuous, double min_position_change = 1e-3)
+      : Event(key_char, std::move(name), continuous), min_position_change_(min_position_change) {}
 
   void capture(const glm::vec2& position) override {
     if (ImGui::IsKeyPressed(key_, !continuous_)) {
@@ -151,9 +95,6 @@ class CursorEvent : public Event {
       prev_pos_ = position;
     } else if (continuous_ && ImGui::IsKeyDown(key_)) {
       ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-      ImGui::BeginTooltip();
-      ImGui::Text("Event: %s", name_.c_str());
-      ImGui::EndTooltip();
       if (positions_.empty()) {
         positions_.emplace_back();
       }
@@ -166,15 +107,11 @@ class CursorEvent : public Event {
     }
   }
 
-  [[nodiscard]] bool is_triggered() const override {
-    return !positions_.empty();
-  }
+  [[nodiscard]] bool is_triggered() const override { return !positions_.empty(); }
 
-  void reset_state() override {
-    positions_.clear();
-  }
+  void reset_state() override { positions_.clear(); }
 
-  flatbuffers::Offset<rewind_viewer::fbs::RewindEvent> serialize(
+  flatbuffers::Offset<rewind_viewer::fbs::KeyEvent> serialize(
       flatbuffers::FlatBufferBuilder& builder) const override {
     std::vector<flatbuffers::Offset<rewind_viewer::fbs::MousePath>> paths;
     for (const auto& path : positions_) {
@@ -186,7 +123,7 @@ class CursorEvent : public Event {
           rewind_viewer::fbs::CreateMousePath(builder, builder.CreateVectorOfStructs(points)));
     }
 
-    return rewind_viewer::fbs::CreateRewindEvent(builder, key_char_, builder.CreateVector(paths));
+    return rewind_viewer::fbs::CreateKeyEvent(builder, key_char_, builder.CreateVector(paths));
   }
 
   void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const override {
@@ -216,11 +153,12 @@ class CursorEvent : public Event {
 };
 
 class KeyEvent : public Event {
+ private:
   bool triggered_ = false;
 
  public:
-  KeyEvent(std::string name, bool continuous, char key_char)
-      : Event(std::move(name), continuous, key_char) {}
+  KeyEvent(char key_char, std::string name, bool continuous)
+      : Event(key_char, std::move(name), continuous) {}
 
   void capture(const glm::vec2&) override {
     if (ImGui::IsKeyPressed(key_, true) || (continuous_ && ImGui::IsKeyDown(key_))) {
@@ -228,17 +166,13 @@ class KeyEvent : public Event {
     }
   }
 
-  [[nodiscard]] bool is_triggered() const override {
-    return triggered_;
-  }
+  [[nodiscard]] bool is_triggered() const override { return triggered_; }
 
-  void reset_state() override {
-    triggered_ = false;
-  }
+  void reset_state() override { triggered_ = false; }
 
-  flatbuffers::Offset<rewind_viewer::fbs::RewindEvent> serialize(
+  flatbuffers::Offset<rewind_viewer::fbs::KeyEvent> serialize(
       flatbuffers::FlatBufferBuilder& builder) const override {
-    return rewind_viewer::fbs::CreateRewindEvent(builder, key_char_, 0);
+    return rewind_viewer::fbs::CreateKeyEvent(builder, key_char_, 0);
   }
 
   void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const override {

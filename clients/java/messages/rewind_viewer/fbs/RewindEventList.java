@@ -27,23 +27,33 @@ public final class RewindEventList extends Table {
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public RewindEventList __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public rewind_viewer.fbs.RewindEvent events(int j) { return events(new rewind_viewer.fbs.RewindEvent(), j); }
-  public rewind_viewer.fbs.RewindEvent events(rewind_viewer.fbs.RewindEvent obj, int j) { int o = __offset(4); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
-  public int eventsLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
-  public rewind_viewer.fbs.RewindEvent.Vector eventsVector() { return eventsVector(new rewind_viewer.fbs.RewindEvent.Vector()); }
-  public rewind_viewer.fbs.RewindEvent.Vector eventsVector(rewind_viewer.fbs.RewindEvent.Vector obj) { int o = __offset(4); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
+  public rewind_viewer.fbs.KeyEvent keyEvents(int j) { return keyEvents(new rewind_viewer.fbs.KeyEvent(), j); }
+  public rewind_viewer.fbs.KeyEvent keyEvents(rewind_viewer.fbs.KeyEvent obj, int j) { int o = __offset(4); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public int keyEventsLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
+  public rewind_viewer.fbs.KeyEvent.Vector keyEventsVector() { return keyEventsVector(new rewind_viewer.fbs.KeyEvent.Vector()); }
+  public rewind_viewer.fbs.KeyEvent.Vector keyEventsVector(rewind_viewer.fbs.KeyEvent.Vector obj) { int o = __offset(4); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
+  public rewind_viewer.fbs.ActionEvent actionEvents(int j) { return actionEvents(new rewind_viewer.fbs.ActionEvent(), j); }
+  public rewind_viewer.fbs.ActionEvent actionEvents(rewind_viewer.fbs.ActionEvent obj, int j) { int o = __offset(6); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public int actionEventsLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
+  public rewind_viewer.fbs.ActionEvent.Vector actionEventsVector() { return actionEventsVector(new rewind_viewer.fbs.ActionEvent.Vector()); }
+  public rewind_viewer.fbs.ActionEvent.Vector actionEventsVector(rewind_viewer.fbs.ActionEvent.Vector obj) { int o = __offset(6); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
 
   public static int createRewindEventList(FlatBufferBuilder builder,
-      int eventsOffset) {
-    builder.startTable(1);
-    RewindEventList.addEvents(builder, eventsOffset);
+      int keyEventsOffset,
+      int actionEventsOffset) {
+    builder.startTable(2);
+    RewindEventList.addActionEvents(builder, actionEventsOffset);
+    RewindEventList.addKeyEvents(builder, keyEventsOffset);
     return RewindEventList.endRewindEventList(builder);
   }
 
-  public static void startRewindEventList(FlatBufferBuilder builder) { builder.startTable(1); }
-  public static void addEvents(FlatBufferBuilder builder, int eventsOffset) { builder.addOffset(0, eventsOffset, 0); }
-  public static int createEventsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
-  public static void startEventsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void startRewindEventList(FlatBufferBuilder builder) { builder.startTable(2); }
+  public static void addKeyEvents(FlatBufferBuilder builder, int keyEventsOffset) { builder.addOffset(0, keyEventsOffset, 0); }
+  public static int createKeyEventsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
+  public static void startKeyEventsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addActionEvents(FlatBufferBuilder builder, int actionEventsOffset) { builder.addOffset(1, actionEventsOffset, 0); }
+  public static int createActionEventsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
+  public static void startActionEventsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static int endRewindEventList(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;

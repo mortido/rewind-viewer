@@ -5,6 +5,13 @@
 #include <string>
 
 namespace rewind_viewer {
+
+template <typename T>
+void swap_bytes(T &value) {
+  auto *bytes = reinterpret_cast<uint8_t *>(&value);
+  std::reverse(bytes, bytes + sizeof(T));
+}
+
 template <typename... Args>
 std::string str_format(const char *format, Args... args) {
   int size_s = std::snprintf(nullptr, 0, format, args...) + 1;

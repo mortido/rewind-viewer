@@ -21,11 +21,88 @@ namespace fbs {
 struct MousePath;
 struct MousePathBuilder;
 
-struct RewindEvent;
-struct RewindEventBuilder;
+struct KeyEvent;
+struct KeyEventBuilder;
+
+struct IntValue;
+struct IntValueBuilder;
+
+struct FloatValue;
+struct FloatValueBuilder;
+
+struct BoolValue;
+struct BoolValueBuilder;
+
+struct StringValue;
+struct StringValueBuilder;
+
+struct ActionEvent;
+struct ActionEventBuilder;
 
 struct RewindEventList;
 struct RewindEventListBuilder;
+
+enum ActionValue : uint8_t {
+  ActionValue_NONE = 0,
+  ActionValue_IntValue = 1,
+  ActionValue_FloatValue = 2,
+  ActionValue_BoolValue = 3,
+  ActionValue_StringValue = 4,
+  ActionValue_MIN = ActionValue_NONE,
+  ActionValue_MAX = ActionValue_StringValue
+};
+
+inline const ActionValue (&EnumValuesActionValue())[5] {
+  static const ActionValue values[] = {
+    ActionValue_NONE,
+    ActionValue_IntValue,
+    ActionValue_FloatValue,
+    ActionValue_BoolValue,
+    ActionValue_StringValue
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesActionValue() {
+  static const char * const names[6] = {
+    "NONE",
+    "IntValue",
+    "FloatValue",
+    "BoolValue",
+    "StringValue",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameActionValue(ActionValue e) {
+  if (::flatbuffers::IsOutRange(e, ActionValue_NONE, ActionValue_StringValue)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesActionValue()[index];
+}
+
+template<typename T> struct ActionValueTraits {
+  static const ActionValue enum_value = ActionValue_NONE;
+};
+
+template<> struct ActionValueTraits<rewind_viewer::fbs::IntValue> {
+  static const ActionValue enum_value = ActionValue_IntValue;
+};
+
+template<> struct ActionValueTraits<rewind_viewer::fbs::FloatValue> {
+  static const ActionValue enum_value = ActionValue_FloatValue;
+};
+
+template<> struct ActionValueTraits<rewind_viewer::fbs::BoolValue> {
+  static const ActionValue enum_value = ActionValue_BoolValue;
+};
+
+template<> struct ActionValueTraits<rewind_viewer::fbs::StringValue> {
+  static const ActionValue enum_value = ActionValue_StringValue;
+};
+
+bool VerifyActionValue(::flatbuffers::Verifier &verifier, const void *obj, ActionValue type);
+bool VerifyActionValueVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
 struct MousePath FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef MousePathBuilder Builder;
@@ -78,8 +155,8 @@ inline ::flatbuffers::Offset<MousePath> CreateMousePathDirect(
       points__);
 }
 
-struct RewindEvent FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef RewindEventBuilder Builder;
+struct KeyEvent FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef KeyEventBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_KEY = 4,
     VT_MOUSE_PATHS = 6
@@ -100,61 +177,347 @@ struct RewindEvent FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
 };
 
-struct RewindEventBuilder {
-  typedef RewindEvent Table;
+struct KeyEventBuilder {
+  typedef KeyEvent Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
   void add_key(int8_t key) {
-    fbb_.AddElement<int8_t>(RewindEvent::VT_KEY, key, 0);
+    fbb_.AddElement<int8_t>(KeyEvent::VT_KEY, key, 0);
   }
   void add_mouse_paths(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>>> mouse_paths) {
-    fbb_.AddOffset(RewindEvent::VT_MOUSE_PATHS, mouse_paths);
+    fbb_.AddOffset(KeyEvent::VT_MOUSE_PATHS, mouse_paths);
   }
-  explicit RewindEventBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  explicit KeyEventBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<RewindEvent> Finish() {
+  ::flatbuffers::Offset<KeyEvent> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<RewindEvent>(end);
+    auto o = ::flatbuffers::Offset<KeyEvent>(end);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<RewindEvent> CreateRewindEvent(
+inline ::flatbuffers::Offset<KeyEvent> CreateKeyEvent(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int8_t key = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>>> mouse_paths = 0) {
-  RewindEventBuilder builder_(_fbb);
+  KeyEventBuilder builder_(_fbb);
   builder_.add_mouse_paths(mouse_paths);
   builder_.add_key(key);
   return builder_.Finish();
 }
 
-inline ::flatbuffers::Offset<RewindEvent> CreateRewindEventDirect(
+inline ::flatbuffers::Offset<KeyEvent> CreateKeyEventDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     int8_t key = 0,
     const std::vector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>> *mouse_paths = nullptr) {
   auto mouse_paths__ = mouse_paths ? _fbb.CreateVector<::flatbuffers::Offset<rewind_viewer::fbs::MousePath>>(*mouse_paths) : 0;
-  return rewind_viewer::fbs::CreateRewindEvent(
+  return rewind_viewer::fbs::CreateKeyEvent(
       _fbb,
       key,
       mouse_paths__);
 }
 
-struct RewindEventList FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef RewindEventListBuilder Builder;
+struct IntValue FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef IntValueBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_EVENTS = 4
+    VT_VALUE = 4
   };
-  const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::RewindEvent>> *events() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::RewindEvent>> *>(VT_EVENTS);
+  int32_t value() const {
+    return GetField<int32_t>(VT_VALUE, 0);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_EVENTS) &&
-           verifier.VerifyVector(events()) &&
-           verifier.VerifyVectorOfTables(events()) &&
+           VerifyField<int32_t>(verifier, VT_VALUE, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct IntValueBuilder {
+  typedef IntValue Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_value(int32_t value) {
+    fbb_.AddElement<int32_t>(IntValue::VT_VALUE, value, 0);
+  }
+  explicit IntValueBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<IntValue> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<IntValue>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<IntValue> CreateIntValue(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t value = 0) {
+  IntValueBuilder builder_(_fbb);
+  builder_.add_value(value);
+  return builder_.Finish();
+}
+
+struct FloatValue FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef FloatValueBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_VALUE = 4
+  };
+  float value() const {
+    return GetField<float>(VT_VALUE, 0.0f);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<float>(verifier, VT_VALUE, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct FloatValueBuilder {
+  typedef FloatValue Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_value(float value) {
+    fbb_.AddElement<float>(FloatValue::VT_VALUE, value, 0.0f);
+  }
+  explicit FloatValueBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<FloatValue> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<FloatValue>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<FloatValue> CreateFloatValue(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    float value = 0.0f) {
+  FloatValueBuilder builder_(_fbb);
+  builder_.add_value(value);
+  return builder_.Finish();
+}
+
+struct BoolValue FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef BoolValueBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_VALUE = 4
+  };
+  bool value() const {
+    return GetField<uint8_t>(VT_VALUE, 0) != 0;
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_VALUE, 1) &&
+           verifier.EndTable();
+  }
+};
+
+struct BoolValueBuilder {
+  typedef BoolValue Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_value(bool value) {
+    fbb_.AddElement<uint8_t>(BoolValue::VT_VALUE, static_cast<uint8_t>(value), 0);
+  }
+  explicit BoolValueBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<BoolValue> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<BoolValue>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<BoolValue> CreateBoolValue(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    bool value = false) {
+  BoolValueBuilder builder_(_fbb);
+  builder_.add_value(value);
+  return builder_.Finish();
+}
+
+struct StringValue FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef StringValueBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_VALUE = 4
+  };
+  const ::flatbuffers::String *value() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_VALUE);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_VALUE) &&
+           verifier.VerifyString(value()) &&
+           verifier.EndTable();
+  }
+};
+
+struct StringValueBuilder {
+  typedef StringValue Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_value(::flatbuffers::Offset<::flatbuffers::String> value) {
+    fbb_.AddOffset(StringValue::VT_VALUE, value);
+  }
+  explicit StringValueBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<StringValue> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<StringValue>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<StringValue> CreateStringValue(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> value = 0) {
+  StringValueBuilder builder_(_fbb);
+  builder_.add_value(value);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<StringValue> CreateStringValueDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *value = nullptr) {
+  auto value__ = value ? _fbb.CreateString(value) : 0;
+  return rewind_viewer::fbs::CreateStringValue(
+      _fbb,
+      value__);
+}
+
+struct ActionEvent FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ActionEventBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_VALUE_TYPE = 6,
+    VT_VALUE = 8
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  rewind_viewer::fbs::ActionValue value_type() const {
+    return static_cast<rewind_viewer::fbs::ActionValue>(GetField<uint8_t>(VT_VALUE_TYPE, 0));
+  }
+  const void *value() const {
+    return GetPointer<const void *>(VT_VALUE);
+  }
+  template<typename T> const T *value_as() const;
+  const rewind_viewer::fbs::IntValue *value_as_IntValue() const {
+    return value_type() == rewind_viewer::fbs::ActionValue_IntValue ? static_cast<const rewind_viewer::fbs::IntValue *>(value()) : nullptr;
+  }
+  const rewind_viewer::fbs::FloatValue *value_as_FloatValue() const {
+    return value_type() == rewind_viewer::fbs::ActionValue_FloatValue ? static_cast<const rewind_viewer::fbs::FloatValue *>(value()) : nullptr;
+  }
+  const rewind_viewer::fbs::BoolValue *value_as_BoolValue() const {
+    return value_type() == rewind_viewer::fbs::ActionValue_BoolValue ? static_cast<const rewind_viewer::fbs::BoolValue *>(value()) : nullptr;
+  }
+  const rewind_viewer::fbs::StringValue *value_as_StringValue() const {
+    return value_type() == rewind_viewer::fbs::ActionValue_StringValue ? static_cast<const rewind_viewer::fbs::StringValue *>(value()) : nullptr;
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyField<uint8_t>(verifier, VT_VALUE_TYPE, 1) &&
+           VerifyOffset(verifier, VT_VALUE) &&
+           VerifyActionValue(verifier, value(), value_type()) &&
+           verifier.EndTable();
+  }
+};
+
+template<> inline const rewind_viewer::fbs::IntValue *ActionEvent::value_as<rewind_viewer::fbs::IntValue>() const {
+  return value_as_IntValue();
+}
+
+template<> inline const rewind_viewer::fbs::FloatValue *ActionEvent::value_as<rewind_viewer::fbs::FloatValue>() const {
+  return value_as_FloatValue();
+}
+
+template<> inline const rewind_viewer::fbs::BoolValue *ActionEvent::value_as<rewind_viewer::fbs::BoolValue>() const {
+  return value_as_BoolValue();
+}
+
+template<> inline const rewind_viewer::fbs::StringValue *ActionEvent::value_as<rewind_viewer::fbs::StringValue>() const {
+  return value_as_StringValue();
+}
+
+struct ActionEventBuilder {
+  typedef ActionEvent Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(ActionEvent::VT_NAME, name);
+  }
+  void add_value_type(rewind_viewer::fbs::ActionValue value_type) {
+    fbb_.AddElement<uint8_t>(ActionEvent::VT_VALUE_TYPE, static_cast<uint8_t>(value_type), 0);
+  }
+  void add_value(::flatbuffers::Offset<void> value) {
+    fbb_.AddOffset(ActionEvent::VT_VALUE, value);
+  }
+  explicit ActionEventBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ActionEvent> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ActionEvent>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ActionEvent> CreateActionEvent(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    rewind_viewer::fbs::ActionValue value_type = rewind_viewer::fbs::ActionValue_NONE,
+    ::flatbuffers::Offset<void> value = 0) {
+  ActionEventBuilder builder_(_fbb);
+  builder_.add_value(value);
+  builder_.add_name(name);
+  builder_.add_value_type(value_type);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ActionEvent> CreateActionEventDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    rewind_viewer::fbs::ActionValue value_type = rewind_viewer::fbs::ActionValue_NONE,
+    ::flatbuffers::Offset<void> value = 0) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return rewind_viewer::fbs::CreateActionEvent(
+      _fbb,
+      name__,
+      value_type,
+      value);
+}
+
+struct RewindEventList FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef RewindEventListBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_KEY_EVENTS = 4,
+    VT_ACTION_EVENTS = 6
+  };
+  const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::KeyEvent>> *key_events() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::KeyEvent>> *>(VT_KEY_EVENTS);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::ActionEvent>> *action_events() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::ActionEvent>> *>(VT_ACTION_EVENTS);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_KEY_EVENTS) &&
+           verifier.VerifyVector(key_events()) &&
+           verifier.VerifyVectorOfTables(key_events()) &&
+           VerifyOffset(verifier, VT_ACTION_EVENTS) &&
+           verifier.VerifyVector(action_events()) &&
+           verifier.VerifyVectorOfTables(action_events()) &&
            verifier.EndTable();
   }
 };
@@ -163,8 +526,11 @@ struct RewindEventListBuilder {
   typedef RewindEventList Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_events(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::RewindEvent>>> events) {
-    fbb_.AddOffset(RewindEventList::VT_EVENTS, events);
+  void add_key_events(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::KeyEvent>>> key_events) {
+    fbb_.AddOffset(RewindEventList::VT_KEY_EVENTS, key_events);
+  }
+  void add_action_events(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::ActionEvent>>> action_events) {
+    fbb_.AddOffset(RewindEventList::VT_ACTION_EVENTS, action_events);
   }
   explicit RewindEventListBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -179,19 +545,61 @@ struct RewindEventListBuilder {
 
 inline ::flatbuffers::Offset<RewindEventList> CreateRewindEventList(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::RewindEvent>>> events = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::KeyEvent>>> key_events = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::ActionEvent>>> action_events = 0) {
   RewindEventListBuilder builder_(_fbb);
-  builder_.add_events(events);
+  builder_.add_action_events(action_events);
+  builder_.add_key_events(key_events);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<RewindEventList> CreateRewindEventListDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<::flatbuffers::Offset<rewind_viewer::fbs::RewindEvent>> *events = nullptr) {
-  auto events__ = events ? _fbb.CreateVector<::flatbuffers::Offset<rewind_viewer::fbs::RewindEvent>>(*events) : 0;
+    const std::vector<::flatbuffers::Offset<rewind_viewer::fbs::KeyEvent>> *key_events = nullptr,
+    const std::vector<::flatbuffers::Offset<rewind_viewer::fbs::ActionEvent>> *action_events = nullptr) {
+  auto key_events__ = key_events ? _fbb.CreateVector<::flatbuffers::Offset<rewind_viewer::fbs::KeyEvent>>(*key_events) : 0;
+  auto action_events__ = action_events ? _fbb.CreateVector<::flatbuffers::Offset<rewind_viewer::fbs::ActionEvent>>(*action_events) : 0;
   return rewind_viewer::fbs::CreateRewindEventList(
       _fbb,
-      events__);
+      key_events__,
+      action_events__);
+}
+
+inline bool VerifyActionValue(::flatbuffers::Verifier &verifier, const void *obj, ActionValue type) {
+  switch (type) {
+    case ActionValue_NONE: {
+      return true;
+    }
+    case ActionValue_IntValue: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::IntValue *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case ActionValue_FloatValue: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::FloatValue *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case ActionValue_BoolValue: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::BoolValue *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case ActionValue_StringValue: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::StringValue *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    default: return true;
+  }
+}
+
+inline bool VerifyActionValueVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
+  if (!values || !types) return !values && !types;
+  if (values->size() != types->size()) return false;
+  for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
+    if (!VerifyActionValue(
+        verifier,  values->Get(i), types->GetEnum<ActionValue>(i))) {
+      return false;
+    }
+  }
+  return true;
 }
 
 inline const rewind_viewer::fbs::RewindEventList *GetRewindEventList(const void *buf) {

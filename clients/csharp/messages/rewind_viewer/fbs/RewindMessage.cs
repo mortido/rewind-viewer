@@ -26,6 +26,7 @@ public struct RewindMessage : IFlatbufferObject
   public rewind_viewer.fbs.CameraView CommandAsCameraView() { return Command<rewind_viewer.fbs.CameraView>().Value; }
   public rewind_viewer.fbs.Circle CommandAsCircle() { return Command<rewind_viewer.fbs.Circle>().Value; }
   public rewind_viewer.fbs.CircleSegment CommandAsCircleSegment() { return Command<rewind_viewer.fbs.CircleSegment>().Value; }
+  public rewind_viewer.fbs.CreateAction CommandAsCreateAction() { return Command<rewind_viewer.fbs.CreateAction>().Value; }
   public rewind_viewer.fbs.LogText CommandAsLogText() { return Command<rewind_viewer.fbs.LogText>().Value; }
   public rewind_viewer.fbs.Options CommandAsOptions() { return Command<rewind_viewer.fbs.Options>().Value; }
   public rewind_viewer.fbs.Polyline CommandAsPolyline() { return Command<rewind_viewer.fbs.Polyline>().Value; }
@@ -33,11 +34,11 @@ public struct RewindMessage : IFlatbufferObject
   public rewind_viewer.fbs.PopupRound CommandAsPopupRound() { return Command<rewind_viewer.fbs.PopupRound>().Value; }
   public rewind_viewer.fbs.ReadEvents CommandAsReadEvents() { return Command<rewind_viewer.fbs.ReadEvents>().Value; }
   public rewind_viewer.fbs.Rectangle CommandAsRectangle() { return Command<rewind_viewer.fbs.Rectangle>().Value; }
+  public rewind_viewer.fbs.RemoveAction CommandAsRemoveAction() { return Command<rewind_viewer.fbs.RemoveAction>().Value; }
   public rewind_viewer.fbs.Subscribe CommandAsSubscribe() { return Command<rewind_viewer.fbs.Subscribe>().Value; }
   public rewind_viewer.fbs.Tiles CommandAsTiles() { return Command<rewind_viewer.fbs.Tiles>().Value; }
   public rewind_viewer.fbs.Triangle CommandAsTriangle() { return Command<rewind_viewer.fbs.Triangle>().Value; }
   public rewind_viewer.fbs.Unsubscribe CommandAsUnsubscribe() { return Command<rewind_viewer.fbs.Unsubscribe>().Value; }
-  public rewind_viewer.fbs.Primitives CommandAsPrimitives() { return Command<rewind_viewer.fbs.Primitives>().Value; }
   public rewind_viewer.fbs.EndFrame CommandAsEndFrame() { return Command<rewind_viewer.fbs.EndFrame>().Value; }
 
   public static Offset<rewind_viewer.fbs.RewindMessage> CreateRewindMessage(FlatBufferBuilder builder,

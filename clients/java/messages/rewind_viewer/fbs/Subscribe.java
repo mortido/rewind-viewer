@@ -27,22 +27,19 @@ public final class Subscribe extends Table {
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public Subscribe __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public String name() { int o = __offset(4); return o != 0 ? __string(o + bb_pos) : null; }
-  public ByteBuffer nameAsByteBuffer() { return __vector_as_bytebuffer(4, 1); }
-  public ByteBuffer nameInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 4, 1); }
-  public byte key() { int o = __offset(6); return o != 0 ? bb.get(o + bb_pos) : 0; }
+  public byte key() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
+  public String name() { int o = __offset(6); return o != 0 ? __string(o + bb_pos) : null; }
+  public ByteBuffer nameAsByteBuffer() { return __vector_as_bytebuffer(6, 1); }
+  public ByteBuffer nameInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 6, 1); }
   public boolean continuous() { int o = __offset(8); return o != 0 ? 0!=bb.get(o + bb_pos) : false; }
   public boolean captureMouse() { int o = __offset(10); return o != 0 ? 0!=bb.get(o + bb_pos) : false; }
-  public float minPositionChange() { int o = __offset(12); return o != 0 ? bb.getFloat(o + bb_pos) : 0.001f; }
 
   public static int createSubscribe(FlatBufferBuilder builder,
-      int nameOffset,
       byte key,
+      int nameOffset,
       boolean continuous,
-      boolean captureMouse,
-      float minPositionChange) {
-    builder.startTable(5);
-    Subscribe.addMinPositionChange(builder, minPositionChange);
+      boolean captureMouse) {
+    builder.startTable(4);
     Subscribe.addName(builder, nameOffset);
     Subscribe.addCaptureMouse(builder, captureMouse);
     Subscribe.addContinuous(builder, continuous);
@@ -50,14 +47,14 @@ public final class Subscribe extends Table {
     return Subscribe.endSubscribe(builder);
   }
 
-  public static void startSubscribe(FlatBufferBuilder builder) { builder.startTable(5); }
-  public static void addName(FlatBufferBuilder builder, int nameOffset) { builder.addOffset(0, nameOffset, 0); }
-  public static void addKey(FlatBufferBuilder builder, byte key) { builder.addByte(1, key, 0); }
+  public static void startSubscribe(FlatBufferBuilder builder) { builder.startTable(4); }
+  public static void addKey(FlatBufferBuilder builder, byte key) { builder.addByte(0, key, 0); }
+  public static void addName(FlatBufferBuilder builder, int nameOffset) { builder.addOffset(1, nameOffset, 0); }
   public static void addContinuous(FlatBufferBuilder builder, boolean continuous) { builder.addBoolean(2, continuous, false); }
   public static void addCaptureMouse(FlatBufferBuilder builder, boolean captureMouse) { builder.addBoolean(3, captureMouse, false); }
-  public static void addMinPositionChange(FlatBufferBuilder builder, float minPositionChange) { builder.addFloat(4, minPositionChange, 0.001f); }
   public static int endSubscribe(FlatBufferBuilder builder) {
     int o = builder.endTable();
+    builder.required(o, 6);  // name
     return o;
   }
 

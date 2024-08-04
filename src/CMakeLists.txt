@@ -25,8 +25,17 @@ set(SOURCES
         models/scene.cpp
         models/frame_editor.cpp
 
+        ui/control_pad.cpp
+        ui/main_menu.cpp
+        ui/playback_controls.cpp
+        ui/status_overlay.cpp
+        ui/style_manager.cpp
+        ui/toolbox_panel.cpp
+        ui/viewport.cpp
+
         gateway/client_gateway.cpp
         gateway/transport/tcp_server.cpp
+        gateway/transport/dump_reader.cpp
         )
 
 #set(MACOSX_BUNDLE_BUNDLE_NAME "MyApp")

@@ -10,21 +10,22 @@ public final class Command {
   public static final byte CameraView = 2;
   public static final byte Circle = 3;
   public static final byte CircleSegment = 4;
-  public static final byte LogText = 5;
-  public static final byte Options = 6;
-  public static final byte Polyline = 7;
-  public static final byte Popup = 8;
-  public static final byte PopupRound = 9;
-  public static final byte ReadEvents = 10;
-  public static final byte Rectangle = 11;
-  public static final byte Subscribe = 12;
-  public static final byte Tiles = 13;
-  public static final byte Triangle = 14;
-  public static final byte Unsubscribe = 15;
-  public static final byte Primitives = 16;
-  public static final byte EndFrame = 17;
+  public static final byte CreateAction = 5;
+  public static final byte LogText = 6;
+  public static final byte Options = 7;
+  public static final byte Polyline = 8;
+  public static final byte Popup = 9;
+  public static final byte PopupRound = 10;
+  public static final byte ReadEvents = 11;
+  public static final byte Rectangle = 12;
+  public static final byte RemoveAction = 13;
+  public static final byte Subscribe = 14;
+  public static final byte Tiles = 15;
+  public static final byte Triangle = 16;
+  public static final byte Unsubscribe = 17;
+  public static final byte EndFrame = 18;
 
-  public static final String[] names = { "NONE", "Arc", "CameraView", "Circle", "CircleSegment", "LogText", "Options", "Polyline", "Popup", "PopupRound", "ReadEvents", "Rectangle", "Subscribe", "Tiles", "Triangle", "Unsubscribe", "Primitives", "EndFrame", };
+  public static final String[] names = { "NONE", "Arc", "CameraView", "Circle", "CircleSegment", "CreateAction", "LogText", "Options", "Polyline", "Popup", "PopupRound", "ReadEvents", "Rectangle", "RemoveAction", "Subscribe", "Tiles", "Triangle", "Unsubscribe", "EndFrame", };
 
   public static String name(int e) { return names[e]; }
 }

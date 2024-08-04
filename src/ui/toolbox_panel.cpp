@@ -1,0 +1,161 @@
+#include "ui/toolbox_panel.h"
+
+#include <imgui/fontawesome.h>
+#include <imgui/imgui.h>
+
+namespace rewind_viewer::ui {
+void ToolboxPanel::render(RewindViewerState &ui_state, const models::Config &config,
+                          models::Scene &scene,
+                          std::vector<std::unique_ptr<gateway::ClientGateway>> &gateways) {
+  // todo:
+  auto current_frame_ = scene.get_frame(&ui_state.current_frame_idx);
+
+  if (!ui_state.show_toolbox_panel) {
+    ui_state.frame_info_width = 0.0f;
+    return;
+  }
+  auto &io = ImGui::GetIO();
+  ui_state.frame_info_width = static_cast<float>(config.ui->utility_width);
+  ImGui::SetNextWindowPos({io.DisplaySize.x - ui_state.frame_info_width, ui_state.main_menu_height},
+                          ImGuiCond_None);
+  ImGui::SetNextWindowSize(
+      {ui_state.frame_info_width,
+       io.DisplaySize.y - ui_state.main_menu_height - ui_state.playback_controls_height},
+      ImGuiCond_None);
+  static const auto wflags =
+      ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
+
+  ImGui::Begin("Toolbox", nullptr, wflags);
+  const auto flags = ImGuiTreeNodeFlags_DefaultOpen;
+  if (ImGui::CollapsingHeader(ICON_FA_IMAGE " Canvas", flags)) {
+    ImGui::SetColorEditOptions(ImGuiColorEditFlags_NoInputs);
+    ImGui::ColorEdit3("Background", (float *)&config.ui->canvas_background_color);
+    ImGui::Checkbox("##show_grid", &config.scene->show_grid);
+    ImGui::SameLine();
+    ImGui::ColorEdit3("Grid", (float *)&config.scene->grid_color);
+
+    ImGui::Checkbox("##draw_map_background", &config.scene->show_background);
+    ImGui::SameLine();
+    ImGui::ColorEdit3("Map", (float *)&config.scene->background_color);
+    ImGui::Checkbox("Show game coordinates", &config.scene->show_game_coordinates);
+  }
+  if (ImGui::CollapsingHeader(ICON_FA_CAMERA " Camera", flags)) {
+    ImGui::PushItemWidth(-1);
+    if (ImGui::BeginCombo("##frame_cameras", ui_state.selected_camera.empty()
+                                                 ? "none"
+                                                 : ui_state.selected_camera.c_str())) {
+      if (current_frame_) {
+        const auto &cameras = current_frame_->get_cameras();
+        for (const auto &[name, _] : cameras) {
+          bool is_selected = ui_state.selected_camera == name;
+          if (ImGui::Selectable(name.c_str(), is_selected)) {
+            ui_state.selected_camera = name;
+            ui_state.ignore_frame_camera_viewport = false;
+          }
+
+          // Set the initial focus when opening the combo (scrolling to the selected item).
+          if (is_selected) {
+            ImGui::SetItemDefaultFocus();
+          }
+        }
+      }
+      ImGui::EndCombo();
+    }
+    ImGui::PopItemWidth();
+
+    ImGui::PushItemWidth(70);
+    float temp_scale = 1.0f / scene.camera.get_scale();
+    if (ImGui::InputFloat("Scale", &temp_scale, 0.0, 0.0, "%.2f")) {
+      temp_scale = std::min(1000.0f, std::max(0.01f, temp_scale));
+      scene.camera.set_scale(1.0f / temp_scale);
+      ui_state.ignore_frame_camera_viewport = true;
+    }
+    ImGui::PopItemWidth();
+//    ImGui::SameLine(0, 40);
+    if (ImGui::Checkbox("Y axis up", &config.scene->camera.y_axis_up)) {
+      scene.camera.set_y_axis_up(config.scene->camera.y_axis_up);
+    }
+  }
+  if (ImGui::CollapsingHeader(ICON_FA_LIST " Layers", flags)) {
+    static const ImVec4 tick_button_colors[] = {
+        ImVec4(0.5f, 0.5f, 0.5f, 1.0f),      // Disabled color
+        ImVec4(0.38f, 0.741f, 0.229f, 1.0f)  // Enabled color
+    };
+    static const std::array<const char *, static_cast<size_t>(models::SceneConfig::LAYERS_COUNT)>
+        tick_captions = {"##layer0", "##layer1", "##layer2", "##layer3", "##layer4",
+                         "##layer5", "##layer6", "##layer7", "##layer8", "##layer9"};
+    static const ImVec4 permanent_button_colors[] = {
+        ImVec4(0.5f, 0.5f, 0.5f, 1.0f),      // Disabled color
+        ImVec4(0.741f, 0.38f, 0.229f, 1.0f)  // Enabled color
+    };
+    static const std::array<const char *, static_cast<size_t>(models::SceneConfig::LAYERS_COUNT)>
+        permanent_captions = {"##p_layer0", "##p_layer1", "##p_layer2", "##p_layer3", "##p_layer4",
+                              "##p_layer5", "##p_layer6", "##p_layer7", "##p_layer8", "##p_layer9"};
+
+    size_t idx = 0;
+    for (bool &enabled : config.scene->enabled_layers) {
+      if (ImGui::ColorButton(tick_captions[idx], tick_button_colors[enabled],
+                             ImGuiColorEditFlags_NoTooltip)) {
+        enabled = !enabled;
+      }
+      idx++;
+      ImGui::SameLine();
+    }
+    ImGui::TextDisabled("(?)");
+    if (ImGui::BeginItemTooltip()) {
+      ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+      ImGui::TextUnformatted("Frame layers 1-10");
+      ImGui::PopTextWrapPos();
+      ImGui::EndTooltip();
+    }
+
+    idx = 0;
+    for (bool &enabled : config.scene->enabled_permanent_layers) {
+      if (ImGui::ColorButton(permanent_captions[idx], permanent_button_colors[enabled],
+                             ImGuiColorEditFlags_NoTooltip)) {
+        enabled = !enabled;
+      }
+      idx++;
+      ImGui::SameLine();
+    }
+    ImGui::TextDisabled("(?)");
+    if (ImGui::BeginItemTooltip()) {
+      ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+      ImGui::TextUnformatted("Permanent layers 1-10");
+      ImGui::PopTextWrapPos();
+      ImGui::EndTooltip();
+    }
+  }
+  if (ui_state.show_control_pad_window) {
+    ImGui::SetNextWindowSize(ImVec2(0, 0), ImGuiCond_Always);
+    if (ImGui::Begin(ICON_FA_GAMEPAD " Control Pad", &ui_state.show_control_pad_window,
+                     ImGuiWindowFlags_AlwaysAutoResize)) {
+      control_pad_.render(gateways);
+      ImGui::End();
+    }
+  } else {
+    if (ImGui::Button(ICON_FA_WINDOW_MAXIMIZE)) {
+      ui_state.show_control_pad_window = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::CollapsingHeader(ICON_FA_GAMEPAD " Control Pad", flags)) {
+      ImGui::BeginChild("##control_pad", {0, 0},
+                        ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
+      control_pad_.render(gateways);
+      ImGui::EndChild();
+    }
+  }
+  if (ImGui::CollapsingHeader(ICON_FA_COMMENT " Frame message", flags)) {
+    ImGui::BeginChild("FrameMsg", {0, 0}, ImGuiChildFlags_Border);
+    if (current_frame_) {  // todo:
+      ImGui::TextWrapped("%s", current_frame_->get_user_message().c_str());
+    }
+    ImGui::EndChild();
+  }
+
+  config.ui->utility_width = static_cast<int>(ImGui::GetWindowWidth());
+
+  ImGui::End();
+}
+
+}  // namespace rewind_viewer::ui

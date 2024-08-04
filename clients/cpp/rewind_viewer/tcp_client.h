@@ -18,12 +18,6 @@ class TcpClient {
   std::unique_ptr<CActiveSocket> socket_;
   bool is_little_endian_;
 
-  template <typename T>
-  void swap_bytes(T &value) {
-    auto *bytes = reinterpret_cast<uint8_t *>(&value);
-    std::reverse(bytes, bytes + sizeof(T));
-  }
-
   void read_bytes(uint8_t *buffer, uint32_t size) {
     if (!socket_) {
       throw std::runtime_error("Can't read bytes if socket is not connected.");

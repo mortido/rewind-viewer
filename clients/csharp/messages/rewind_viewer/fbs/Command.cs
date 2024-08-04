@@ -12,19 +12,20 @@ public enum Command : byte
   CameraView = 2,
   Circle = 3,
   CircleSegment = 4,
-  LogText = 5,
-  Options = 6,
-  Polyline = 7,
-  Popup = 8,
-  PopupRound = 9,
-  ReadEvents = 10,
-  Rectangle = 11,
-  Subscribe = 12,
-  Tiles = 13,
-  Triangle = 14,
-  Unsubscribe = 15,
-  Primitives = 16,
-  EndFrame = 17,
+  CreateAction = 5,
+  LogText = 6,
+  Options = 7,
+  Polyline = 8,
+  Popup = 9,
+  PopupRound = 10,
+  ReadEvents = 11,
+  Rectangle = 12,
+  RemoveAction = 13,
+  Subscribe = 14,
+  Tiles = 15,
+  Triangle = 16,
+  Unsubscribe = 17,
+  EndFrame = 18,
 };
 
 
@@ -48,6 +49,9 @@ static public class CommandVerify
       case Command.CircleSegment:
         result = rewind_viewer.fbs.CircleSegmentVerify.Verify(verifier, tablePos);
         break;
+      case Command.CreateAction:
+        result = rewind_viewer.fbs.CreateActionVerify.Verify(verifier, tablePos);
+        break;
       case Command.LogText:
         result = rewind_viewer.fbs.LogTextVerify.Verify(verifier, tablePos);
         break;
@@ -69,6 +73,9 @@ static public class CommandVerify
       case Command.Rectangle:
         result = rewind_viewer.fbs.RectangleVerify.Verify(verifier, tablePos);
         break;
+      case Command.RemoveAction:
+        result = rewind_viewer.fbs.RemoveActionVerify.Verify(verifier, tablePos);
+        break;
       case Command.Subscribe:
         result = rewind_viewer.fbs.SubscribeVerify.Verify(verifier, tablePos);
         break;
@@ -80,9 +87,6 @@ static public class CommandVerify
         break;
       case Command.Unsubscribe:
         result = rewind_viewer.fbs.UnsubscribeVerify.Verify(verifier, tablePos);
-        break;
-      case Command.Primitives:
-        result = rewind_viewer.fbs.PrimitivesVerify.Verify(verifier, tablePos);
         break;
       case Command.EndFrame:
         result = rewind_viewer.fbs.EndFrameVerify.Verify(verifier, tablePos);

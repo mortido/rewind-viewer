@@ -12,7 +12,9 @@ class FlatbuffersMessageHandler : public MessageHandler {
   flatbuffers::FlatBufferBuilder builder_;
 
  public:
-  void handle_message(const uint8_t* buffer, uint32_t, EventsCollection& events,
+  void handle_message(const uint8_t* buffer, uint32_t,
+                      LockDictionary<char, std::unique_ptr<Event>>& events,
+                      LockDictionary<std::string, std::unique_ptr<Action>>& actions,
                       models::FrameEditor& frame_editor, Transport& transport) override {
     auto message = fbs::GetRewindMessage(buffer);
     switch (message->command_type()) {
@@ -239,14 +241,14 @@ class FlatbuffersMessageHandler : public MessageHandler {
         LOG_V8("FlatBuffersHandler::SUBSCRIBE");
         auto subscribe = message->command_as_Subscribe();
         if (subscribe->capture_mouse()) {
-          events.add(subscribe->key(), std::make_unique<CursorEvent>(
-                                           subscribe->name()->str(), subscribe->continuous(),
-                                           subscribe->key(), subscribe->min_position_change()));
+          events.add(subscribe->key(),
+                     std::make_unique<CursorEvent>(subscribe->key(), subscribe->name()->str(),
+                                                   subscribe->continuous()));
 
         } else {
           events.add(subscribe->key(),
-                     std::make_unique<KeyEvent>(subscribe->name()->str(), subscribe->continuous(),
-                                                subscribe->key()));
+                     std::make_unique<KeyEvent>(subscribe->key(), subscribe->name()->str(),
+                                                subscribe->continuous()));
         }
         break;
       }
@@ -259,12 +261,87 @@ class FlatbuffersMessageHandler : public MessageHandler {
       case fbs::Command_ReadEvents: {
         LOG_V8("FlatBuffersHandler::READ_EVENTS");
         builder_.Clear();
-        auto event_offsets = events.serialize(builder_);
-        events.reset();
+        std::vector<flatbuffers::Offset<rewind_viewer::fbs::KeyEvent>> event_offsets;
+        std::vector<flatbuffers::Offset<rewind_viewer::fbs::ActionEvent>> actions_offsets;
+        events.iterate([&](auto, auto& event) {
+          if (event->is_triggered()) {
+            event_offsets.push_back(event->serialize(builder_));
+            event->reset_state();
+          }
+        });
+        actions.iterate([&](auto, auto& action) {
+          if (action->is_triggered()) {
+            actions_offsets.push_back(action->serialize(builder_));
+            action->reset_state();
+          }
+        });
         auto events_vector = builder_.CreateVector(event_offsets);
-        auto event_list = rewind_viewer::fbs::CreateRewindEventList(builder_, events_vector);
+        auto actions_vector = builder_.CreateVector(actions_offsets);
+        auto event_list =
+            rewind_viewer::fbs::CreateRewindEventList(builder_, events_vector, actions_vector);
         builder_.Finish(event_list);
         transport.send_msg(builder_.GetBufferPointer(), builder_.GetSize());
+        break;
+      }
+      case fbs::Command_CreateAction: {
+        LOG_V8("FlatBuffersHandler::CREATE_ACTION");
+        auto create_action = message->command_as_CreateAction();
+        const auto action_name = create_action->name()->str();
+
+        switch (create_action->input_type()) {
+          case fbs::ActionInput_BoolInput: {
+            auto bool_input = create_action->input_as_BoolInput();
+            actions.add(action_name, std::make_unique<BoolInputAction>(
+                                         action_name, bool_input->default_value()));
+            break;
+          }
+          case fbs::ActionInput_ButtonInput: {
+            actions.add(action_name, std::make_unique<ButtonAction>(action_name));
+            break;
+          }
+          case fbs::ActionInput_FloatInput: {
+            auto float_input = create_action->input_as_FloatInput();
+            actions.add(action_name, std::make_unique<FloatInputAction>(
+                                         action_name, float_input->default_value(),
+                                         float_input->min_value(), float_input->max_value()));
+            break;
+          }
+          case fbs::ActionInput_IntInput: {
+            auto int_input = create_action->input_as_IntInput();
+            actions.add(action_name, std::make_unique<IntInputAction>(
+                                         action_name, int_input->default_value(),
+                                         int_input->min_value(), int_input->max_value()));
+            break;
+          }
+          case fbs::ActionInput_SelectInput: {
+            auto select_input = create_action->input_as_SelectInput();
+            std::vector<std::string> options;
+            for (const auto& option : *select_input->options()) {
+              options.push_back(option->str());
+            }
+            actions.add(action_name,
+                        std::make_unique<SelectInputAction>(action_name, std::move(options),
+                                                            select_input->selected_option()));
+            break;
+          }
+          case fbs::ActionInput_StringInput: {
+            auto string_input = create_action->input_as_StringInput();
+            actions.add(action_name, std::make_unique<StringInputAction>(
+                                         action_name, string_input->default_value()->str()));
+            break;
+          }
+          case fbs::ActionInput_NONE:
+          default: {
+            LOG_ERROR("Unknown or Empty ActionType for CreateAction");
+          }
+        }
+        break;
+      }
+      case fbs::Command_RemoveAction: {
+        LOG_V8("FlatBuffersHandler::REMOVE_ACTION");
+        auto remove_action = message->command_as_RemoveAction();
+        const auto& action_name = remove_action->name()->str();
+        actions.remove(action_name);
         break;
       }
       default: {

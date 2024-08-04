@@ -6,13 +6,42 @@ table MousePath {
   points: [Vector2f];
 }
 
-table RewindEvent {
+table KeyEvent {
   key: byte;
   mouse_paths: [MousePath];
 }
 
+table IntValue {
+  value: int;
+}
+
+table FloatValue {
+  value: float;
+}
+
+table BoolValue {
+  value: bool;
+}
+
+table StringValue {
+  value: string;
+}
+
+union ActionValue {
+  IntValue,
+  FloatValue,
+  BoolValue,
+  StringValue
+}
+
+table ActionEvent {
+  name: string;
+  value: ActionValue;
+}
+
 table RewindEventList {
-  events: [RewindEvent];
+  key_events: [KeyEvent];
+  action_events: [ActionEvent];
 }
 
 root_type RewindEventList;

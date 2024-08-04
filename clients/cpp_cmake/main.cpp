@@ -58,12 +58,23 @@ void draw_pattern(rewind_viewer::RewindClient &rc, const Vec2D &pos, int i) {
 }
 
 void subscribe(rewind_viewer::RewindClient &rc) {
-  rc.subscribe("draw circle", 'g', false, true);
-  rc.subscribe("draw line", 'f', true, true);
-  rc.subscribe("left", 'a', true, false);
-  rc.subscribe("right", 'd', true, false);
-  rc.subscribe("down", 's', true, false);
-  rc.subscribe("up", 'w', true, false);
+  rc.subscribe('g', "draw circle", false, true);
+  rc.subscribe('f', "draw line", true, true);
+  rc.subscribe('a', "left", true, false);
+  rc.subscribe('d', "right", true, false);
+  rc.subscribe('s', "down", true, false);
+  rc.subscribe('w', "up", true, false);
+
+  rc.create_button_action("Button");
+  rc.create_int_input_action("Int Action", 42, 10, 100);
+  rc.create_int_input_action("Int Action 2", 42);
+  rc.create_float_input_action("Float Action", 3.14f, 0.0f, 10.0f);
+  rc.create_float_input_action("Float Action 2", 3.14f);
+  rc.create_select_input_action("Select Action", {"Option 1", "Option 2", "Option 3"},
+                                0);
+  rc.create_string_input_action("String Action", "Default Text");
+  rc.create_bool_input_action("Bool Action", true);
+  rc.create_bool_input_action("Bool Action 2", false);
 }
 
 int main(int argc, char *argv[]) {
@@ -71,7 +82,7 @@ int main(int argc, char *argv[]) {
   // Pass it via reference, shared_ptr ot create singleton to access it.
   // Assume rewind viewer is started on the same host with default port.
   rewind_viewer::RewindClient rewind_client("127.0.0.1", 9111);
-//  rewind_viewer::rewind_client rewind_client("example_output.rwn");
+  //  rewind_viewer::RewindClient rewind_client("example_output.rwn");
   subscribe(rewind_client);
 
   std::random_device rd;
@@ -135,25 +146,24 @@ int main(int argc, char *argv[]) {
     rewind_client.camera_view("Allways Camera", pattern_position, 100.0);
 
     auto events = rewind_client.read_events<Vec2D>();
-//    while (events.empty()) {
-//      std::this_thread::sleep_for(100ms);
-//      events = rewind_client.read_events<Vec2D>();
-//    }
+    while (events.empty()) {
+      std::this_thread::sleep_for(1000ms);
+      events = rewind_client.read_events<Vec2D>();
+    }
     for (auto &event : events) {
       if (event.key == 'g') {
         rewind_client.circle(event.mouse_paths[0][0], 10, green::MediumAquamarine, true);
       } else if (event.key == 'f') {
-        for(const auto& path: event.mouse_paths){
-          if (path.empty()){
-            //todo: throw?
-            continue ;
+        for (const auto &path : event.mouse_paths) {
+          if (path.empty()) {
+            // todo: throw?
+            continue;
           }
 
-          for(size_t i =1; i < path.size();i++){
-            rewind_client.line(path[i-1], path[i], orange::OrangeRed);
+          for (size_t i = 1; i < path.size(); i++) {
+            rewind_client.line(path[i - 1], path[i], orange::OrangeRed);
             rewind_client.circle(path[i], 1, green::MediumAquamarine, true);
           }
-
         }
       }
     }
@@ -183,28 +193,28 @@ int main(int argc, char *argv[]) {
     rewind_client.end_frame();
   }
 
-//  rewind_client.set_layer(5);
-//  Vec2D position{800.0,0.0};
-//  for (int i = 0; i < 1000; i++) {
-//
-//    auto events = rewind_client.read_events<Vec2D>();
-//    for (auto &event : events) {
-//      if (event.key == 'a') {
-//        position.x -= 5.0;
-//      } else if (event.key == 'd') {
-//        position.x += 5.0;
-//      } else if (event.key == 's') {
-//        position.y -= 5.0;
-//      } else if (event.key == 'w') {
-//        position.y += 5.0;
-//      }
-//    }
-//
-//    rewind_client.circle(position, 5, orange::OrangeRed, true);
-//
-//    std::this_thread::sleep_for(50ms);
-//    rewind_client.end_frame();
-//  }
+  //  rewind_client.set_layer(5);
+  //  Vec2D position{800.0,0.0};
+  //  for (int i = 0; i < 1000; i++) {
+  //
+  //    auto events = rewind_client.read_events<Vec2D>();
+  //    for (auto &event : events) {
+  //      if (event.key == 'a') {
+  //        position.x -= 5.0;
+  //      } else if (event.key == 'd') {
+  //        position.x += 5.0;
+  //      } else if (event.key == 's') {
+  //        position.y -= 5.0;
+  //      } else if (event.key == 'w') {
+  //        position.y += 5.0;
+  //      }
+  //    }
+  //
+  //    rewind_client.circle(position, 5, orange::OrangeRed, true);
+  //
+  //    std::this_thread::sleep_for(50ms);
+  //    rewind_client.end_frame();
+  //  }
 
   return EXIT_SUCCESS;
 }

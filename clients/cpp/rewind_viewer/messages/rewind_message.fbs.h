@@ -69,26 +69,114 @@ struct SubscribeBuilder;
 struct Unsubscribe;
 struct UnsubscribeBuilder;
 
+struct IntInput;
+struct IntInputBuilder;
+
+struct FloatInput;
+struct FloatInputBuilder;
+
+struct SelectInput;
+struct SelectInputBuilder;
+
+struct StringInput;
+struct StringInputBuilder;
+
+struct BoolInput;
+struct BoolInputBuilder;
+
+struct ButtonInput;
+struct ButtonInputBuilder;
+
+struct CreateAction;
+struct CreateActionBuilder;
+
+struct RemoveAction;
+struct RemoveActionBuilder;
+
 struct ReadEvents;
 struct ReadEventsBuilder;
 
 struct EndFrame;
 struct EndFrameBuilder;
 
-struct ColorPoint;
-struct ColorPointBuilder;
-
-struct PrimitiveStorage;
-struct PrimitiveStorageBuilder;
-
-struct PrimitiveIndices;
-struct PrimitiveIndicesBuilder;
-
-struct Primitives;
-struct PrimitivesBuilder;
-
 struct RewindMessage;
 struct RewindMessageBuilder;
+
+enum ActionInput : uint8_t {
+  ActionInput_NONE = 0,
+  ActionInput_BoolInput = 1,
+  ActionInput_ButtonInput = 2,
+  ActionInput_FloatInput = 3,
+  ActionInput_IntInput = 4,
+  ActionInput_SelectInput = 5,
+  ActionInput_StringInput = 6,
+  ActionInput_MIN = ActionInput_NONE,
+  ActionInput_MAX = ActionInput_StringInput
+};
+
+inline const ActionInput (&EnumValuesActionInput())[7] {
+  static const ActionInput values[] = {
+    ActionInput_NONE,
+    ActionInput_BoolInput,
+    ActionInput_ButtonInput,
+    ActionInput_FloatInput,
+    ActionInput_IntInput,
+    ActionInput_SelectInput,
+    ActionInput_StringInput
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesActionInput() {
+  static const char * const names[8] = {
+    "NONE",
+    "BoolInput",
+    "ButtonInput",
+    "FloatInput",
+    "IntInput",
+    "SelectInput",
+    "StringInput",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameActionInput(ActionInput e) {
+  if (::flatbuffers::IsOutRange(e, ActionInput_NONE, ActionInput_StringInput)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesActionInput()[index];
+}
+
+template<typename T> struct ActionInputTraits {
+  static const ActionInput enum_value = ActionInput_NONE;
+};
+
+template<> struct ActionInputTraits<rewind_viewer::fbs::BoolInput> {
+  static const ActionInput enum_value = ActionInput_BoolInput;
+};
+
+template<> struct ActionInputTraits<rewind_viewer::fbs::ButtonInput> {
+  static const ActionInput enum_value = ActionInput_ButtonInput;
+};
+
+template<> struct ActionInputTraits<rewind_viewer::fbs::FloatInput> {
+  static const ActionInput enum_value = ActionInput_FloatInput;
+};
+
+template<> struct ActionInputTraits<rewind_viewer::fbs::IntInput> {
+  static const ActionInput enum_value = ActionInput_IntInput;
+};
+
+template<> struct ActionInputTraits<rewind_viewer::fbs::SelectInput> {
+  static const ActionInput enum_value = ActionInput_SelectInput;
+};
+
+template<> struct ActionInputTraits<rewind_viewer::fbs::StringInput> {
+  static const ActionInput enum_value = ActionInput_StringInput;
+};
+
+bool VerifyActionInput(::flatbuffers::Verifier &verifier, const void *obj, ActionInput type);
+bool VerifyActionInputVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
 enum Command : uint8_t {
   Command_NONE = 0,
@@ -96,30 +184,32 @@ enum Command : uint8_t {
   Command_CameraView = 2,
   Command_Circle = 3,
   Command_CircleSegment = 4,
-  Command_LogText = 5,
-  Command_Options = 6,
-  Command_Polyline = 7,
-  Command_Popup = 8,
-  Command_PopupRound = 9,
-  Command_ReadEvents = 10,
-  Command_Rectangle = 11,
-  Command_Subscribe = 12,
-  Command_Tiles = 13,
-  Command_Triangle = 14,
-  Command_Unsubscribe = 15,
-  Command_Primitives = 16,
-  Command_EndFrame = 17,
+  Command_CreateAction = 5,
+  Command_LogText = 6,
+  Command_Options = 7,
+  Command_Polyline = 8,
+  Command_Popup = 9,
+  Command_PopupRound = 10,
+  Command_ReadEvents = 11,
+  Command_Rectangle = 12,
+  Command_RemoveAction = 13,
+  Command_Subscribe = 14,
+  Command_Tiles = 15,
+  Command_Triangle = 16,
+  Command_Unsubscribe = 17,
+  Command_EndFrame = 18,
   Command_MIN = Command_NONE,
   Command_MAX = Command_EndFrame
 };
 
-inline const Command (&EnumValuesCommand())[18] {
+inline const Command (&EnumValuesCommand())[19] {
   static const Command values[] = {
     Command_NONE,
     Command_Arc,
     Command_CameraView,
     Command_Circle,
     Command_CircleSegment,
+    Command_CreateAction,
     Command_LogText,
     Command_Options,
     Command_Polyline,
@@ -127,23 +217,24 @@ inline const Command (&EnumValuesCommand())[18] {
     Command_PopupRound,
     Command_ReadEvents,
     Command_Rectangle,
+    Command_RemoveAction,
     Command_Subscribe,
     Command_Tiles,
     Command_Triangle,
     Command_Unsubscribe,
-    Command_Primitives,
     Command_EndFrame
   };
   return values;
 }
 
 inline const char * const *EnumNamesCommand() {
-  static const char * const names[19] = {
+  static const char * const names[20] = {
     "NONE",
     "Arc",
     "CameraView",
     "Circle",
     "CircleSegment",
+    "CreateAction",
     "LogText",
     "Options",
     "Polyline",
@@ -151,11 +242,11 @@ inline const char * const *EnumNamesCommand() {
     "PopupRound",
     "ReadEvents",
     "Rectangle",
+    "RemoveAction",
     "Subscribe",
     "Tiles",
     "Triangle",
     "Unsubscribe",
-    "Primitives",
     "EndFrame",
     nullptr
   };
@@ -188,6 +279,10 @@ template<> struct CommandTraits<rewind_viewer::fbs::CircleSegment> {
   static const Command enum_value = Command_CircleSegment;
 };
 
+template<> struct CommandTraits<rewind_viewer::fbs::CreateAction> {
+  static const Command enum_value = Command_CreateAction;
+};
+
 template<> struct CommandTraits<rewind_viewer::fbs::LogText> {
   static const Command enum_value = Command_LogText;
 };
@@ -216,6 +311,10 @@ template<> struct CommandTraits<rewind_viewer::fbs::Rectangle> {
   static const Command enum_value = Command_Rectangle;
 };
 
+template<> struct CommandTraits<rewind_viewer::fbs::RemoveAction> {
+  static const Command enum_value = Command_RemoveAction;
+};
+
 template<> struct CommandTraits<rewind_viewer::fbs::Subscribe> {
   static const Command enum_value = Command_Subscribe;
 };
@@ -230,10 +329,6 @@ template<> struct CommandTraits<rewind_viewer::fbs::Triangle> {
 
 template<> struct CommandTraits<rewind_viewer::fbs::Unsubscribe> {
   static const Command enum_value = Command_Unsubscribe;
-};
-
-template<> struct CommandTraits<rewind_viewer::fbs::Primitives> {
-  static const Command enum_value = Command_Primitives;
 };
 
 template<> struct CommandTraits<rewind_viewer::fbs::EndFrame> {
@@ -1271,17 +1366,16 @@ inline ::flatbuffers::Offset<Options> CreateOptions(
 struct Subscribe FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef SubscribeBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_NAME = 4,
-    VT_KEY = 6,
+    VT_KEY = 4,
+    VT_NAME = 6,
     VT_CONTINUOUS = 8,
-    VT_CAPTURE_MOUSE = 10,
-    VT_MIN_POSITION_CHANGE = 12
+    VT_CAPTURE_MOUSE = 10
   };
-  const ::flatbuffers::String *name() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
-  }
   int8_t key() const {
     return GetField<int8_t>(VT_KEY, 0);
+  }
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
   }
   bool continuous() const {
     return GetField<uint8_t>(VT_CONTINUOUS, 0) != 0;
@@ -1289,17 +1383,13 @@ struct Subscribe FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool capture_mouse() const {
     return GetField<uint8_t>(VT_CAPTURE_MOUSE, 0) != 0;
   }
-  float min_position_change() const {
-    return GetField<float>(VT_MIN_POSITION_CHANGE, 0.001f);
-  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_NAME) &&
-           verifier.VerifyString(name()) &&
            VerifyField<int8_t>(verifier, VT_KEY, 1) &&
+           VerifyOffsetRequired(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
            VerifyField<uint8_t>(verifier, VT_CONTINUOUS, 1) &&
            VerifyField<uint8_t>(verifier, VT_CAPTURE_MOUSE, 1) &&
-           VerifyField<float>(verifier, VT_MIN_POSITION_CHANGE, 4) &&
            verifier.EndTable();
   }
 };
@@ -1308,20 +1398,17 @@ struct SubscribeBuilder {
   typedef Subscribe Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
-    fbb_.AddOffset(Subscribe::VT_NAME, name);
-  }
   void add_key(int8_t key) {
     fbb_.AddElement<int8_t>(Subscribe::VT_KEY, key, 0);
+  }
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(Subscribe::VT_NAME, name);
   }
   void add_continuous(bool continuous) {
     fbb_.AddElement<uint8_t>(Subscribe::VT_CONTINUOUS, static_cast<uint8_t>(continuous), 0);
   }
   void add_capture_mouse(bool capture_mouse) {
     fbb_.AddElement<uint8_t>(Subscribe::VT_CAPTURE_MOUSE, static_cast<uint8_t>(capture_mouse), 0);
-  }
-  void add_min_position_change(float min_position_change) {
-    fbb_.AddElement<float>(Subscribe::VT_MIN_POSITION_CHANGE, min_position_change, 0.001f);
   }
   explicit SubscribeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1330,19 +1417,18 @@ struct SubscribeBuilder {
   ::flatbuffers::Offset<Subscribe> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<Subscribe>(end);
+    fbb_.Required(o, Subscribe::VT_NAME);
     return o;
   }
 };
 
 inline ::flatbuffers::Offset<Subscribe> CreateSubscribe(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
     int8_t key = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
     bool continuous = false,
-    bool capture_mouse = false,
-    float min_position_change = 0.001f) {
+    bool capture_mouse = false) {
   SubscribeBuilder builder_(_fbb);
-  builder_.add_min_position_change(min_position_change);
   builder_.add_name(name);
   builder_.add_capture_mouse(capture_mouse);
   builder_.add_continuous(continuous);
@@ -1352,19 +1438,17 @@ inline ::flatbuffers::Offset<Subscribe> CreateSubscribe(
 
 inline ::flatbuffers::Offset<Subscribe> CreateSubscribeDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const char *name = nullptr,
     int8_t key = 0,
+    const char *name = nullptr,
     bool continuous = false,
-    bool capture_mouse = false,
-    float min_position_change = 0.001f) {
+    bool capture_mouse = false) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   return rewind_viewer::fbs::CreateSubscribe(
       _fbb,
-      name__,
       key,
+      name__,
       continuous,
-      capture_mouse,
-      min_position_change);
+      capture_mouse);
 }
 
 struct Unsubscribe FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -1406,6 +1490,486 @@ inline ::flatbuffers::Offset<Unsubscribe> CreateUnsubscribe(
   UnsubscribeBuilder builder_(_fbb);
   builder_.add_key(key);
   return builder_.Finish();
+}
+
+struct IntInput FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef IntInputBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DEFAULT_VALUE = 4,
+    VT_MIN_VALUE = 6,
+    VT_MAX_VALUE = 8
+  };
+  int32_t default_value() const {
+    return GetField<int32_t>(VT_DEFAULT_VALUE, 0);
+  }
+  int32_t min_value() const {
+    return GetField<int32_t>(VT_MIN_VALUE, 0);
+  }
+  int32_t max_value() const {
+    return GetField<int32_t>(VT_MAX_VALUE, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int32_t>(verifier, VT_DEFAULT_VALUE, 4) &&
+           VerifyField<int32_t>(verifier, VT_MIN_VALUE, 4) &&
+           VerifyField<int32_t>(verifier, VT_MAX_VALUE, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct IntInputBuilder {
+  typedef IntInput Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_default_value(int32_t default_value) {
+    fbb_.AddElement<int32_t>(IntInput::VT_DEFAULT_VALUE, default_value, 0);
+  }
+  void add_min_value(int32_t min_value) {
+    fbb_.AddElement<int32_t>(IntInput::VT_MIN_VALUE, min_value, 0);
+  }
+  void add_max_value(int32_t max_value) {
+    fbb_.AddElement<int32_t>(IntInput::VT_MAX_VALUE, max_value, 0);
+  }
+  explicit IntInputBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<IntInput> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<IntInput>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<IntInput> CreateIntInput(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    int32_t default_value = 0,
+    int32_t min_value = 0,
+    int32_t max_value = 0) {
+  IntInputBuilder builder_(_fbb);
+  builder_.add_max_value(max_value);
+  builder_.add_min_value(min_value);
+  builder_.add_default_value(default_value);
+  return builder_.Finish();
+}
+
+struct FloatInput FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef FloatInputBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DEFAULT_VALUE = 4,
+    VT_MIN_VALUE = 6,
+    VT_MAX_VALUE = 8
+  };
+  float default_value() const {
+    return GetField<float>(VT_DEFAULT_VALUE, 0.0f);
+  }
+  float min_value() const {
+    return GetField<float>(VT_MIN_VALUE, 0.0f);
+  }
+  float max_value() const {
+    return GetField<float>(VT_MAX_VALUE, 0.0f);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<float>(verifier, VT_DEFAULT_VALUE, 4) &&
+           VerifyField<float>(verifier, VT_MIN_VALUE, 4) &&
+           VerifyField<float>(verifier, VT_MAX_VALUE, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct FloatInputBuilder {
+  typedef FloatInput Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_default_value(float default_value) {
+    fbb_.AddElement<float>(FloatInput::VT_DEFAULT_VALUE, default_value, 0.0f);
+  }
+  void add_min_value(float min_value) {
+    fbb_.AddElement<float>(FloatInput::VT_MIN_VALUE, min_value, 0.0f);
+  }
+  void add_max_value(float max_value) {
+    fbb_.AddElement<float>(FloatInput::VT_MAX_VALUE, max_value, 0.0f);
+  }
+  explicit FloatInputBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<FloatInput> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<FloatInput>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<FloatInput> CreateFloatInput(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    float default_value = 0.0f,
+    float min_value = 0.0f,
+    float max_value = 0.0f) {
+  FloatInputBuilder builder_(_fbb);
+  builder_.add_max_value(max_value);
+  builder_.add_min_value(min_value);
+  builder_.add_default_value(default_value);
+  return builder_.Finish();
+}
+
+struct SelectInput FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SelectInputBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_OPTIONS = 4,
+    VT_SELECTED_OPTION = 6
+  };
+  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *options() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_OPTIONS);
+  }
+  uint16_t selected_option() const {
+    return GetField<uint16_t>(VT_SELECTED_OPTION, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffsetRequired(verifier, VT_OPTIONS) &&
+           verifier.VerifyVector(options()) &&
+           verifier.VerifyVectorOfStrings(options()) &&
+           VerifyField<uint16_t>(verifier, VT_SELECTED_OPTION, 2) &&
+           verifier.EndTable();
+  }
+};
+
+struct SelectInputBuilder {
+  typedef SelectInput Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_options(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> options) {
+    fbb_.AddOffset(SelectInput::VT_OPTIONS, options);
+  }
+  void add_selected_option(uint16_t selected_option) {
+    fbb_.AddElement<uint16_t>(SelectInput::VT_SELECTED_OPTION, selected_option, 0);
+  }
+  explicit SelectInputBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SelectInput> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SelectInput>(end);
+    fbb_.Required(o, SelectInput::VT_OPTIONS);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SelectInput> CreateSelectInput(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> options = 0,
+    uint16_t selected_option = 0) {
+  SelectInputBuilder builder_(_fbb);
+  builder_.add_options(options);
+  builder_.add_selected_option(selected_option);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<SelectInput> CreateSelectInputDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *options = nullptr,
+    uint16_t selected_option = 0) {
+  auto options__ = options ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*options) : 0;
+  return rewind_viewer::fbs::CreateSelectInput(
+      _fbb,
+      options__,
+      selected_option);
+}
+
+struct StringInput FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef StringInputBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DEFAULT_VALUE = 4
+  };
+  const ::flatbuffers::String *default_value() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_DEFAULT_VALUE);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_DEFAULT_VALUE) &&
+           verifier.VerifyString(default_value()) &&
+           verifier.EndTable();
+  }
+};
+
+struct StringInputBuilder {
+  typedef StringInput Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_default_value(::flatbuffers::Offset<::flatbuffers::String> default_value) {
+    fbb_.AddOffset(StringInput::VT_DEFAULT_VALUE, default_value);
+  }
+  explicit StringInputBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<StringInput> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<StringInput>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<StringInput> CreateStringInput(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> default_value = 0) {
+  StringInputBuilder builder_(_fbb);
+  builder_.add_default_value(default_value);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<StringInput> CreateStringInputDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *default_value = nullptr) {
+  auto default_value__ = default_value ? _fbb.CreateString(default_value) : 0;
+  return rewind_viewer::fbs::CreateStringInput(
+      _fbb,
+      default_value__);
+}
+
+struct BoolInput FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef BoolInputBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DEFAULT_VALUE = 4
+  };
+  bool default_value() const {
+    return GetField<uint8_t>(VT_DEFAULT_VALUE, 0) != 0;
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_DEFAULT_VALUE, 1) &&
+           verifier.EndTable();
+  }
+};
+
+struct BoolInputBuilder {
+  typedef BoolInput Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_default_value(bool default_value) {
+    fbb_.AddElement<uint8_t>(BoolInput::VT_DEFAULT_VALUE, static_cast<uint8_t>(default_value), 0);
+  }
+  explicit BoolInputBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<BoolInput> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<BoolInput>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<BoolInput> CreateBoolInput(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    bool default_value = false) {
+  BoolInputBuilder builder_(_fbb);
+  builder_.add_default_value(default_value);
+  return builder_.Finish();
+}
+
+struct ButtonInput FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ButtonInputBuilder Builder;
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           verifier.EndTable();
+  }
+};
+
+struct ButtonInputBuilder {
+  typedef ButtonInput Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  explicit ButtonInputBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ButtonInput> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ButtonInput>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ButtonInput> CreateButtonInput(
+    ::flatbuffers::FlatBufferBuilder &_fbb) {
+  ButtonInputBuilder builder_(_fbb);
+  return builder_.Finish();
+}
+
+struct CreateAction FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CreateActionBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_INPUT_TYPE = 6,
+    VT_INPUT = 8
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  rewind_viewer::fbs::ActionInput input_type() const {
+    return static_cast<rewind_viewer::fbs::ActionInput>(GetField<uint8_t>(VT_INPUT_TYPE, 0));
+  }
+  const void *input() const {
+    return GetPointer<const void *>(VT_INPUT);
+  }
+  template<typename T> const T *input_as() const;
+  const rewind_viewer::fbs::BoolInput *input_as_BoolInput() const {
+    return input_type() == rewind_viewer::fbs::ActionInput_BoolInput ? static_cast<const rewind_viewer::fbs::BoolInput *>(input()) : nullptr;
+  }
+  const rewind_viewer::fbs::ButtonInput *input_as_ButtonInput() const {
+    return input_type() == rewind_viewer::fbs::ActionInput_ButtonInput ? static_cast<const rewind_viewer::fbs::ButtonInput *>(input()) : nullptr;
+  }
+  const rewind_viewer::fbs::FloatInput *input_as_FloatInput() const {
+    return input_type() == rewind_viewer::fbs::ActionInput_FloatInput ? static_cast<const rewind_viewer::fbs::FloatInput *>(input()) : nullptr;
+  }
+  const rewind_viewer::fbs::IntInput *input_as_IntInput() const {
+    return input_type() == rewind_viewer::fbs::ActionInput_IntInput ? static_cast<const rewind_viewer::fbs::IntInput *>(input()) : nullptr;
+  }
+  const rewind_viewer::fbs::SelectInput *input_as_SelectInput() const {
+    return input_type() == rewind_viewer::fbs::ActionInput_SelectInput ? static_cast<const rewind_viewer::fbs::SelectInput *>(input()) : nullptr;
+  }
+  const rewind_viewer::fbs::StringInput *input_as_StringInput() const {
+    return input_type() == rewind_viewer::fbs::ActionInput_StringInput ? static_cast<const rewind_viewer::fbs::StringInput *>(input()) : nullptr;
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffsetRequired(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyField<uint8_t>(verifier, VT_INPUT_TYPE, 1) &&
+           VerifyOffset(verifier, VT_INPUT) &&
+           VerifyActionInput(verifier, input(), input_type()) &&
+           verifier.EndTable();
+  }
+};
+
+template<> inline const rewind_viewer::fbs::BoolInput *CreateAction::input_as<rewind_viewer::fbs::BoolInput>() const {
+  return input_as_BoolInput();
+}
+
+template<> inline const rewind_viewer::fbs::ButtonInput *CreateAction::input_as<rewind_viewer::fbs::ButtonInput>() const {
+  return input_as_ButtonInput();
+}
+
+template<> inline const rewind_viewer::fbs::FloatInput *CreateAction::input_as<rewind_viewer::fbs::FloatInput>() const {
+  return input_as_FloatInput();
+}
+
+template<> inline const rewind_viewer::fbs::IntInput *CreateAction::input_as<rewind_viewer::fbs::IntInput>() const {
+  return input_as_IntInput();
+}
+
+template<> inline const rewind_viewer::fbs::SelectInput *CreateAction::input_as<rewind_viewer::fbs::SelectInput>() const {
+  return input_as_SelectInput();
+}
+
+template<> inline const rewind_viewer::fbs::StringInput *CreateAction::input_as<rewind_viewer::fbs::StringInput>() const {
+  return input_as_StringInput();
+}
+
+struct CreateActionBuilder {
+  typedef CreateAction Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(CreateAction::VT_NAME, name);
+  }
+  void add_input_type(rewind_viewer::fbs::ActionInput input_type) {
+    fbb_.AddElement<uint8_t>(CreateAction::VT_INPUT_TYPE, static_cast<uint8_t>(input_type), 0);
+  }
+  void add_input(::flatbuffers::Offset<void> input) {
+    fbb_.AddOffset(CreateAction::VT_INPUT, input);
+  }
+  explicit CreateActionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CreateAction> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CreateAction>(end);
+    fbb_.Required(o, CreateAction::VT_NAME);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CreateAction> CreateCreateAction(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    rewind_viewer::fbs::ActionInput input_type = rewind_viewer::fbs::ActionInput_NONE,
+    ::flatbuffers::Offset<void> input = 0) {
+  CreateActionBuilder builder_(_fbb);
+  builder_.add_input(input);
+  builder_.add_name(name);
+  builder_.add_input_type(input_type);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<CreateAction> CreateCreateActionDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    rewind_viewer::fbs::ActionInput input_type = rewind_viewer::fbs::ActionInput_NONE,
+    ::flatbuffers::Offset<void> input = 0) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return rewind_viewer::fbs::CreateCreateAction(
+      _fbb,
+      name__,
+      input_type,
+      input);
+}
+
+struct RemoveAction FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef RemoveActionBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffsetRequired(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           verifier.EndTable();
+  }
+};
+
+struct RemoveActionBuilder {
+  typedef RemoveAction Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(RemoveAction::VT_NAME, name);
+  }
+  explicit RemoveActionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<RemoveAction> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<RemoveAction>(end);
+    fbb_.Required(o, RemoveAction::VT_NAME);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<RemoveAction> CreateRemoveAction(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0) {
+  RemoveActionBuilder builder_(_fbb);
+  builder_.add_name(name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<RemoveAction> CreateRemoveActionDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return rewind_viewer::fbs::CreateRemoveAction(
+      _fbb,
+      name__);
 }
 
 struct ReadEvents FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -1466,370 +2030,6 @@ inline ::flatbuffers::Offset<EndFrame> CreateEndFrame(
   return builder_.Finish();
 }
 
-struct ColorPoint FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef ColorPointBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_COLOR = 4,
-    VT_POSITION = 6
-  };
-  uint32_t color() const {
-    return GetField<uint32_t>(VT_COLOR, 0);
-  }
-  const rewind_viewer::fbs::Vector2f *position() const {
-    return GetStruct<const rewind_viewer::fbs::Vector2f *>(VT_POSITION);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_COLOR, 4) &&
-           VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_POSITION, 4) &&
-           verifier.EndTable();
-  }
-};
-
-struct ColorPointBuilder {
-  typedef ColorPoint Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_color(uint32_t color) {
-    fbb_.AddElement<uint32_t>(ColorPoint::VT_COLOR, color, 0);
-  }
-  void add_position(const rewind_viewer::fbs::Vector2f *position) {
-    fbb_.AddStruct(ColorPoint::VT_POSITION, position);
-  }
-  explicit ColorPointBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<ColorPoint> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<ColorPoint>(end);
-    fbb_.Required(o, ColorPoint::VT_POSITION);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<ColorPoint> CreateColorPoint(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t color = 0,
-    const rewind_viewer::fbs::Vector2f *position = nullptr) {
-  ColorPointBuilder builder_(_fbb);
-  builder_.add_position(position);
-  builder_.add_color(color);
-  return builder_.Finish();
-}
-
-struct PrimitiveStorage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef PrimitiveStorageBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_COLOR_VERTEXES = 4,
-    VT_COLOR_CIRCLES = 6,
-    VT_VERTEXES = 8,
-    VT_CIRCLES = 10
-  };
-  const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::ColorPoint>> *color_vertexes() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::ColorPoint>> *>(VT_COLOR_VERTEXES);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::CircleSegment>> *color_circles() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::CircleSegment>> *>(VT_COLOR_CIRCLES);
-  }
-  const ::flatbuffers::Vector<const rewind_viewer::fbs::Vector2f *> *vertexes() const {
-    return GetPointer<const ::flatbuffers::Vector<const rewind_viewer::fbs::Vector2f *> *>(VT_VERTEXES);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::CircleSegment>> *circles() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::CircleSegment>> *>(VT_CIRCLES);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_COLOR_VERTEXES) &&
-           verifier.VerifyVector(color_vertexes()) &&
-           verifier.VerifyVectorOfTables(color_vertexes()) &&
-           VerifyOffset(verifier, VT_COLOR_CIRCLES) &&
-           verifier.VerifyVector(color_circles()) &&
-           verifier.VerifyVectorOfTables(color_circles()) &&
-           VerifyOffset(verifier, VT_VERTEXES) &&
-           verifier.VerifyVector(vertexes()) &&
-           VerifyOffset(verifier, VT_CIRCLES) &&
-           verifier.VerifyVector(circles()) &&
-           verifier.VerifyVectorOfTables(circles()) &&
-           verifier.EndTable();
-  }
-};
-
-struct PrimitiveStorageBuilder {
-  typedef PrimitiveStorage Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_color_vertexes(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::ColorPoint>>> color_vertexes) {
-    fbb_.AddOffset(PrimitiveStorage::VT_COLOR_VERTEXES, color_vertexes);
-  }
-  void add_color_circles(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::CircleSegment>>> color_circles) {
-    fbb_.AddOffset(PrimitiveStorage::VT_COLOR_CIRCLES, color_circles);
-  }
-  void add_vertexes(::flatbuffers::Offset<::flatbuffers::Vector<const rewind_viewer::fbs::Vector2f *>> vertexes) {
-    fbb_.AddOffset(PrimitiveStorage::VT_VERTEXES, vertexes);
-  }
-  void add_circles(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::CircleSegment>>> circles) {
-    fbb_.AddOffset(PrimitiveStorage::VT_CIRCLES, circles);
-  }
-  explicit PrimitiveStorageBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<PrimitiveStorage> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<PrimitiveStorage>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<PrimitiveStorage> CreatePrimitiveStorage(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::ColorPoint>>> color_vertexes = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::CircleSegment>>> color_circles = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<const rewind_viewer::fbs::Vector2f *>> vertexes = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::CircleSegment>>> circles = 0) {
-  PrimitiveStorageBuilder builder_(_fbb);
-  builder_.add_circles(circles);
-  builder_.add_vertexes(vertexes);
-  builder_.add_color_circles(color_circles);
-  builder_.add_color_vertexes(color_vertexes);
-  return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<PrimitiveStorage> CreatePrimitiveStorageDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<::flatbuffers::Offset<rewind_viewer::fbs::ColorPoint>> *color_vertexes = nullptr,
-    const std::vector<::flatbuffers::Offset<rewind_viewer::fbs::CircleSegment>> *color_circles = nullptr,
-    const std::vector<rewind_viewer::fbs::Vector2f> *vertexes = nullptr,
-    const std::vector<::flatbuffers::Offset<rewind_viewer::fbs::CircleSegment>> *circles = nullptr) {
-  auto color_vertexes__ = color_vertexes ? _fbb.CreateVector<::flatbuffers::Offset<rewind_viewer::fbs::ColorPoint>>(*color_vertexes) : 0;
-  auto color_circles__ = color_circles ? _fbb.CreateVector<::flatbuffers::Offset<rewind_viewer::fbs::CircleSegment>>(*color_circles) : 0;
-  auto vertexes__ = vertexes ? _fbb.CreateVectorOfStructs<rewind_viewer::fbs::Vector2f>(*vertexes) : 0;
-  auto circles__ = circles ? _fbb.CreateVector<::flatbuffers::Offset<rewind_viewer::fbs::CircleSegment>>(*circles) : 0;
-  return rewind_viewer::fbs::CreatePrimitiveStorage(
-      _fbb,
-      color_vertexes__,
-      color_circles__,
-      vertexes__,
-      circles__);
-}
-
-struct PrimitiveIndices FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef PrimitiveIndicesBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_STENCIL_CIRCLES = 4,
-    VT_STENCIL_SEGMENTS = 6,
-    VT_STENCIL_TRIANGLES = 8,
-    VT_FILLED_CIRCLES = 10,
-    VT_FILLED_SEGMENTS = 12,
-    VT_THIN_CIRCLES = 14,
-    VT_TRIANGLES = 16,
-    VT_LINES = 18
-  };
-  const ::flatbuffers::Vector<uint32_t> *stencil_circles() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_STENCIL_CIRCLES);
-  }
-  const ::flatbuffers::Vector<uint32_t> *stencil_segments() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_STENCIL_SEGMENTS);
-  }
-  const ::flatbuffers::Vector<uint32_t> *stencil_triangles() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_STENCIL_TRIANGLES);
-  }
-  const ::flatbuffers::Vector<uint32_t> *filled_circles() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_FILLED_CIRCLES);
-  }
-  const ::flatbuffers::Vector<uint32_t> *filled_segments() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_FILLED_SEGMENTS);
-  }
-  const ::flatbuffers::Vector<uint32_t> *thin_circles() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_THIN_CIRCLES);
-  }
-  const ::flatbuffers::Vector<uint32_t> *triangles() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_TRIANGLES);
-  }
-  const ::flatbuffers::Vector<uint32_t> *lines() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_LINES);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_STENCIL_CIRCLES) &&
-           verifier.VerifyVector(stencil_circles()) &&
-           VerifyOffset(verifier, VT_STENCIL_SEGMENTS) &&
-           verifier.VerifyVector(stencil_segments()) &&
-           VerifyOffset(verifier, VT_STENCIL_TRIANGLES) &&
-           verifier.VerifyVector(stencil_triangles()) &&
-           VerifyOffset(verifier, VT_FILLED_CIRCLES) &&
-           verifier.VerifyVector(filled_circles()) &&
-           VerifyOffset(verifier, VT_FILLED_SEGMENTS) &&
-           verifier.VerifyVector(filled_segments()) &&
-           VerifyOffset(verifier, VT_THIN_CIRCLES) &&
-           verifier.VerifyVector(thin_circles()) &&
-           VerifyOffset(verifier, VT_TRIANGLES) &&
-           verifier.VerifyVector(triangles()) &&
-           VerifyOffset(verifier, VT_LINES) &&
-           verifier.VerifyVector(lines()) &&
-           verifier.EndTable();
-  }
-};
-
-struct PrimitiveIndicesBuilder {
-  typedef PrimitiveIndices Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_stencil_circles(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> stencil_circles) {
-    fbb_.AddOffset(PrimitiveIndices::VT_STENCIL_CIRCLES, stencil_circles);
-  }
-  void add_stencil_segments(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> stencil_segments) {
-    fbb_.AddOffset(PrimitiveIndices::VT_STENCIL_SEGMENTS, stencil_segments);
-  }
-  void add_stencil_triangles(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> stencil_triangles) {
-    fbb_.AddOffset(PrimitiveIndices::VT_STENCIL_TRIANGLES, stencil_triangles);
-  }
-  void add_filled_circles(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> filled_circles) {
-    fbb_.AddOffset(PrimitiveIndices::VT_FILLED_CIRCLES, filled_circles);
-  }
-  void add_filled_segments(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> filled_segments) {
-    fbb_.AddOffset(PrimitiveIndices::VT_FILLED_SEGMENTS, filled_segments);
-  }
-  void add_thin_circles(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> thin_circles) {
-    fbb_.AddOffset(PrimitiveIndices::VT_THIN_CIRCLES, thin_circles);
-  }
-  void add_triangles(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> triangles) {
-    fbb_.AddOffset(PrimitiveIndices::VT_TRIANGLES, triangles);
-  }
-  void add_lines(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> lines) {
-    fbb_.AddOffset(PrimitiveIndices::VT_LINES, lines);
-  }
-  explicit PrimitiveIndicesBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<PrimitiveIndices> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<PrimitiveIndices>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<PrimitiveIndices> CreatePrimitiveIndices(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> stencil_circles = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> stencil_segments = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> stencil_triangles = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> filled_circles = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> filled_segments = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> thin_circles = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> triangles = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> lines = 0) {
-  PrimitiveIndicesBuilder builder_(_fbb);
-  builder_.add_lines(lines);
-  builder_.add_triangles(triangles);
-  builder_.add_thin_circles(thin_circles);
-  builder_.add_filled_segments(filled_segments);
-  builder_.add_filled_circles(filled_circles);
-  builder_.add_stencil_triangles(stencil_triangles);
-  builder_.add_stencil_segments(stencil_segments);
-  builder_.add_stencil_circles(stencil_circles);
-  return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<PrimitiveIndices> CreatePrimitiveIndicesDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<uint32_t> *stencil_circles = nullptr,
-    const std::vector<uint32_t> *stencil_segments = nullptr,
-    const std::vector<uint32_t> *stencil_triangles = nullptr,
-    const std::vector<uint32_t> *filled_circles = nullptr,
-    const std::vector<uint32_t> *filled_segments = nullptr,
-    const std::vector<uint32_t> *thin_circles = nullptr,
-    const std::vector<uint32_t> *triangles = nullptr,
-    const std::vector<uint32_t> *lines = nullptr) {
-  auto stencil_circles__ = stencil_circles ? _fbb.CreateVector<uint32_t>(*stencil_circles) : 0;
-  auto stencil_segments__ = stencil_segments ? _fbb.CreateVector<uint32_t>(*stencil_segments) : 0;
-  auto stencil_triangles__ = stencil_triangles ? _fbb.CreateVector<uint32_t>(*stencil_triangles) : 0;
-  auto filled_circles__ = filled_circles ? _fbb.CreateVector<uint32_t>(*filled_circles) : 0;
-  auto filled_segments__ = filled_segments ? _fbb.CreateVector<uint32_t>(*filled_segments) : 0;
-  auto thin_circles__ = thin_circles ? _fbb.CreateVector<uint32_t>(*thin_circles) : 0;
-  auto triangles__ = triangles ? _fbb.CreateVector<uint32_t>(*triangles) : 0;
-  auto lines__ = lines ? _fbb.CreateVector<uint32_t>(*lines) : 0;
-  return rewind_viewer::fbs::CreatePrimitiveIndices(
-      _fbb,
-      stencil_circles__,
-      stencil_segments__,
-      stencil_triangles__,
-      filled_circles__,
-      filled_segments__,
-      thin_circles__,
-      triangles__,
-      lines__);
-}
-
-struct Primitives FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef PrimitivesBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_STORAGE = 4,
-    VT_INDICES = 6
-  };
-  const rewind_viewer::fbs::PrimitiveStorage *storage() const {
-    return GetPointer<const rewind_viewer::fbs::PrimitiveStorage *>(VT_STORAGE);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::PrimitiveIndices>> *indices() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::PrimitiveIndices>> *>(VT_INDICES);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffsetRequired(verifier, VT_STORAGE) &&
-           verifier.VerifyTable(storage()) &&
-           VerifyOffsetRequired(verifier, VT_INDICES) &&
-           verifier.VerifyVector(indices()) &&
-           verifier.VerifyVectorOfTables(indices()) &&
-           verifier.EndTable();
-  }
-};
-
-struct PrimitivesBuilder {
-  typedef Primitives Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_storage(::flatbuffers::Offset<rewind_viewer::fbs::PrimitiveStorage> storage) {
-    fbb_.AddOffset(Primitives::VT_STORAGE, storage);
-  }
-  void add_indices(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::PrimitiveIndices>>> indices) {
-    fbb_.AddOffset(Primitives::VT_INDICES, indices);
-  }
-  explicit PrimitivesBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<Primitives> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<Primitives>(end);
-    fbb_.Required(o, Primitives::VT_STORAGE);
-    fbb_.Required(o, Primitives::VT_INDICES);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<Primitives> CreatePrimitives(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<rewind_viewer::fbs::PrimitiveStorage> storage = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<rewind_viewer::fbs::PrimitiveIndices>>> indices = 0) {
-  PrimitivesBuilder builder_(_fbb);
-  builder_.add_indices(indices);
-  builder_.add_storage(storage);
-  return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<Primitives> CreatePrimitivesDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<rewind_viewer::fbs::PrimitiveStorage> storage = 0,
-    const std::vector<::flatbuffers::Offset<rewind_viewer::fbs::PrimitiveIndices>> *indices = nullptr) {
-  auto indices__ = indices ? _fbb.CreateVector<::flatbuffers::Offset<rewind_viewer::fbs::PrimitiveIndices>>(*indices) : 0;
-  return rewind_viewer::fbs::CreatePrimitives(
-      _fbb,
-      storage,
-      indices__);
-}
-
 struct RewindMessage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef RewindMessageBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -1855,6 +2055,9 @@ struct RewindMessage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const rewind_viewer::fbs::CircleSegment *command_as_CircleSegment() const {
     return command_type() == rewind_viewer::fbs::Command_CircleSegment ? static_cast<const rewind_viewer::fbs::CircleSegment *>(command()) : nullptr;
   }
+  const rewind_viewer::fbs::CreateAction *command_as_CreateAction() const {
+    return command_type() == rewind_viewer::fbs::Command_CreateAction ? static_cast<const rewind_viewer::fbs::CreateAction *>(command()) : nullptr;
+  }
   const rewind_viewer::fbs::LogText *command_as_LogText() const {
     return command_type() == rewind_viewer::fbs::Command_LogText ? static_cast<const rewind_viewer::fbs::LogText *>(command()) : nullptr;
   }
@@ -1876,6 +2079,9 @@ struct RewindMessage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const rewind_viewer::fbs::Rectangle *command_as_Rectangle() const {
     return command_type() == rewind_viewer::fbs::Command_Rectangle ? static_cast<const rewind_viewer::fbs::Rectangle *>(command()) : nullptr;
   }
+  const rewind_viewer::fbs::RemoveAction *command_as_RemoveAction() const {
+    return command_type() == rewind_viewer::fbs::Command_RemoveAction ? static_cast<const rewind_viewer::fbs::RemoveAction *>(command()) : nullptr;
+  }
   const rewind_viewer::fbs::Subscribe *command_as_Subscribe() const {
     return command_type() == rewind_viewer::fbs::Command_Subscribe ? static_cast<const rewind_viewer::fbs::Subscribe *>(command()) : nullptr;
   }
@@ -1887,9 +2093,6 @@ struct RewindMessage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   const rewind_viewer::fbs::Unsubscribe *command_as_Unsubscribe() const {
     return command_type() == rewind_viewer::fbs::Command_Unsubscribe ? static_cast<const rewind_viewer::fbs::Unsubscribe *>(command()) : nullptr;
-  }
-  const rewind_viewer::fbs::Primitives *command_as_Primitives() const {
-    return command_type() == rewind_viewer::fbs::Command_Primitives ? static_cast<const rewind_viewer::fbs::Primitives *>(command()) : nullptr;
   }
   const rewind_viewer::fbs::EndFrame *command_as_EndFrame() const {
     return command_type() == rewind_viewer::fbs::Command_EndFrame ? static_cast<const rewind_viewer::fbs::EndFrame *>(command()) : nullptr;
@@ -1917,6 +2120,10 @@ template<> inline const rewind_viewer::fbs::Circle *RewindMessage::command_as<re
 
 template<> inline const rewind_viewer::fbs::CircleSegment *RewindMessage::command_as<rewind_viewer::fbs::CircleSegment>() const {
   return command_as_CircleSegment();
+}
+
+template<> inline const rewind_viewer::fbs::CreateAction *RewindMessage::command_as<rewind_viewer::fbs::CreateAction>() const {
+  return command_as_CreateAction();
 }
 
 template<> inline const rewind_viewer::fbs::LogText *RewindMessage::command_as<rewind_viewer::fbs::LogText>() const {
@@ -1947,6 +2154,10 @@ template<> inline const rewind_viewer::fbs::Rectangle *RewindMessage::command_as
   return command_as_Rectangle();
 }
 
+template<> inline const rewind_viewer::fbs::RemoveAction *RewindMessage::command_as<rewind_viewer::fbs::RemoveAction>() const {
+  return command_as_RemoveAction();
+}
+
 template<> inline const rewind_viewer::fbs::Subscribe *RewindMessage::command_as<rewind_viewer::fbs::Subscribe>() const {
   return command_as_Subscribe();
 }
@@ -1961,10 +2172,6 @@ template<> inline const rewind_viewer::fbs::Triangle *RewindMessage::command_as<
 
 template<> inline const rewind_viewer::fbs::Unsubscribe *RewindMessage::command_as<rewind_viewer::fbs::Unsubscribe>() const {
   return command_as_Unsubscribe();
-}
-
-template<> inline const rewind_viewer::fbs::Primitives *RewindMessage::command_as<rewind_viewer::fbs::Primitives>() const {
-  return command_as_Primitives();
 }
 
 template<> inline const rewind_viewer::fbs::EndFrame *RewindMessage::command_as<rewind_viewer::fbs::EndFrame>() const {
@@ -2003,6 +2210,51 @@ inline ::flatbuffers::Offset<RewindMessage> CreateRewindMessage(
   return builder_.Finish();
 }
 
+inline bool VerifyActionInput(::flatbuffers::Verifier &verifier, const void *obj, ActionInput type) {
+  switch (type) {
+    case ActionInput_NONE: {
+      return true;
+    }
+    case ActionInput_BoolInput: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::BoolInput *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case ActionInput_ButtonInput: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::ButtonInput *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case ActionInput_FloatInput: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::FloatInput *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case ActionInput_IntInput: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::IntInput *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case ActionInput_SelectInput: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::SelectInput *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case ActionInput_StringInput: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::StringInput *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    default: return true;
+  }
+}
+
+inline bool VerifyActionInputVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
+  if (!values || !types) return !values && !types;
+  if (values->size() != types->size()) return false;
+  for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
+    if (!VerifyActionInput(
+        verifier,  values->Get(i), types->GetEnum<ActionInput>(i))) {
+      return false;
+    }
+  }
+  return true;
+}
+
 inline bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Command type) {
   switch (type) {
     case Command_NONE: {
@@ -2022,6 +2274,10 @@ inline bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Co
     }
     case Command_CircleSegment: {
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::CircleSegment *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Command_CreateAction: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::CreateAction *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case Command_LogText: {
@@ -2052,6 +2308,10 @@ inline bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Co
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::Rectangle *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case Command_RemoveAction: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::RemoveAction *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     case Command_Subscribe: {
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::Subscribe *>(obj);
       return verifier.VerifyTable(ptr);
@@ -2066,10 +2326,6 @@ inline bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Co
     }
     case Command_Unsubscribe: {
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::Unsubscribe *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case Command_Primitives: {
-      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Primitives *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case Command_EndFrame: {

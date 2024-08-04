@@ -2,7 +2,13 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
+export { ActionEvent } from './fbs/action-event.js';
+export { ActionValue } from './fbs/action-value.js';
+export { BoolValue } from './fbs/bool-value.js';
+export { FloatValue } from './fbs/float-value.js';
+export { IntValue } from './fbs/int-value.js';
+export { KeyEvent } from './fbs/key-event.js';
 export { MousePath } from './fbs/mouse-path.js';
-export { RewindEvent } from './fbs/rewind-event.js';
 export { RewindEventList } from './fbs/rewind-event-list.js';
+export { StringValue } from './fbs/string-value.js';
 export { Vector2f } from './fbs/vector2f.js';

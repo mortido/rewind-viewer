@@ -4,7 +4,8 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { RewindEvent } from '../../rewind-viewer/fbs/rewind-event.js';
+import { ActionEvent } from '../../rewind-viewer/fbs/action-event.js';
+import { KeyEvent } from '../../rewind-viewer/fbs/key-event.js';
 
 
 export class RewindEventList {
@@ -25,25 +26,35 @@ static getSizePrefixedRootAsRewindEventList(bb:flatbuffers.ByteBuffer, obj?:Rewi
   return (obj || new RewindEventList()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-events(index: number, obj?:RewindEvent):RewindEvent|null {
+keyEvents(index: number, obj?:KeyEvent):KeyEvent|null {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? (obj || new RewindEvent()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+  return offset ? (obj || new KeyEvent()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
-eventsLength():number {
+keyEventsLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 4);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+actionEvents(index: number, obj?:ActionEvent):ActionEvent|null {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? (obj || new ActionEvent()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+actionEventsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
+}
+
 static startRewindEventList(builder:flatbuffers.Builder) {
-  builder.startObject(1);
+  builder.startObject(2);
 }
 
-static addEvents(builder:flatbuffers.Builder, eventsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(0, eventsOffset, 0);
+static addKeyEvents(builder:flatbuffers.Builder, keyEventsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, keyEventsOffset, 0);
 }
 
-static createEventsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+static createKeyEventsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addOffset(data[i]!);
@@ -51,7 +62,23 @@ static createEventsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]
   return builder.endVector();
 }
 
-static startEventsVector(builder:flatbuffers.Builder, numElems:number) {
+static startKeyEventsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
+}
+
+static addActionEvents(builder:flatbuffers.Builder, actionEventsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, actionEventsOffset, 0);
+}
+
+static createActionEventsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startActionEventsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
@@ -68,9 +95,10 @@ static finishSizePrefixedRewindEventListBuffer(builder:flatbuffers.Builder, offs
   builder.finish(offset, undefined, true);
 }
 
-static createRewindEventList(builder:flatbuffers.Builder, eventsOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createRewindEventList(builder:flatbuffers.Builder, keyEventsOffset:flatbuffers.Offset, actionEventsOffset:flatbuffers.Offset):flatbuffers.Offset {
   RewindEventList.startRewindEventList(builder);
-  RewindEventList.addEvents(builder, eventsOffset);
+  RewindEventList.addKeyEvents(builder, keyEventsOffset);
+  RewindEventList.addActionEvents(builder, actionEventsOffset);
   return RewindEventList.endRewindEventList(builder);
 }
 }

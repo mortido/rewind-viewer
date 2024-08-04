@@ -37,11 +37,30 @@ class RewindClient {
       throw std::runtime_error("Rewind message size can't be more than 1MB");
     }
     if (file_.is_open()) {
-      file_.write(reinterpret_cast<const char *>(&buf_size), sizeof(buf_size));
+      uint32_t size_buffer = buf_size;
+
+      const int32_t value{0x01};
+      const void *pointer{static_cast<const void *>(&value)};
+      const unsigned char *least_significant_address{static_cast<const unsigned char *>(pointer)};
+      bool is_little_endian = *least_significant_address == 0x01;
+      if (!is_little_endian) {
+        swap_bytes(size_buffer);
+      }
+
+      file_.write(reinterpret_cast<const char *>(&size_buffer), sizeof(size_buffer));
       file_.write(reinterpret_cast<const char *>(buf), static_cast<long>(buf_size));
     } else {
       tcp_client_->send_msg(buf, static_cast<uint32_t>(buf_size));
     }
+  }
+
+  void send_action(const std::string &name, fbs::ActionInput input,
+                   ::flatbuffers::Offset<void> input_offset) {
+    auto name_obj = builder_.CreateString(name);
+    auto command = fbs::CreateCreateAction(builder_, name_obj, input, input_offset);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_CreateAction, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
  public:
@@ -86,9 +105,7 @@ class RewindClient {
     }
   }
 
-  void set_opacity(uint32_t opacity) {
-    opacity_ = (opacity << 24u);
-  }
+  void set_opacity(uint32_t opacity) { opacity_ = (opacity << 24u); }
 
   void end_frame() {
     builder_.Clear();
@@ -366,17 +383,11 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
-  void subscribe(const std::string &name, char key, bool continuous, bool capture_mouse,
-                 float min_position_change = -1.0) {
+  void subscribe(char key, const std::string &name, bool continuous, bool capture_mouse) {
     builder_.Clear();
     auto name_obj = builder_.CreateString(name);
     flatbuffers::Offset<fbs::Subscribe> command;
-    if (min_position_change > 0.0) {
-      command = fbs::CreateSubscribe(builder_, name_obj, key, continuous, capture_mouse,
-                                     min_position_change);
-    } else {
-      command = fbs::CreateSubscribe(builder_, name_obj, key, continuous, capture_mouse);
-    }
+    command = fbs::CreateSubscribe(builder_, key, name_obj, continuous, capture_mouse);
     auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Subscribe, command.Union());
     builder_.Finish(msg);
     send(builder_.GetBufferPointer(), builder_.GetSize());
@@ -409,7 +420,7 @@ class RewindClient {
     auto event_list = fbs::GetRewindEventList(read_buffer_.data());
     std::vector<RewindEvent<Vec2T>> events;
 
-    for (auto fbs_event : *event_list->events()) {
+    for (auto fbs_event : *event_list->key_events()) {
       auto &event = events.emplace_back(RewindEvent<Vec2T>{.key = fbs_event->key()});
       if (fbs_event->mouse_paths()) {
         for (auto fbs_path : *fbs_event->mouse_paths()) {
@@ -423,6 +434,63 @@ class RewindClient {
       }
     }
     return events;
+  }
+
+  void create_button_action(const std::string &name) {
+    builder_.Clear();
+    auto input = fbs::CreateButtonInput(builder_);
+    send_action(name, fbs::ActionInput::ActionInput_ButtonInput, input.Union());
+  }
+
+  void create_int_input_action(const std::string &name, int32_t default_value,
+                               int32_t min_value = 0, int32_t max_value = 0) {
+    builder_.Clear();
+    auto input = fbs::CreateIntInput(builder_, default_value, min_value, max_value);
+    send_action(name, fbs::ActionInput::ActionInput_IntInput, input.Union());
+  }
+
+  // Specialized method to create a FloatInput action with optional min/max values
+  void create_float_input_action(const std::string &name, float default_value,
+                                 float min_value = 0.0f, float max_value = 0.0f) {
+    builder_.Clear();
+    auto input = fbs::CreateFloatInput(builder_, default_value, min_value, max_value);
+    send_action(name, fbs::ActionInput::ActionInput_FloatInput, input.Union());
+  }
+
+  // Specialized method to create a SelectInput action
+  void create_select_input_action(const std::string &name, const std::vector<std::string> &options,
+                                  uint16_t selected_option) {
+    builder_.Clear();
+    std::vector<flatbuffers::Offset<flatbuffers::String>> option_offsets;
+    for (const auto &option : options) {
+      option_offsets.push_back(builder_.CreateString(option));
+    }
+    auto input =
+        fbs::CreateSelectInput(builder_, builder_.CreateVector(option_offsets), selected_option);
+    send_action(name, fbs::ActionInput::ActionInput_SelectInput, input.Union());
+  }
+
+  // Specialized method to create a StringInput action
+  void create_string_input_action(const std::string &name, const std::string &default_value) {
+    builder_.Clear();
+    auto input = fbs::CreateStringInput(builder_, builder_.CreateString(default_value));
+    send_action(name, fbs::ActionInput::ActionInput_StringInput, input.Union());
+  }
+
+  // Specialized method to create a BoolInput action
+  void create_bool_input_action(const std::string &name, bool default_value = false) {
+    builder_.Clear();
+    auto input = fbs::CreateBoolInput(builder_, default_value);
+    send_action(name, fbs::ActionInput::ActionInput_BoolInput, input.Union());
+  }
+
+  void remove_action(const std::string &name) {
+    builder_.Clear();
+    auto name_obj = builder_.CreateString(name);
+    auto command = fbs::CreateRemoveAction(builder_, name_obj);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_RemoveAction, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 };
 

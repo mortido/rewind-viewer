@@ -2,6 +2,8 @@
 #include "models/frame_editor.h"
 #include "gateway/transport/transport.h"
 #include "gateway/events.h"
+#include "gateway/lock_dictionary.h"
+#include "gateway/actions.h"
 
 namespace rewind_viewer::gateway {
 
@@ -12,7 +14,7 @@ struct ParsingError : std::runtime_error {
 class MessageHandler {
  public:
   virtual ~MessageHandler() = default;
-  virtual void handle_message(const uint8_t* buffer, uint32_t size, EventsCollection& events,
+  virtual void handle_message(const uint8_t* buffer, uint32_t size, LockDictionary<char, std::unique_ptr<Event>> & events, LockDictionary<std::string, std::unique_ptr<Action>> & actions,
                               models::FrameEditor& frame_editor, Transport& transport) = 0;
 
  protected:

@@ -2,9 +2,9 @@
 #include <random>
 #include <thread>
 
-#include "rewind_viewer/RewindClient.h"
 #include "rewind_viewer/colors.h"
 #include "rewind_viewer/plot.h"
+#include "rewind_viewer/rewind_client.h"
 
 using namespace rewind_viewer::colors;
 using namespace std::chrono_literals;
@@ -64,6 +64,16 @@ void subscribe(rewind_viewer::RewindClient &rc) {
   rc.subscribe("right", 'd', true, false);
   rc.subscribe("down", 's', true, false);
   rc.subscribe("up", 'w', true, false);
+
+  rc.create_button_action("Test Button Action");
+  rc.create_int_input_action("Test Int Input Action", 42, 10, 100);
+  rc.create_int_input_action("Test Int Input Action 2", 42);
+  rc.create_float_input_action("Test Float Input Action", 3.14f, 0.0f, 10.0f);
+  rc.create_float_input_action("Test Float Input Action 2", 3.14f);
+  rc.create_select_input_action("Test Select Input Action", {"Option 1", "Option 2", "Option 3"}, 0);
+  rc.create_string_input_action("Test String Input Action 2", "Default Text");
+  rc.create_bool_input_action("Test Bool Input Action", true);
+  rc.create_bool_input_action("Test Bool Input Action 2", false);
 }
 
 int main(int argc, char *argv[]) {
@@ -71,6 +81,7 @@ int main(int argc, char *argv[]) {
   // Pass it via reference, shared_ptr ot create singleton to access it.
   // Assume rewind viewer is started on the same host with default port.
   rewind_viewer::RewindClient rewind_client("127.0.0.1", 9111);
+//  rewind_viewer::RewindClient rewind_client("example_output.rwn");
   subscribe(rewind_client);
 
   std::random_device rd;
@@ -109,6 +120,7 @@ int main(int argc, char *argv[]) {
   plot.set_axis_color(yellow::LightGoldenrodYellow);
   plot.add_series("value_1", blue::Aquamarine);
   plot.add_series("value_2", orange::OrangeRed);
+  rewind_client.set_layer(9, true);
   plot.draw_axes_lines(rewind_client, Vec2D{-100.0, -50.0}, Vec2D{100.0, 50.0});
 
   double plot_x = -100.0;
@@ -133,10 +145,10 @@ int main(int argc, char *argv[]) {
     rewind_client.camera_view("Allways Camera", pattern_position, 100.0);
 
     auto events = rewind_client.read_events<Vec2D>();
-//    while (events.empty()) {
-//      std::this_thread::sleep_for(100ms);
-//      events = rewind_client.read_events<Vec2D>();
-//    }
+    while (events.empty()) {
+      std::this_thread::sleep_for(1000ms);
+      events = rewind_client.read_events<Vec2D>();
+    }
     for (auto &event : events) {
       if (event.key == 'g') {
         rewind_client.circle(event.mouse_paths[0][0], 10, green::MediumAquamarine, true);

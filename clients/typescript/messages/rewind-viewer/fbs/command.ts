@@ -6,15 +6,16 @@ import { Arc } from '../../rewind-viewer/fbs/arc.js';
 import { CameraView } from '../../rewind-viewer/fbs/camera-view.js';
 import { Circle } from '../../rewind-viewer/fbs/circle.js';
 import { CircleSegment } from '../../rewind-viewer/fbs/circle-segment.js';
+import { CreateAction } from '../../rewind-viewer/fbs/create-action.js';
 import { EndFrame } from '../../rewind-viewer/fbs/end-frame.js';
 import { LogText } from '../../rewind-viewer/fbs/log-text.js';
 import { Options } from '../../rewind-viewer/fbs/options.js';
 import { Polyline } from '../../rewind-viewer/fbs/polyline.js';
 import { Popup } from '../../rewind-viewer/fbs/popup.js';
 import { PopupRound } from '../../rewind-viewer/fbs/popup-round.js';
-import { Primitives } from '../../rewind-viewer/fbs/primitives.js';
 import { ReadEvents } from '../../rewind-viewer/fbs/read-events.js';
 import { Rectangle } from '../../rewind-viewer/fbs/rectangle.js';
+import { RemoveAction } from '../../rewind-viewer/fbs/remove-action.js';
 import { Subscribe } from '../../rewind-viewer/fbs/subscribe.js';
 import { Tiles } from '../../rewind-viewer/fbs/tiles.js';
 import { Triangle } from '../../rewind-viewer/fbs/triangle.js';
@@ -27,31 +28,33 @@ export enum Command {
   CameraView = 2,
   Circle = 3,
   CircleSegment = 4,
-  LogText = 5,
-  Options = 6,
-  Polyline = 7,
-  Popup = 8,
-  PopupRound = 9,
-  ReadEvents = 10,
-  Rectangle = 11,
-  Subscribe = 12,
-  Tiles = 13,
-  Triangle = 14,
-  Unsubscribe = 15,
-  Primitives = 16,
-  EndFrame = 17
+  CreateAction = 5,
+  LogText = 6,
+  Options = 7,
+  Polyline = 8,
+  Popup = 9,
+  PopupRound = 10,
+  ReadEvents = 11,
+  Rectangle = 12,
+  RemoveAction = 13,
+  Subscribe = 14,
+  Tiles = 15,
+  Triangle = 16,
+  Unsubscribe = 17,
+  EndFrame = 18
 }
 
 export function unionToCommand(
   type: Command,
-  accessor: (obj:Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Primitives|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Primitives|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null
-): Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Primitives|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null {
+  accessor: (obj:Arc|CameraView|Circle|CircleSegment|CreateAction|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|CreateAction|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|Subscribe|Tiles|Triangle|Unsubscribe|null
+): Arc|CameraView|Circle|CircleSegment|CreateAction|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|Subscribe|Tiles|Triangle|Unsubscribe|null {
   switch(Command[type]) {
     case 'NONE': return null; 
     case 'Arc': return accessor(new Arc())! as Arc;
     case 'CameraView': return accessor(new CameraView())! as CameraView;
     case 'Circle': return accessor(new Circle())! as Circle;
     case 'CircleSegment': return accessor(new CircleSegment())! as CircleSegment;
+    case 'CreateAction': return accessor(new CreateAction())! as CreateAction;
     case 'LogText': return accessor(new LogText())! as LogText;
     case 'Options': return accessor(new Options())! as Options;
     case 'Polyline': return accessor(new Polyline())! as Polyline;
@@ -59,11 +62,11 @@ export function unionToCommand(
     case 'PopupRound': return accessor(new PopupRound())! as PopupRound;
     case 'ReadEvents': return accessor(new ReadEvents())! as ReadEvents;
     case 'Rectangle': return accessor(new Rectangle())! as Rectangle;
+    case 'RemoveAction': return accessor(new RemoveAction())! as RemoveAction;
     case 'Subscribe': return accessor(new Subscribe())! as Subscribe;
     case 'Tiles': return accessor(new Tiles())! as Tiles;
     case 'Triangle': return accessor(new Triangle())! as Triangle;
     case 'Unsubscribe': return accessor(new Unsubscribe())! as Unsubscribe;
-    case 'Primitives': return accessor(new Primitives())! as Primitives;
     case 'EndFrame': return accessor(new EndFrame())! as EndFrame;
     default: return null;
   }
@@ -71,15 +74,16 @@ export function unionToCommand(
 
 export function unionListToCommand(
   type: Command, 
-  accessor: (index: number, obj:Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Primitives|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Primitives|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null, 
+  accessor: (index: number, obj:Arc|CameraView|Circle|CircleSegment|CreateAction|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|CreateAction|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|Subscribe|Tiles|Triangle|Unsubscribe|null, 
   index: number
-): Arc|CameraView|Circle|CircleSegment|EndFrame|LogText|Options|Polyline|Popup|PopupRound|Primitives|ReadEvents|Rectangle|Subscribe|Tiles|Triangle|Unsubscribe|null {
+): Arc|CameraView|Circle|CircleSegment|CreateAction|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|Subscribe|Tiles|Triangle|Unsubscribe|null {
   switch(Command[type]) {
     case 'NONE': return null; 
     case 'Arc': return accessor(index, new Arc())! as Arc;
     case 'CameraView': return accessor(index, new CameraView())! as CameraView;
     case 'Circle': return accessor(index, new Circle())! as Circle;
     case 'CircleSegment': return accessor(index, new CircleSegment())! as CircleSegment;
+    case 'CreateAction': return accessor(index, new CreateAction())! as CreateAction;
     case 'LogText': return accessor(index, new LogText())! as LogText;
     case 'Options': return accessor(index, new Options())! as Options;
     case 'Polyline': return accessor(index, new Polyline())! as Polyline;
@@ -87,11 +91,11 @@ export function unionListToCommand(
     case 'PopupRound': return accessor(index, new PopupRound())! as PopupRound;
     case 'ReadEvents': return accessor(index, new ReadEvents())! as ReadEvents;
     case 'Rectangle': return accessor(index, new Rectangle())! as Rectangle;
+    case 'RemoveAction': return accessor(index, new RemoveAction())! as RemoveAction;
     case 'Subscribe': return accessor(index, new Subscribe())! as Subscribe;
     case 'Tiles': return accessor(index, new Tiles())! as Tiles;
     case 'Triangle': return accessor(index, new Triangle())! as Triangle;
     case 'Unsubscribe': return accessor(index, new Unsubscribe())! as Unsubscribe;
-    case 'Primitives': return accessor(index, new Primitives())! as Primitives;
     case 'EndFrame': return accessor(index, new EndFrame())! as EndFrame;
     default: return null;
   }

@@ -12,19 +12,20 @@ const (
 	CommandCameraView    Command = 2
 	CommandCircle        Command = 3
 	CommandCircleSegment Command = 4
-	CommandLogText       Command = 5
-	CommandOptions       Command = 6
-	CommandPolyline      Command = 7
-	CommandPopup         Command = 8
-	CommandPopupRound    Command = 9
-	CommandReadEvents    Command = 10
-	CommandRectangle     Command = 11
-	CommandSubscribe     Command = 12
-	CommandTiles         Command = 13
-	CommandTriangle      Command = 14
-	CommandUnsubscribe   Command = 15
-	CommandPrimitives    Command = 16
-	CommandEndFrame      Command = 17
+	CommandCreateAction  Command = 5
+	CommandLogText       Command = 6
+	CommandOptions       Command = 7
+	CommandPolyline      Command = 8
+	CommandPopup         Command = 9
+	CommandPopupRound    Command = 10
+	CommandReadEvents    Command = 11
+	CommandRectangle     Command = 12
+	CommandRemoveAction  Command = 13
+	CommandSubscribe     Command = 14
+	CommandTiles         Command = 15
+	CommandTriangle      Command = 16
+	CommandUnsubscribe   Command = 17
+	CommandEndFrame      Command = 18
 )
 
 var EnumNamesCommand = map[Command]string{
@@ -33,6 +34,7 @@ var EnumNamesCommand = map[Command]string{
 	CommandCameraView:    "CameraView",
 	CommandCircle:        "Circle",
 	CommandCircleSegment: "CircleSegment",
+	CommandCreateAction:  "CreateAction",
 	CommandLogText:       "LogText",
 	CommandOptions:       "Options",
 	CommandPolyline:      "Polyline",
@@ -40,11 +42,11 @@ var EnumNamesCommand = map[Command]string{
 	CommandPopupRound:    "PopupRound",
 	CommandReadEvents:    "ReadEvents",
 	CommandRectangle:     "Rectangle",
+	CommandRemoveAction:  "RemoveAction",
 	CommandSubscribe:     "Subscribe",
 	CommandTiles:         "Tiles",
 	CommandTriangle:      "Triangle",
 	CommandUnsubscribe:   "Unsubscribe",
-	CommandPrimitives:    "Primitives",
 	CommandEndFrame:      "EndFrame",
 }
 
@@ -54,6 +56,7 @@ var EnumValuesCommand = map[string]Command{
 	"CameraView":    CommandCameraView,
 	"Circle":        CommandCircle,
 	"CircleSegment": CommandCircleSegment,
+	"CreateAction":  CommandCreateAction,
 	"LogText":       CommandLogText,
 	"Options":       CommandOptions,
 	"Polyline":      CommandPolyline,
@@ -61,11 +64,11 @@ var EnumValuesCommand = map[string]Command{
 	"PopupRound":    CommandPopupRound,
 	"ReadEvents":    CommandReadEvents,
 	"Rectangle":     CommandRectangle,
+	"RemoveAction":  CommandRemoveAction,
 	"Subscribe":     CommandSubscribe,
 	"Tiles":         CommandTiles,
 	"Triangle":      CommandTriangle,
 	"Unsubscribe":   CommandUnsubscribe,
-	"Primitives":    CommandPrimitives,
 	"EndFrame":      CommandEndFrame,
 }
 

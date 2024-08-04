@@ -48,9 +48,8 @@ void TcpServer::send_bytes(const uint8_t *buffer, uint32_t size) {
 TcpServer::TcpServer(std::string address, uint16_t port)
     : address_(std::move(address))
     , port_(port)
-    , socket_(std::make_unique<CPassiveSocket>(CPassiveSocket::SocketTypeTcp)) {}
-
-void TcpServer::initialize() {
+    , name_(std::to_string(port_))
+    , socket_(std::make_unique<CPassiveSocket>(CPassiveSocket::SocketTypeTcp)) {
   socket_->DisableNagleAlgoritm();
   socket_->Initialize();
   if (!socket_->Listen(address_.c_str(), port_)) {
@@ -66,8 +65,12 @@ bool TcpServer::accept_connection(int timeout) {
         str_format("Can't accept connection, invalid socket: %s", socket_->DescribeError()));
   }
 
-  if (timeout > 0 && !socket_->Select(timeout, 0)) {
-    return false;
+  if (timeout > 0) {
+    int sec = timeout / 1000;
+    int u_sec = timeout % 1000 * 1000;
+    if (!socket_->Select(sec, u_sec)) {
+      return false;
+    }
   }
 
   client_.reset(socket_->Accept());
@@ -81,7 +84,16 @@ bool TcpServer::accept_connection(int timeout) {
   return true;
 }
 
-void TcpServer::discard_connection() {
+bool TcpServer::is_connected() const {
+  return client_ && client_->IsSocketValid();
+}
+
+void TcpServer::close_connection() {
+  if (client_ && client_->IsSocketValid()) {
+    if (!client_->Shutdown(CSimpleSocket::CShutdownMode::Both)) {
+    }
+    client_->Close();
+  }
   client_.reset(nullptr);
 }
 

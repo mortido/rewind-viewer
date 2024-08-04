@@ -41,16 +41,8 @@ func (rcv *Subscribe) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *Subscribe) Name() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
 func (rcv *Subscribe) Key() int8 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.GetInt8(o + rcv._tab.Pos)
 	}
@@ -58,7 +50,15 @@ func (rcv *Subscribe) Key() int8 {
 }
 
 func (rcv *Subscribe) MutateKey(n int8) bool {
-	return rcv._tab.MutateInt8Slot(6, n)
+	return rcv._tab.MutateInt8Slot(4, n)
+}
+
+func (rcv *Subscribe) Name() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
 }
 
 func (rcv *Subscribe) Continuous() bool {
@@ -85,35 +85,20 @@ func (rcv *Subscribe) MutateCaptureMouse(n bool) bool {
 	return rcv._tab.MutateBoolSlot(10, n)
 }
 
-func (rcv *Subscribe) MinPositionChange() float32 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
-	if o != 0 {
-		return rcv._tab.GetFloat32(o + rcv._tab.Pos)
-	}
-	return 0.001
-}
-
-func (rcv *Subscribe) MutateMinPositionChange(n float32) bool {
-	return rcv._tab.MutateFloat32Slot(12, n)
-}
-
 func SubscribeStart(builder *flatbuffers.Builder) {
-	builder.StartObject(5)
-}
-func SubscribeAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(name), 0)
+	builder.StartObject(4)
 }
 func SubscribeAddKey(builder *flatbuffers.Builder, key int8) {
-	builder.PrependInt8Slot(1, key, 0)
+	builder.PrependInt8Slot(0, key, 0)
+}
+func SubscribeAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(name), 0)
 }
 func SubscribeAddContinuous(builder *flatbuffers.Builder, continuous bool) {
 	builder.PrependBoolSlot(2, continuous, false)
 }
 func SubscribeAddCaptureMouse(builder *flatbuffers.Builder, captureMouse bool) {
 	builder.PrependBoolSlot(3, captureMouse, false)
-}
-func SubscribeAddMinPositionChange(builder *flatbuffers.Builder, minPositionChange float32) {
-	builder.PrependFloat32Slot(4, minPositionChange, 0.001)
 }
 func SubscribeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

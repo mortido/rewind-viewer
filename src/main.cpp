@@ -135,15 +135,17 @@ int main(int argc, char** argv) {
                  config.ui->canvas_background_color.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    rewind.render();
+    if (!rewind.update()) {
+      glfwSetWindowShouldClose(window, true);
+    }
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(window);
 
-    if (rewind.close_requested()) {
-      glfwSetWindowShouldClose(window, true);
-    }
+    //    if (rewind.close_requested()) {
+    //      glfwSetWindowShouldClose(window, true);
+    //    }
   }
 
   LOG_INFO("Stop rewind");

@@ -1,6 +1,7 @@
 #include "gl/primitives_collection.h"
 
 #include <glm/gtc/constants.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <stdexcept>
 
 namespace {
@@ -112,6 +113,32 @@ void PrimitiveIndices::add_rectangle(PrimitiveStorage& storage, glm::vec2 top_le
   storage.color_vertexes.push_back({color, top_right});
   storage.color_vertexes.push_back({color, bottom_right});
   storage.updated = true;
+
+//  // Calculate the center of the rectangle
+//  glm::vec2 center = (top_left + bottom_right) * 0.5f;
+//
+//  // Create a 4x4 transformation matrix
+//  glm::mat4 transform = glm::mat4(1.0f);
+//
+//  // Apply translation to move the rectangle to the origin, rotate, and then translate back
+//  transform = glm::translate(transform, glm::vec3(center, 0.0f));
+//  transform = glm::rotate(transform, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+//  transform = glm::translate(transform, glm::vec3(-center, 0.0f));
+//
+//  // Define the four corners of the rectangle as 4D vectors (homogeneous coordinates)
+//  glm::vec4 tl = transform * glm::vec4(top_left, 0.0f, 1.0f);
+//  glm::vec4 tr = transform * glm::vec4(bottom_right.x, top_left.y, 0.0f, 1.0f);
+//  glm::vec4 bl = transform * glm::vec4(top_left.x, bottom_right.y, 0.0f, 1.0f);
+//  glm::vec4 br = transform * glm::vec4(bottom_right, 0.0f, 1.0f);
+//
+//  // Store the vertices in the storage
+//  GLuint idx = storage.color_vertexes.size();
+//  storage.color_vertexes.push_back({color, glm::vec2(tl)});
+//  storage.color_vertexes.push_back({color, glm::vec2(bl)});
+//  storage.color_vertexes.push_back({color, glm::vec2(tr)});
+//  storage.color_vertexes.push_back({color, glm::vec2(br)});
+//  storage.updated = true;
+
 
   if (fill) {
     for (uint8_t t : {0, 2, 1, 2, 3, 1}) {

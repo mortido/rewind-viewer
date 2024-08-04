@@ -22,16 +22,16 @@ static getSizePrefixedRootAsSubscribe(bb:flatbuffers.ByteBuffer, obj?:Subscribe)
   return (obj || new Subscribe()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
+key():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.readInt8(this.bb_pos + offset) : 0;
+}
+
 name():string|null
 name(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
 name(optionalEncoding?:any):string|Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
-}
-
-key():number {
   const offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? this.bb!.readInt8(this.bb_pos + offset) : 0;
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
 continuous():boolean {
@@ -44,21 +44,16 @@ captureMouse():boolean {
   return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
 }
 
-minPositionChange():number {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? this.bb!.readFloat32(this.bb_pos + offset) : 0.001;
-}
-
 static startSubscribe(builder:flatbuffers.Builder) {
-  builder.startObject(5);
-}
-
-static addName(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(0, nameOffset, 0);
+  builder.startObject(4);
 }
 
 static addKey(builder:flatbuffers.Builder, key:number) {
-  builder.addFieldInt8(1, key, 0);
+  builder.addFieldInt8(0, key, 0);
+}
+
+static addName(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, nameOffset, 0);
 }
 
 static addContinuous(builder:flatbuffers.Builder, continuous:boolean) {
@@ -69,22 +64,18 @@ static addCaptureMouse(builder:flatbuffers.Builder, captureMouse:boolean) {
   builder.addFieldInt8(3, +captureMouse, +false);
 }
 
-static addMinPositionChange(builder:flatbuffers.Builder, minPositionChange:number) {
-  builder.addFieldFloat32(4, minPositionChange, 0.001);
-}
-
 static endSubscribe(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
+  builder.requiredField(offset, 6) // name
   return offset;
 }
 
-static createSubscribe(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset, key:number, continuous:boolean, captureMouse:boolean, minPositionChange:number):flatbuffers.Offset {
+static createSubscribe(builder:flatbuffers.Builder, key:number, nameOffset:flatbuffers.Offset, continuous:boolean, captureMouse:boolean):flatbuffers.Offset {
   Subscribe.startSubscribe(builder);
-  Subscribe.addName(builder, nameOffset);
   Subscribe.addKey(builder, key);
+  Subscribe.addName(builder, nameOffset);
   Subscribe.addContinuous(builder, continuous);
   Subscribe.addCaptureMouse(builder, captureMouse);
-  Subscribe.addMinPositionChange(builder, minPositionChange);
   return Subscribe.endSubscribe(builder);
 }
 }

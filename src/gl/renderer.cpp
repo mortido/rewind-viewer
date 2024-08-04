@@ -76,6 +76,7 @@ void Renderer::update_canvas([[maybe_unused]] const glm::vec2 &position, const g
 
   // TODO: support position for canvas model
   canvas_model = glm::scale(glm::mat4(1.0f), {size, 1.0f});
+//  canvas_model = glm::rotate(canvas_model, static_cast<float>(M_PI / 4), glm::vec3(0.0f, 0.0f, 1.0f));
   //  canvas_model = glm::translate(canvas_model, {position,1.0});
 
   grid.clear();

@@ -13,7 +13,9 @@ class JsonMessageHandler : public MessageHandler {
   rapidjson::StringBuffer json_buffer_;
 
  public:
-  void handle_message(const uint8_t* buffer, uint32_t, EventsCollection& events,
+  void handle_message(const uint8_t* buffer, uint32_t,
+                      LockDictionary<char, std::unique_ptr<Event>>& events,
+                      LockDictionary<std::string, std::unique_ptr<Action>>& /*actions*/,
                       models::FrameEditor& frame_editor, Transport& transport) override {
     rapidjson::Document doc;
     // TODO: zero terminated?
@@ -240,15 +242,9 @@ class JsonMessageHandler : public MessageHandler {
       char key = static_cast<char>(data_obj["k"].GetInt());
       std::string name = data_obj["n"].GetString();
       if (data_obj["cm"].GetBool()) {
-        if (data_obj.HasMember("mpc")) {
-          double min_position_change = data_obj["mpc"].GetFloat();
-          events.add(key,
-                     std::make_unique<CursorEvent>(name, continuous, key, min_position_change));
-        } else {
-          events.add(key, std::make_unique<CursorEvent>(name, continuous, key));
-        }
+        events.add(key, std::make_unique<CursorEvent>(key, name, continuous));
       } else {
-        events.add(key, std::make_unique<KeyEvent>(name, continuous, key));
+        events.add(key, std::make_unique<KeyEvent>(key, name, continuous));
       }
     } else if (cmd_type == "US") {
       LOG_V8("JSONHandler::UNSUBSCRIBE");
@@ -257,8 +253,10 @@ class JsonMessageHandler : public MessageHandler {
       LOG_V8("JSONHandler::READ_EVENTS");
       json_buffer_.Clear();
       rapidjson::Writer<rapidjson::StringBuffer> writer(json_buffer_);
-      events.serialize(writer);
-      events.reset();
+      events.iterate([&](auto, auto& event) {
+        event->serialize(writer);
+        event->reset_state();
+      });
       transport.send_msg(reinterpret_cast<const uint8_t*>(json_buffer_.GetString()),
                          static_cast<uint32_t>(json_buffer_.GetSize()));
     } else {

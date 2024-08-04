@@ -41,7 +41,7 @@ func (rcv *RewindEventList) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *RewindEventList) Events(obj *RewindEvent, j int) bool {
+func (rcv *RewindEventList) KeyEvents(obj *KeyEvent, j int) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
@@ -53,7 +53,7 @@ func (rcv *RewindEventList) Events(obj *RewindEvent, j int) bool {
 	return false
 }
 
-func (rcv *RewindEventList) EventsLength() int {
+func (rcv *RewindEventList) KeyEventsLength() int {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
@@ -61,13 +61,39 @@ func (rcv *RewindEventList) EventsLength() int {
 	return 0
 }
 
+func (rcv *RewindEventList) ActionEvents(obj *ActionEvent, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *RewindEventList) ActionEventsLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
 func RewindEventListStart(builder *flatbuffers.Builder) {
-	builder.StartObject(1)
+	builder.StartObject(2)
 }
-func RewindEventListAddEvents(builder *flatbuffers.Builder, events flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(events), 0)
+func RewindEventListAddKeyEvents(builder *flatbuffers.Builder, keyEvents flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(keyEvents), 0)
 }
-func RewindEventListStartEventsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+func RewindEventListStartKeyEventsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
+}
+func RewindEventListAddActionEvents(builder *flatbuffers.Builder, actionEvents flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(actionEvents), 0)
+}
+func RewindEventListStartActionEventsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func RewindEventListEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
