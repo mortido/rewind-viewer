@@ -8,7 +8,6 @@
 #include "gl/resource_manager.h"
 #include "gl/shader.h"
 #include "gl/shaders_collection.h"
-#include "models/camera.h"
 
 namespace rewind_viewer::gl {
 
@@ -17,7 +16,8 @@ class Renderer {
   Renderer(ResourceManager& resources, const std::string &shaders_dir, const glm::vec2 &canvas_position,
            const glm::vec2 &canvas_size, const glm::u16vec2 &grid_cells);
 
-  void new_frame(const models::Camera &cam);
+  void new_frame();
+  void set_projections(const std::array<glm::mat4, 9> &projections);
   void render_canvas(glm::vec3 color);
   void render_grid(glm::vec3 color);
   void load_primitives(const RenderContext& context, const PrimitiveStorage &storage);

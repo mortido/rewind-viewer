@@ -3,6 +3,35 @@
 #include <imgui/fontawesome.h>
 #include <imgui/imgui.h>
 
+namespace {
+using namespace rewind_viewer::models;
+void render_layers_buttons(
+    const Scene &scene, const std::array<ImVec4, 2> button_colors,
+    std::array<bool, static_cast<size_t>(Frame::LAYERS_COUNT)> &enabled_layers,
+    const std::array<const char *, static_cast<size_t>(Frame::LAYERS_COUNT)> &captions,
+    bool permanent) {
+  for (size_t i = 0; i < Frame::LAYERS_COUNT; i++) {
+    if (ImGui::ColorButton(captions[i], button_colors[enabled_layers[i]],
+                           ImGuiColorEditFlags_NoTooltip)) {
+      enabled_layers[i] = !enabled_layers[i];
+    }
+    // TODO: avoid str copy.
+    auto name = scene.get_layer_name(i, permanent);
+    if (!name.empty() && ImGui::BeginItemTooltip()) {
+      ImGui::TextUnformatted(name.c_str());
+      ImGui::EndTooltip();
+    }
+    ImGui::SameLine();
+  }
+
+  ImGui::TextDisabled("(?)");
+  if (ImGui::BeginItemTooltip()) {
+    ImGui::TextUnformatted(permanent ? "Permanent layers 1-10" : "Frame layers 1-10");
+    ImGui::EndTooltip();
+  }
+}
+}  // namespace
+
 namespace rewind_viewer::ui {
 void ToolboxPanel::render(RewindViewerState &ui_state, const models::Config &config,
                           models::Scene &scene,
@@ -71,20 +100,20 @@ void ToolboxPanel::render(RewindViewerState &ui_state, const models::Config &con
       ui_state.ignore_frame_camera_viewport = true;
     }
     ImGui::PopItemWidth();
-//    ImGui::SameLine(0, 40);
+    //    ImGui::SameLine(0, 40);
     if (ImGui::Checkbox("Y axis up", &config.scene->camera.y_axis_up)) {
       scene.camera.set_y_axis_up(config.scene->camera.y_axis_up);
     }
   }
   if (ImGui::CollapsingHeader(ICON_FA_LIST " Layers", flags)) {
-    static const ImVec4 tick_button_colors[] = {
+    static const std::array<ImVec4, 2> tick_button_colors = {
         ImVec4(0.5f, 0.5f, 0.5f, 1.0f),      // Disabled color
         ImVec4(0.38f, 0.741f, 0.229f, 1.0f)  // Enabled color
     };
     static const std::array<const char *, static_cast<size_t>(models::SceneConfig::LAYERS_COUNT)>
         tick_captions = {"##layer0", "##layer1", "##layer2", "##layer3", "##layer4",
                          "##layer5", "##layer6", "##layer7", "##layer8", "##layer9"};
-    static const ImVec4 permanent_button_colors[] = {
+    static const std::array<ImVec4, 2> permanent_button_colors = {
         ImVec4(0.5f, 0.5f, 0.5f, 1.0f),      // Disabled color
         ImVec4(0.741f, 0.38f, 0.229f, 1.0f)  // Enabled color
     };
@@ -92,39 +121,10 @@ void ToolboxPanel::render(RewindViewerState &ui_state, const models::Config &con
         permanent_captions = {"##p_layer0", "##p_layer1", "##p_layer2", "##p_layer3", "##p_layer4",
                               "##p_layer5", "##p_layer6", "##p_layer7", "##p_layer8", "##p_layer9"};
 
-    size_t idx = 0;
-    for (bool &enabled : config.scene->enabled_layers) {
-      if (ImGui::ColorButton(tick_captions[idx], tick_button_colors[enabled],
-                             ImGuiColorEditFlags_NoTooltip)) {
-        enabled = !enabled;
-      }
-      idx++;
-      ImGui::SameLine();
-    }
-    ImGui::TextDisabled("(?)");
-    if (ImGui::BeginItemTooltip()) {
-      ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-      ImGui::TextUnformatted("Frame layers 1-10");
-      ImGui::PopTextWrapPos();
-      ImGui::EndTooltip();
-    }
-
-    idx = 0;
-    for (bool &enabled : config.scene->enabled_permanent_layers) {
-      if (ImGui::ColorButton(permanent_captions[idx], permanent_button_colors[enabled],
-                             ImGuiColorEditFlags_NoTooltip)) {
-        enabled = !enabled;
-      }
-      idx++;
-      ImGui::SameLine();
-    }
-    ImGui::TextDisabled("(?)");
-    if (ImGui::BeginItemTooltip()) {
-      ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-      ImGui::TextUnformatted("Permanent layers 1-10");
-      ImGui::PopTextWrapPos();
-      ImGui::EndTooltip();
-    }
+    render_layers_buttons(scene, tick_button_colors, config.scene->enabled_layers, tick_captions,
+                          false);
+    render_layers_buttons(scene, permanent_button_colors, config.scene->enabled_permanent_layers,
+                          permanent_captions, true);
   }
   if (ui_state.show_control_pad_window) {
     ImGui::SetNextWindowSize(ImVec2(0, 0), ImGuiCond_Always);

@@ -1,8 +1,9 @@
 #include "gl/primitives_collection.h"
 
 #include <glm/gtc/constants.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <stdexcept>
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/matrix_transform_2d.hpp"
 
 namespace {
 
@@ -33,11 +34,12 @@ inline float normalize_angle(float angle) {
 
 namespace rewind_viewer::gl {
 
-void PrimitiveIndices::add_arc(PrimitiveStorage& storage, glm::vec2 center, float r,
-                                float start_angle, float end_angle, uint32_t color, bool fill) {
+void PrimitiveIndices::add_arc(PrimitiveStorage& storage, uint32_t projection_idx, glm::vec2 center,
+                               float r, float start_angle, float end_angle, uint32_t color,
+                               bool fill) {
   GLuint idx = storage.color_circles.size();
   storage.color_circles.push_back(
-      {color, center, r, normalize_angle(start_angle), normalize_angle(end_angle)});
+      {projection_idx, color, center, r, normalize_angle(start_angle), normalize_angle(end_angle)});
   storage.updated = true;
   if (fill) {
     filled_circles.push_back(idx);
@@ -46,33 +48,35 @@ void PrimitiveIndices::add_arc(PrimitiveStorage& storage, glm::vec2 center, floa
   }
 }
 
-void PrimitiveIndices::add_circle(PrimitiveStorage& storage, glm::vec2 center, float r,
+void PrimitiveIndices::add_circle(PrimitiveStorage& storage, uint32_t projection_idx,
+                                  glm::vec2 center, float r, uint32_t color, bool fill) {
+  GLuint idx = storage.color_circles.size();
+  storage.color_circles.push_back({projection_idx, color, center, r, 0.0, 0.0});
+  storage.updated = true;
+  if (fill) {
+    filled_circles.push_back(idx);
+  } else {
+    thin_circles.push_back(idx);
+  }
+}
+
+void PrimitiveIndices::add_segment(PrimitiveStorage& storage, uint32_t projection_idx,
+                                   glm::vec2 center, float r, float start_angle, float end_angle,
                                    uint32_t color, bool fill) {
   GLuint idx = storage.color_circles.size();
-  storage.color_circles.push_back({color, center, r, 0.0, 0.0});
-  storage.updated = true;
-  if (fill) {
-    filled_circles.push_back(idx);
-  } else {
-    thin_circles.push_back(idx);
-  }
-}
-
-void PrimitiveIndices::add_segment(PrimitiveStorage& storage, glm::vec2 center, float r,
-                                    float start_angle, float end_angle, uint32_t color, bool fill) {
-  GLuint idx = storage.color_circles.size();
   storage.color_circles.push_back(
-      {color, center, r, normalize_angle(start_angle), normalize_angle(end_angle)});
+      {projection_idx, color, center, r, normalize_angle(start_angle), normalize_angle(end_angle)});
   if (fill) {
     filled_segments.push_back(idx);
   } else {
     thin_circles.push_back(idx);  // same logic as circle for shader
 
-    storage.color_vertexes.push_back({color, center});
+    storage.color_vertexes.push_back({projection_idx, color, center});
     storage.color_vertexes.push_back(
-        {color, center + r * glm::vec2(glm::cos(start_angle), glm::sin(start_angle))});
+        {projection_idx, color,
+         center + r * glm::vec2(glm::cos(start_angle), glm::sin(start_angle))});
     storage.color_vertexes.push_back(
-        {color, center + r * glm::vec2(glm::cos(end_angle), glm::sin(end_angle))});
+        {projection_idx, color, center + r * glm::vec2(glm::cos(end_angle), glm::sin(end_angle))});
     storage.updated = true;
 
     // Add line between two points in sequence
@@ -84,12 +88,13 @@ void PrimitiveIndices::add_segment(PrimitiveStorage& storage, glm::vec2 center, 
   }
 }
 
-void PrimitiveIndices::add_triangle(PrimitiveStorage& storage, glm::vec2 p1, glm::vec2 p2,
-                                     glm::vec2 p3, uint32_t color, bool fill) {
+void PrimitiveIndices::add_triangle(PrimitiveStorage& storage, uint32_t projection_idx,
+                                    glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, uint32_t color,
+                                    bool fill) {
   GLuint idx = storage.color_vertexes.size();
-  storage.color_vertexes.push_back({color, p1});
-  storage.color_vertexes.push_back({color, p2});
-  storage.color_vertexes.push_back({color, p3});
+  storage.color_vertexes.push_back({projection_idx, color, p1});
+  storage.color_vertexes.push_back({projection_idx, color, p2});
+  storage.color_vertexes.push_back({projection_idx, color, p3});
   storage.updated = true;
 
   if (fill) {
@@ -103,42 +108,17 @@ void PrimitiveIndices::add_triangle(PrimitiveStorage& storage, glm::vec2 p1, glm
   }
 }
 
-void PrimitiveIndices::add_rectangle(PrimitiveStorage& storage, glm::vec2 top_left,
-                                      glm::vec2 bottom_right, uint32_t color, bool fill) {
+void PrimitiveIndices::add_rectangle(PrimitiveStorage& storage, uint32_t projection_idx,
+                                     glm::vec2 top_left, glm::vec2 bottom_right, uint32_t color,
+                                     bool fill) {
   auto top_right = glm::vec2{bottom_right.x, top_left.y};
   auto bottom_left = glm::vec2{top_left.x, bottom_right.y};
   GLuint idx = storage.color_vertexes.size();
-  storage.color_vertexes.push_back({color, top_left});
-  storage.color_vertexes.push_back({color, bottom_left});
-  storage.color_vertexes.push_back({color, top_right});
-  storage.color_vertexes.push_back({color, bottom_right});
+  storage.color_vertexes.push_back({projection_idx, color, top_left});
+  storage.color_vertexes.push_back({projection_idx, color, bottom_left});
+  storage.color_vertexes.push_back({projection_idx, color, top_right});
+  storage.color_vertexes.push_back({projection_idx, color, bottom_right});
   storage.updated = true;
-
-//  // Calculate the center of the rectangle
-//  glm::vec2 center = (top_left + bottom_right) * 0.5f;
-//
-//  // Create a 4x4 transformation matrix
-//  glm::mat4 transform = glm::mat4(1.0f);
-//
-//  // Apply translation to move the rectangle to the origin, rotate, and then translate back
-//  transform = glm::translate(transform, glm::vec3(center, 0.0f));
-//  transform = glm::rotate(transform, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-//  transform = glm::translate(transform, glm::vec3(-center, 0.0f));
-//
-//  // Define the four corners of the rectangle as 4D vectors (homogeneous coordinates)
-//  glm::vec4 tl = transform * glm::vec4(top_left, 0.0f, 1.0f);
-//  glm::vec4 tr = transform * glm::vec4(bottom_right.x, top_left.y, 0.0f, 1.0f);
-//  glm::vec4 bl = transform * glm::vec4(top_left.x, bottom_right.y, 0.0f, 1.0f);
-//  glm::vec4 br = transform * glm::vec4(bottom_right, 0.0f, 1.0f);
-//
-//  // Store the vertices in the storage
-//  GLuint idx = storage.color_vertexes.size();
-//  storage.color_vertexes.push_back({color, glm::vec2(tl)});
-//  storage.color_vertexes.push_back({color, glm::vec2(bl)});
-//  storage.color_vertexes.push_back({color, glm::vec2(tr)});
-//  storage.color_vertexes.push_back({color, glm::vec2(br)});
-//  storage.updated = true;
-
 
   if (fill) {
     for (uint8_t t : {0, 2, 1, 2, 3, 1}) {
@@ -151,16 +131,16 @@ void PrimitiveIndices::add_rectangle(PrimitiveStorage& storage, glm::vec2 top_le
   }
 }
 
-void PrimitiveIndices::add_polyline(PrimitiveStorage& storage,
-                                     const std::vector<glm::vec2>& points, uint32_t color) {
+void PrimitiveIndices::add_polyline(PrimitiveStorage& storage, uint32_t projection_idx,
+                                    const std::vector<glm::vec2>& points, uint32_t color) {
   if (points.size() < 2) {
     throw std::invalid_argument("Cannot create polyline from one point");
   }
 
-  storage.color_vertexes.push_back({color, points[0]});
+  storage.color_vertexes.push_back({projection_idx, color, points[0]});
   storage.updated = true;
   for (size_t i = 1; i < points.size(); ++i) {
-    storage.color_vertexes.push_back({color, points[i]});
+    storage.color_vertexes.push_back({projection_idx, color, points[i]});
 
     // Add line between two points in sequence
     GLuint idx = storage.color_vertexes.size() - 1;
@@ -169,50 +149,55 @@ void PrimitiveIndices::add_polyline(PrimitiveStorage& storage,
   }
 }
 
-void PrimitiveIndices::add_stencil_arc(PrimitiveStorage& storage, glm::vec2 center, float r,
-                                        float start_angle, float end_angle) {
+void PrimitiveIndices::add_stencil_arc(PrimitiveStorage& storage, uint32_t projection_idx,
+                                       glm::vec2 center, float r, float start_angle,
+                                       float end_angle) {
   GLuint idx = storage.circles.size();
-  storage.circles.push_back({center, r, normalize_angle(start_angle), normalize_angle(end_angle)});
+  storage.circles.push_back(
+      {projection_idx, center, r, normalize_angle(start_angle), normalize_angle(end_angle)});
   storage.updated = true;
   stencil_circles.push_back(idx);
 }
 
-void PrimitiveIndices::add_stencil_circle(PrimitiveStorage& storage, glm::vec2 center, float r) {
+void PrimitiveIndices::add_stencil_circle(PrimitiveStorage& storage, uint32_t projection_idx,
+                                          glm::vec2 center, float r) {
   GLuint idx = storage.circles.size();
-  storage.circles.push_back({center, r, 0.0, 0.0});
+  storage.circles.push_back({projection_idx, center, r, 0.0, 0.0});
   storage.updated = true;
   stencil_circles.push_back(idx);
 }
 
-void PrimitiveIndices::add_stencil_segment(PrimitiveStorage& storage, glm::vec2 center, float r,
-                                            float start_angle, float end_angle) {
+void PrimitiveIndices::add_stencil_segment(PrimitiveStorage& storage, uint32_t projection_idx,
+                                           glm::vec2 center, float r, float start_angle,
+                                           float end_angle) {
   GLuint idx = storage.circles.size();
-  storage.circles.push_back({center, r, normalize_angle(start_angle), normalize_angle(end_angle)});
+  storage.circles.push_back(
+      {projection_idx, center, r, normalize_angle(start_angle), normalize_angle(end_angle)});
   storage.updated = true;
   stencil_segments.push_back(idx);
 }
 
-void PrimitiveIndices::add_stencil_triangle(PrimitiveStorage& storage, glm::vec2 p1, glm::vec2 p2,
-                                             glm::vec2 p3) {
+void PrimitiveIndices::add_stencil_triangle(PrimitiveStorage& storage, uint32_t projection_idx,
+                                            glm::vec2 p1, glm::vec2 p2, glm::vec2 p3) {
   GLuint idx = storage.vertexes.size();
-  storage.vertexes.push_back({p1});
-  storage.vertexes.push_back({p2});
-  storage.vertexes.push_back({p3});
+  storage.vertexes.push_back({projection_idx, p1});
+  storage.vertexes.push_back({projection_idx, p2});
+  storage.vertexes.push_back({projection_idx, p3});
   storage.updated = true;
   stencil_triangles.push_back(idx);
   stencil_triangles.push_back(idx + 1);
   stencil_triangles.push_back(idx + 2);
 }
 
-void PrimitiveIndices::add_stencil_rectangle(PrimitiveStorage& storage, glm::vec2 top_left,
-                                              glm::vec2 bottom_right) {
+void PrimitiveIndices::add_stencil_rectangle(PrimitiveStorage& storage, uint32_t projection_idx,
+                                             glm::vec2 top_left, glm::vec2 bottom_right) {
   auto top_right = glm::vec2{bottom_right.x, top_left.y};
   auto bottom_left = glm::vec2{top_left.x, bottom_right.y};
   GLuint idx = storage.vertexes.size();
-  storage.vertexes.push_back({top_left});
-  storage.vertexes.push_back({bottom_left});
-  storage.vertexes.push_back({top_right});
-  storage.vertexes.push_back({bottom_right});
+  storage.vertexes.push_back({projection_idx, top_left});
+  storage.vertexes.push_back({projection_idx, bottom_left});
+  storage.vertexes.push_back({projection_idx, top_right});
+  storage.vertexes.push_back({projection_idx, bottom_right});
   storage.updated = true;
   for (uint8_t t : {0, 2, 1, 2, 3, 1}) {
     stencil_triangles.push_back(idx + t);
@@ -243,6 +228,117 @@ void PrimitiveIndices::transfer_from(const PrimitiveStorage& storage, PrimitiveI
   circles_cnt = storage.circles.size();
   transfer_indices(circles_cnt, stencil_circles, other.stencil_circles);
   transfer_indices(circles_cnt, stencil_segments, other.stencil_segments);
+}
+
+void PrimitiveIndices::copy_from(PrimitiveStorage& storage, const PrimitiveStorage& other_storage,
+                                 const PrimitiveIndices& other, uint32_t projection_idx,
+                                 glm::vec2 position, float angle, uint32_t color, float scale) {
+  // Calculate transformation matrix
+  glm::mat3 transform = glm::translate(glm::mat3(1.0f), position) *
+                        glm::rotate(glm::mat3(1.0f), angle) *
+                        glm::scale(glm::mat3(1.0f), glm::vec2(scale));
+
+  // Use a set to track which indices have already been transferred
+  std::unordered_map<GLuint, GLuint> transferred_indices;
+
+  for (GLuint proto_idx : other.filled_circles) {
+    if (!transferred_indices.contains(proto_idx)) {
+      auto& circle = other_storage.color_circles[proto_idx];
+      glm::vec2 transformed_center = transform * glm::vec3(circle.center, 1.0f);
+      transferred_indices[proto_idx] = storage.color_circles.size();
+      storage.color_circles.push_back({projection_idx, color > 0 ? color : circle.color,
+                                       transformed_center, circle.radius * scale,
+                                       normalize_angle(circle.start_angle + angle),
+                                       normalize_angle(circle.end_angle + angle)});
+    }
+    filled_circles.push_back(transferred_indices[proto_idx]);
+  }
+
+  for (GLuint proto_idx : other.filled_segments) {
+    if (!transferred_indices.contains(proto_idx)) {
+      auto& circle = other_storage.color_circles[proto_idx];
+      glm::vec2 transformed_center = transform * glm::vec3(circle.center, 1.0f);
+      transferred_indices[proto_idx] = storage.color_circles.size();
+      storage.color_circles.push_back({projection_idx, color > 0 ? color : circle.color,
+                                       transformed_center, circle.radius * scale,
+                                       normalize_angle(circle.start_angle + angle),
+                                       normalize_angle(circle.end_angle + angle)});
+    }
+    filled_segments.push_back(transferred_indices[proto_idx]);
+  }
+
+  for (GLuint proto_idx : other.thin_circles) {
+    if (!transferred_indices.contains(proto_idx)) {
+      auto& circle = other_storage.color_circles[proto_idx];
+      glm::vec2 transformed_center = transform * glm::vec3(circle.center, 1.0f);
+      transferred_indices[proto_idx] = storage.color_circles.size();
+      storage.color_circles.push_back({projection_idx, color > 0 ? color : circle.color,
+                                       transformed_center, circle.radius * scale,
+                                       normalize_angle(circle.start_angle + angle),
+                                       normalize_angle(circle.end_angle + angle)});
+    }
+    thin_circles.push_back(transferred_indices[proto_idx]);
+  }
+
+  transferred_indices.clear();
+  for (GLuint proto_idx : other.triangles) {
+    if (!transferred_indices.contains(proto_idx)) {
+      auto& vertex = other_storage.color_vertexes[proto_idx];
+      glm::vec2 transformed_position = transform * glm::vec3(vertex.position, 1.0f);
+      transferred_indices[proto_idx] = storage.color_vertexes.size();
+      storage.color_vertexes.push_back(
+          {projection_idx, color > 0 ? color : vertex.color, transformed_position});
+    }
+    triangles.push_back(transferred_indices[proto_idx]);
+  }
+
+  for (GLuint proto_idx : other.lines) {
+    if (!transferred_indices.contains(proto_idx)) {
+      auto& vertex = other_storage.color_vertexes[proto_idx];
+      glm::vec2 transformed_position = transform * glm::vec3(vertex.position, 1.0f);
+      transferred_indices[proto_idx] = storage.color_vertexes.size();
+      storage.color_vertexes.push_back(
+          {projection_idx, color > 0 ? color : vertex.color, transformed_position});
+    }
+    lines.push_back(transferred_indices[proto_idx]);
+  }
+
+  transferred_indices.clear();
+  for (GLuint proto_idx : other.stencil_circles) {
+    if (!transferred_indices.contains(proto_idx)) {
+      auto& circle = other_storage.circles[proto_idx];
+      glm::vec2 transformed_center = transform * glm::vec3(circle.center, 1.0f);
+      transferred_indices[proto_idx] = storage.circles.size();
+      storage.circles.push_back({projection_idx, transformed_center, circle.radius * scale,
+                                 normalize_angle(circle.start_angle + angle),
+                                 normalize_angle(circle.end_angle + angle)});
+    }
+    stencil_circles.push_back(transferred_indices[proto_idx]);
+  }
+
+  for (GLuint proto_idx : other.stencil_segments) {
+    if (!transferred_indices.contains(proto_idx)) {
+      auto& circle = other_storage.circles[proto_idx];
+      glm::vec2 transformed_center = transform * glm::vec3(circle.center, 1.0f);
+      transferred_indices[proto_idx] = storage.circles.size();
+      storage.circles.push_back({projection_idx, transformed_center, circle.radius * scale,
+                                 normalize_angle(circle.start_angle + angle),
+                                 normalize_angle(circle.end_angle + angle)});
+    }
+    stencil_segments.push_back(transferred_indices[proto_idx]);
+  }
+
+  transferred_indices.clear();
+  for (GLuint proto_idx : other.stencil_triangles) {
+    if (!transferred_indices.contains(proto_idx)) {
+      auto& vertex = other_storage.vertexes[proto_idx];
+      glm::vec2 transformed_position = transform * glm::vec3(vertex.position, 1.0f);
+      transferred_indices[proto_idx] = storage.vertexes.size();
+      storage.vertexes.push_back({projection_idx, transformed_position});
+    }
+    stencil_triangles.push_back(transferred_indices[proto_idx]);
+  }
+  storage.updated = true;
 }
 
 }  // namespace rewind_viewer::gl

@@ -1,0 +1,31 @@
+include "vector2f.fbs";
+
+namespace rewind_viewer.fbs;
+enum LayerOrigin : byte {  // Specify the underlying type (e.g., byte)
+  GAME = 0,
+  LEFT_TOP = 1,
+  LEFT_CENTER = 2,
+  LEFT_BOTTOM = 3,
+  RIGHT_TOP = 4,
+  RIGHT_CENTER = 5,
+  RIGHT_BOTTOM = 6,
+  TOP_CENTER = 7,
+  BOTTOM_CENTER = 8
+}
+
+table Layer {
+  id: uint;
+  name: string;
+  use_permanent_frame: bool = false;
+  origin: LayerOrigin = GAME;
+}
+
+table Map {
+  position:Vector2f (required);
+  size:Vector2f (required);
+  x_grid:uint16;
+  y_grid:uint16;
+}
+
+table EndFrame {
+}

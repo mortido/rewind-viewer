@@ -10,6 +10,9 @@ void FrameEditor::reset() {
   }
   layer_id_ = DEFAULT_LAYER;
   use_permanent_ = false;
+  proto_creation_ = false;
+  proto_storage_ = gl::PrimitiveStorage();
+  protos_indices_.clear();
 };
 
 void FrameEditor::set_map(const glm::vec2& position, const glm::vec2& size,
@@ -21,79 +24,16 @@ void FrameEditor::set_map(const glm::vec2& position, const glm::vec2& size,
   }
 }
 
-void FrameEditor::set_layer(size_t l, bool p) {
-  layer_id_ = std::min(l, Frame::LAYERS_COUNT - 1);
+void FrameEditor::set_layer(size_t l, bool p, CameraOrigin alignment) {
+  layer_id_ = std::min(l, static_cast<size_t>(Frame::LAYERS_COUNT) - 1);
   use_permanent_ = p;
+  projection_idx_ = static_cast<uint32_t>(alignment);
 }
 
-void FrameEditor::add_arc(glm::vec2 center, float r, float start_angle, float end_angle,
-                          uint32_t color, bool fill) {
-  auto frame = scene_->get_draw_frame(use_permanent_);
-  std::lock_guard lock(frame->mutex_);
-  frame->primitives_indices_[layer_id_].add_arc(frame->primitives_storage_, center, r, start_angle,
-                                                end_angle, color, fill);
-}
-void FrameEditor::add_circle(glm::vec2 center, float r, uint32_t color, bool fill) {
-  auto frame = scene_->get_draw_frame(use_permanent_);
-  std::lock_guard lock(frame->mutex_);
-  frame->primitives_indices_[layer_id_].add_circle(frame->primitives_storage_, center, r, color,
-                                                   fill);
-}
-void FrameEditor::add_segment(glm::vec2 center, float r, float start_angle, float end_angle,
-                              uint32_t color, bool fill) {
-  auto frame = scene_->get_draw_frame(use_permanent_);
-  std::lock_guard lock(frame->mutex_);
-  frame->primitives_indices_[layer_id_].add_segment(frame->primitives_storage_, center, r,
-                                                    start_angle, end_angle, color, fill);
-}
-void FrameEditor::add_polyline(const std::vector<glm::vec2>& points, uint32_t color) {
-  auto frame = scene_->get_draw_frame(use_permanent_);
-  std::lock_guard lock(frame->mutex_);
-  frame->primitives_indices_[layer_id_].add_polyline(frame->primitives_storage_, points, color);
-}
-void FrameEditor::add_triangle(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, uint32_t color,
-                               bool fill) {
-  auto frame = scene_->get_draw_frame(use_permanent_);
-  std::lock_guard lock(frame->mutex_);
-  frame->primitives_indices_[layer_id_].add_triangle(frame->primitives_storage_, p1, p2, p3, color,
-                                                     fill);
-}
-void FrameEditor::add_rectangle(glm::vec2 top_left, glm::vec2 bottom_right, uint32_t color,
-                                bool fill) {
-  auto frame = scene_->get_draw_frame(use_permanent_);
-  std::lock_guard lock(frame->mutex_);
-  frame->primitives_indices_[layer_id_].add_rectangle(frame->primitives_storage_, top_left,
-                                                      bottom_right, color, fill);
-}
-void FrameEditor::add_stencil_arc(glm::vec2 center, float r, float start_angle, float end_angle) {
-  auto frame = scene_->get_draw_frame(use_permanent_);
-  std::lock_guard lock(frame->mutex_);
-  frame->primitives_indices_[layer_id_].add_stencil_arc(frame->primitives_storage_, center, r,
-                                                        start_angle, end_angle);
-}
-void FrameEditor::add_stencil_circle(glm::vec2 center, float r) {
-  auto frame = scene_->get_draw_frame(use_permanent_);
-  std::lock_guard lock(frame->mutex_);
-  frame->primitives_indices_[layer_id_].add_stencil_circle(frame->primitives_storage_, center, r);
-}
-void FrameEditor::add_stencil_segment(glm::vec2 center, float r, float start_angle,
-                                      float end_angle) {
-  auto frame = scene_->get_draw_frame(use_permanent_);
-  std::lock_guard lock(frame->mutex_);
-  frame->primitives_indices_[layer_id_].add_stencil_segment(frame->primitives_storage_, center, r,
-                                                            start_angle, end_angle);
-}
-void FrameEditor::add_stencil_triangle(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3) {
-  auto frame = scene_->get_draw_frame(use_permanent_);
-  std::lock_guard lock(frame->mutex_);
-  frame->primitives_indices_[layer_id_].add_stencil_triangle(frame->primitives_storage_, p1, p2,
-                                                             p3);
-}
-void FrameEditor::add_stencil_rectangle(glm::vec2 top_left, glm::vec2 bottom_right) {
-  auto frame = scene_->get_draw_frame(use_permanent_);
-  std::lock_guard lock(frame->mutex_);
-  frame->primitives_indices_[layer_id_].add_stencil_rectangle(frame->primitives_storage_, top_left,
-                                                              bottom_right);
+void FrameEditor::set_layer_name(size_t l, std::string name, bool p) {
+  if (l < Frame::LAYERS_COUNT) {
+    scene_->set_layer_name(l, std::move(name), p);
+  }
 }
 
 void FrameEditor::add_camera_view(const std::string& name, CameraView view) {

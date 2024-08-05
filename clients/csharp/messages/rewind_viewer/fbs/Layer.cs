@@ -20,20 +20,34 @@ public struct Layer : IFlatbufferObject
   public Layer __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public uint Id { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
-  public bool UsePermanentFrame { get { int o = __p.__offset(6); return o != 0 ? 0!=__p.bb.Get(o + __p.bb_pos) : (bool)false; } }
+  public string Name { get { int o = __p.__offset(6); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetNameBytes() { return __p.__vector_as_span<byte>(6, 1); }
+#else
+  public ArraySegment<byte>? GetNameBytes() { return __p.__vector_as_arraysegment(6); }
+#endif
+  public byte[] GetNameArray() { return __p.__vector_as_array<byte>(6); }
+  public bool UsePermanentFrame { get { int o = __p.__offset(8); return o != 0 ? 0!=__p.bb.Get(o + __p.bb_pos) : (bool)false; } }
+  public rewind_viewer.fbs.LayerOrigin Origin { get { int o = __p.__offset(10); return o != 0 ? (rewind_viewer.fbs.LayerOrigin)__p.bb.GetSbyte(o + __p.bb_pos) : rewind_viewer.fbs.LayerOrigin.GAME; } }
 
   public static Offset<rewind_viewer.fbs.Layer> CreateLayer(FlatBufferBuilder builder,
       uint id = 0,
-      bool use_permanent_frame = false) {
-    builder.StartTable(2);
+      StringOffset nameOffset = default(StringOffset),
+      bool use_permanent_frame = false,
+      rewind_viewer.fbs.LayerOrigin origin = rewind_viewer.fbs.LayerOrigin.GAME) {
+    builder.StartTable(4);
+    Layer.AddName(builder, nameOffset);
     Layer.AddId(builder, id);
+    Layer.AddOrigin(builder, origin);
     Layer.AddUsePermanentFrame(builder, use_permanent_frame);
     return Layer.EndLayer(builder);
   }
 
-  public static void StartLayer(FlatBufferBuilder builder) { builder.StartTable(2); }
+  public static void StartLayer(FlatBufferBuilder builder) { builder.StartTable(4); }
   public static void AddId(FlatBufferBuilder builder, uint id) { builder.AddUint(0, id, 0); }
-  public static void AddUsePermanentFrame(FlatBufferBuilder builder, bool usePermanentFrame) { builder.AddBool(1, usePermanentFrame, false); }
+  public static void AddName(FlatBufferBuilder builder, StringOffset nameOffset) { builder.AddOffset(1, nameOffset.Value, 0); }
+  public static void AddUsePermanentFrame(FlatBufferBuilder builder, bool usePermanentFrame) { builder.AddBool(2, usePermanentFrame, false); }
+  public static void AddOrigin(FlatBufferBuilder builder, rewind_viewer.fbs.LayerOrigin origin) { builder.AddSbyte(3, (sbyte)origin, 0); }
   public static Offset<rewind_viewer.fbs.Layer> EndLayer(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<rewind_viewer.fbs.Layer>(o);
@@ -47,7 +61,9 @@ static public class LayerVerify
   {
     return verifier.VerifyTableStart(tablePos)
       && verifier.VerifyField(tablePos, 4 /*Id*/, 4 /*uint*/, 4, false)
-      && verifier.VerifyField(tablePos, 6 /*UsePermanentFrame*/, 1 /*bool*/, 1, false)
+      && verifier.VerifyString(tablePos, 6 /*Name*/, false)
+      && verifier.VerifyField(tablePos, 8 /*UsePermanentFrame*/, 1 /*bool*/, 1, false)
+      && verifier.VerifyField(tablePos, 10 /*Origin*/, 1 /*rewind_viewer.fbs.LayerOrigin*/, 1, false)
       && verifier.VerifyTableEnd(tablePos);
   }
 }

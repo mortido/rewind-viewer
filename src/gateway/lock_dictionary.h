@@ -1,9 +1,9 @@
 #pragma once
 
 #include <functional>
-#include <map>
 #include <mutex>
 #include <utility>
+#include <vector>
 
 #include "common/lock.h"
 
@@ -23,7 +23,10 @@ class LockDictionary {
 
   void remove(const KeyT& key) {
     std::lock_guard lock(mutex_);
-    items_.erase(key);
+    items_.erase(
+        std::remove_if(items_.begin(), items_.end(),
+                       [&key](const std::pair<KeyT, ValueT>& item) { return item.first == key; }),
+        items_.end());
   }
 
   void clear() {
@@ -33,14 +36,18 @@ class LockDictionary {
 
   void add(const KeyT& key, ValueT item) {
     std::lock_guard lock(mutex_);
-    items_.emplace(key, std::move(item));
+    items_.erase(
+        std::remove_if(items_.begin(), items_.end(),
+                       [&key](const std::pair<KeyT, ValueT>& item) { return item.first == key; }),
+        items_.end());
+    items_.emplace_back(key, std::move(item));
   }
 
   bool empty() const { return items_.empty(); }
 
  private:
   mutable Spinlock mutex_;
-  std::map<KeyT, ValueT> items_;
+  std::vector<std::pair<KeyT, ValueT>> items_;
 };
 
 }  // namespace rewind_viewer::gateway

@@ -34,17 +34,20 @@ void StyleManager::setup_fonts(const std::vector<std::string> &font_files) const
   ImGui_ImplOpenGL3_CreateDeviceObjects();
 }
 
-void StyleManager::setup_style(models::UIStyle style) const{
+void StyleManager::setup_style(models::UIStyle style){
   switch (style) {
     case models::UIStyle::light: {
+      current_scheme_ = kLightThemeColors;
       ImGui::StyleColorsLight();
       break;
     }
     case models::UIStyle::dark: {
+      current_scheme_ = kDarkThemeColors;
       ImGui::StyleColorsDark();
       break;
     }
     case models::UIStyle::classic: {
+      current_scheme_ = kClassicThemeColors;
       ImGui::StyleColorsClassic();
       break;
     }

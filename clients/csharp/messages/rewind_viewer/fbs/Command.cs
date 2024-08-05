@@ -8,24 +8,28 @@ namespace rewind_viewer.fbs
 public enum Command : byte
 {
   NONE = 0,
-  Arc = 1,
-  CameraView = 2,
-  Circle = 3,
-  CircleSegment = 4,
-  CreateAction = 5,
-  LogText = 6,
-  Options = 7,
-  Polyline = 8,
-  Popup = 9,
-  PopupRound = 10,
-  ReadEvents = 11,
-  Rectangle = 12,
-  RemoveAction = 13,
-  Subscribe = 14,
-  Tiles = 15,
-  Triangle = 16,
-  Unsubscribe = 17,
-  EndFrame = 18,
+  Subscribe = 1,
+  Unsubscribe = 2,
+  CreateAction = 3,
+  RemoveAction = 4,
+  ReadEvents = 5,
+  Layer = 6,
+  Map = 7,
+  EndFrame = 8,
+  Arc = 9,
+  Circle = 10,
+  CircleSegment = 11,
+  Polyline = 12,
+  Rectangle = 13,
+  Tiles = 14,
+  Triangle = 15,
+  StartProto = 16,
+  EndProto = 17,
+  DrawProto = 18,
+  LogText = 19,
+  Popup = 20,
+  PopupRound = 21,
+  CameraView = 22,
 };
 
 
@@ -37,11 +41,32 @@ static public class CommandVerify
     bool result = true;
     switch((Command)typeId)
     {
+      case Command.Subscribe:
+        result = rewind_viewer.fbs.SubscribeVerify.Verify(verifier, tablePos);
+        break;
+      case Command.Unsubscribe:
+        result = rewind_viewer.fbs.UnsubscribeVerify.Verify(verifier, tablePos);
+        break;
+      case Command.CreateAction:
+        result = rewind_viewer.fbs.CreateActionVerify.Verify(verifier, tablePos);
+        break;
+      case Command.RemoveAction:
+        result = rewind_viewer.fbs.RemoveActionVerify.Verify(verifier, tablePos);
+        break;
+      case Command.ReadEvents:
+        result = rewind_viewer.fbs.ReadEventsVerify.Verify(verifier, tablePos);
+        break;
+      case Command.Layer:
+        result = rewind_viewer.fbs.LayerVerify.Verify(verifier, tablePos);
+        break;
+      case Command.Map:
+        result = rewind_viewer.fbs.MapVerify.Verify(verifier, tablePos);
+        break;
+      case Command.EndFrame:
+        result = rewind_viewer.fbs.EndFrameVerify.Verify(verifier, tablePos);
+        break;
       case Command.Arc:
         result = rewind_viewer.fbs.ArcVerify.Verify(verifier, tablePos);
-        break;
-      case Command.CameraView:
-        result = rewind_viewer.fbs.CameraViewVerify.Verify(verifier, tablePos);
         break;
       case Command.Circle:
         result = rewind_viewer.fbs.CircleVerify.Verify(verifier, tablePos);
@@ -49,35 +74,11 @@ static public class CommandVerify
       case Command.CircleSegment:
         result = rewind_viewer.fbs.CircleSegmentVerify.Verify(verifier, tablePos);
         break;
-      case Command.CreateAction:
-        result = rewind_viewer.fbs.CreateActionVerify.Verify(verifier, tablePos);
-        break;
-      case Command.LogText:
-        result = rewind_viewer.fbs.LogTextVerify.Verify(verifier, tablePos);
-        break;
-      case Command.Options:
-        result = rewind_viewer.fbs.OptionsVerify.Verify(verifier, tablePos);
-        break;
       case Command.Polyline:
         result = rewind_viewer.fbs.PolylineVerify.Verify(verifier, tablePos);
         break;
-      case Command.Popup:
-        result = rewind_viewer.fbs.PopupVerify.Verify(verifier, tablePos);
-        break;
-      case Command.PopupRound:
-        result = rewind_viewer.fbs.PopupRoundVerify.Verify(verifier, tablePos);
-        break;
-      case Command.ReadEvents:
-        result = rewind_viewer.fbs.ReadEventsVerify.Verify(verifier, tablePos);
-        break;
       case Command.Rectangle:
         result = rewind_viewer.fbs.RectangleVerify.Verify(verifier, tablePos);
-        break;
-      case Command.RemoveAction:
-        result = rewind_viewer.fbs.RemoveActionVerify.Verify(verifier, tablePos);
-        break;
-      case Command.Subscribe:
-        result = rewind_viewer.fbs.SubscribeVerify.Verify(verifier, tablePos);
         break;
       case Command.Tiles:
         result = rewind_viewer.fbs.TilesVerify.Verify(verifier, tablePos);
@@ -85,11 +86,26 @@ static public class CommandVerify
       case Command.Triangle:
         result = rewind_viewer.fbs.TriangleVerify.Verify(verifier, tablePos);
         break;
-      case Command.Unsubscribe:
-        result = rewind_viewer.fbs.UnsubscribeVerify.Verify(verifier, tablePos);
+      case Command.StartProto:
+        result = rewind_viewer.fbs.StartProtoVerify.Verify(verifier, tablePos);
         break;
-      case Command.EndFrame:
-        result = rewind_viewer.fbs.EndFrameVerify.Verify(verifier, tablePos);
+      case Command.EndProto:
+        result = rewind_viewer.fbs.EndProtoVerify.Verify(verifier, tablePos);
+        break;
+      case Command.DrawProto:
+        result = rewind_viewer.fbs.DrawProtoVerify.Verify(verifier, tablePos);
+        break;
+      case Command.LogText:
+        result = rewind_viewer.fbs.LogTextVerify.Verify(verifier, tablePos);
+        break;
+      case Command.Popup:
+        result = rewind_viewer.fbs.PopupVerify.Verify(verifier, tablePos);
+        break;
+      case Command.PopupRound:
+        result = rewind_viewer.fbs.PopupRoundVerify.Verify(verifier, tablePos);
+        break;
+      case Command.CameraView:
+        result = rewind_viewer.fbs.CameraViewVerify.Verify(verifier, tablePos);
         break;
       default: result = true;
         break;

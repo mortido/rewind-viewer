@@ -10,6 +10,7 @@ void Frame::transfer_from(Frame& other) {
   for (size_t i = 0; i < LAYERS_COUNT; ++i) {
     primitives_indices_[i].transfer_from(primitives_storage_, other.primitives_indices_[i]);
   }
+
   primitives_storage_.transfer_from(other.primitives_storage_);
 }
 
@@ -20,7 +21,7 @@ void Frame::render(const gl::RenderContext& context, gl::Renderer& renderer,
     renderer.load_primitives(context, primitives_storage_);
     primitives_storage_.updated = false;
   }
-  for (size_t idx = 0; idx < Frame::LAYERS_COUNT; ++idx) {
+  for (size_t idx = 0; idx < LAYERS_COUNT; ++idx) {
     if (enabled_layers[idx]) {
       renderer.render_primitives(context, primitives_indices_[idx]);
     }

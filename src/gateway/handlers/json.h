@@ -204,7 +204,7 @@ class JsonMessageHandler : public MessageHandler {
       if (data_obj.HasMember("l")) {
         LOG_V8("JSONHandler::OPTIONS->LAYER");
         auto layer_obj = data_obj["l"].GetObject();
-        frame_editor.set_layer(layer_obj["i"].GetUint(), layer_obj["upf"].GetBool());
+        frame_editor.set_layer(layer_obj["i"].GetUint(), layer_obj["upf"].GetBool(), models::CameraOrigin::game); //todo: parse origin
       }
     } else if (cmd_type == "LT") {
       LOG_V8("JSONHandler::LOG_TEXT");

@@ -5,8 +5,8 @@
 #include <mutex>
 
 #include "common/lock.h"
-#include "gl/renderer.h"
 #include "gl/render_context.h"
+#include "gl/renderer.h"
 #include "gl/resource_manager.h"
 #include "models/camera.h"
 #include "models/config.h"
@@ -28,6 +28,8 @@ class Scene {
   std::shared_ptr<UIFrame> get_ui_frame();
   std::shared_ptr<Frame> get_draw_frame(bool permanent);
   void commit_frame();
+  void set_layer_name(size_t id, std::string name, bool permanent = false);
+  std::string get_layer_name(size_t id, bool permanent = false) const;
 
  public:
   models::Camera camera;
@@ -45,6 +47,8 @@ class Scene {
   std::shared_ptr<Frame> permanent_frame_;
   std::vector<std::shared_ptr<UIFrame>> frames_;
   size_t prev_rendered_frame_ = 0;
+  std::array<std::string, Frame::LAYERS_COUNT> layers_names_;
+  std::array<std::string, Frame::LAYERS_COUNT> permanent_layers_names_;
 };
 
 }  // namespace rewind_viewer::models

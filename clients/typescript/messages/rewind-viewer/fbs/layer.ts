@@ -4,6 +4,9 @@
 
 import * as flatbuffers from 'flatbuffers';
 
+import { LayerOrigin } from '../../rewind-viewer/fbs/layer-origin.js';
+
+
 export class Layer {
   bb: flatbuffers.ByteBuffer|null = null;
   bb_pos = 0;
@@ -27,21 +30,41 @@ id():number {
   return offset ? this.bb!.readUint32(this.bb_pos + offset) : 0;
 }
 
-usePermanentFrame():boolean {
+name():string|null
+name(optionalEncoding:flatbuffers.Encoding):string|Uint8Array|null
+name(optionalEncoding?:any):string|Uint8Array|null {
   const offset = this.bb!.__offset(this.bb_pos, 6);
+  return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
+}
+
+usePermanentFrame():boolean {
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
 }
 
+origin():LayerOrigin {
+  const offset = this.bb!.__offset(this.bb_pos, 10);
+  return offset ? this.bb!.readInt8(this.bb_pos + offset) : LayerOrigin.GAME;
+}
+
 static startLayer(builder:flatbuffers.Builder) {
-  builder.startObject(2);
+  builder.startObject(4);
 }
 
 static addId(builder:flatbuffers.Builder, id:number) {
   builder.addFieldInt32(0, id, 0);
 }
 
+static addName(builder:flatbuffers.Builder, nameOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, nameOffset, 0);
+}
+
 static addUsePermanentFrame(builder:flatbuffers.Builder, usePermanentFrame:boolean) {
-  builder.addFieldInt8(1, +usePermanentFrame, +false);
+  builder.addFieldInt8(2, +usePermanentFrame, +false);
+}
+
+static addOrigin(builder:flatbuffers.Builder, origin:LayerOrigin) {
+  builder.addFieldInt8(3, origin, LayerOrigin.GAME);
 }
 
 static endLayer(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -49,10 +72,12 @@ static endLayer(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createLayer(builder:flatbuffers.Builder, id:number, usePermanentFrame:boolean):flatbuffers.Offset {
+static createLayer(builder:flatbuffers.Builder, id:number, nameOffset:flatbuffers.Offset, usePermanentFrame:boolean, origin:LayerOrigin):flatbuffers.Offset {
   Layer.startLayer(builder);
   Layer.addId(builder, id);
+  Layer.addName(builder, nameOffset);
   Layer.addUsePermanentFrame(builder, usePermanentFrame);
+  Layer.addOrigin(builder, origin);
   return Layer.endLayer(builder);
 }
 }

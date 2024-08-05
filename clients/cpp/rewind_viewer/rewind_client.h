@@ -7,8 +7,9 @@
 #include <string>
 #include <vector>
 
-#include "messages/rewind_event.fbs.h"
+#include "messages/events.fbs.h"
 #include "messages/rewind_message.fbs.h"
+#include "responses.h"
 #include "tcp_client.h"
 #include "utils.h"
 
@@ -16,11 +17,32 @@ namespace rewind_viewer {
 
 constexpr uint16_t MESSAGE_SCHEMA_VERSION = 7;
 
-template <typename Vec2T>
-struct RewindEvent {
-  char key;
-  std::vector<std::vector<Vec2T>> mouse_paths;
+enum class LayerOrigin {
+  game,
+  left_top,
+  left_center,
+  left_bottom,
+  right_top,
+  right_center,
+  right_bottom,
+  top_center,
+  bottom_center
 };
+
+constexpr fbs::LayerOrigin to_fbs(LayerOrigin origin) {
+  switch (origin) {
+    case LayerOrigin::game: return fbs::LayerOrigin_GAME;
+    case LayerOrigin::left_top: return fbs::LayerOrigin_LEFT_TOP;
+    case LayerOrigin::left_center: return fbs::LayerOrigin_LEFT_CENTER;
+    case LayerOrigin::left_bottom: return fbs::LayerOrigin_LEFT_BOTTOM;
+    case LayerOrigin::right_top: return fbs::LayerOrigin_RIGHT_TOP;
+    case LayerOrigin::right_center: return fbs::LayerOrigin_RIGHT_CENTER;
+    case LayerOrigin::right_bottom: return fbs::LayerOrigin_RIGHT_BOTTOM;
+    case LayerOrigin::top_center: return fbs::LayerOrigin_TOP_CENTER;
+    case LayerOrigin::bottom_center: return fbs::LayerOrigin_BOTTOM_CENTER;
+    default: return fbs::LayerOrigin_GAME;  // Default case, should never happen
+  }
+}
 
 class RewindClient {
  private:
@@ -31,12 +53,16 @@ class RewindClient {
   uint32_t opacity_{0xFF000000};
   std::unique_ptr<rewind_viewer::TcpClient> tcp_client_;
   std::ofstream file_;
+  size_t proto_id = 0;
 
   void send(const uint8_t *buf, uint64_t buf_size) {
     if (buf_size > MAX_MESSAGE_SIZE) {
       throw std::runtime_error("Rewind message size can't be more than 1MB");
     }
-    if (file_.is_open()) {
+    if (tcp_client_) {
+      tcp_client_->send_msg(buf, static_cast<uint32_t>(buf_size));
+
+    } else {
       uint32_t size_buffer = buf_size;
 
       const int32_t value{0x01};
@@ -49,12 +75,11 @@ class RewindClient {
 
       file_.write(reinterpret_cast<const char *>(&size_buffer), sizeof(size_buffer));
       file_.write(reinterpret_cast<const char *>(buf), static_cast<long>(buf_size));
-    } else {
-      tcp_client_->send_msg(buf, static_cast<uint32_t>(buf_size));
     }
   }
 
-  void send_action(const std::string& name, fbs::ActionInput input, ::flatbuffers::Offset<void> input_offset) {
+  void send_action(const std::string &name, fbs::ActionInput input,
+                   ::flatbuffers::Offset<void> input_offset) {
     auto name_obj = builder_.CreateString(name);
     auto command = fbs::CreateCreateAction(builder_, name_obj, input, input_offset);
     auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_CreateAction, command.Union());
@@ -106,6 +131,35 @@ class RewindClient {
 
   void set_opacity(uint32_t opacity) { opacity_ = (opacity << 24u); }
 
+  void start_proto() {
+    builder_.Clear();
+    auto command = fbs::CreateStartProto(builder_);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_StartProto, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
+  size_t end_proto() {
+    builder_.Clear();
+    auto command = fbs::CreateEndProto(builder_);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_EndProto, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+    return proto_id++;
+  }
+
+  template <typename Vec2T>
+  void draw_proto(size_t id, const Vec2T &position, float angle = 0.0, uint32_t color = 0,
+                  float scale = 1.0) {
+    builder_.Clear();
+    auto position_obj =
+        fbs::Vector2f(static_cast<float>(position.x), static_cast<float>(position.y));
+    auto command = fbs::CreateDrawProto(builder_, id, &position_obj, angle, color, scale);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_DrawProto, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
   void end_frame() {
     builder_.Clear();
     auto command = fbs::CreateEndFrame(builder_);
@@ -114,11 +168,19 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
-  void set_layer(size_t layer, bool permanent = false) {
+  void set_layer(size_t layer, bool permanent = false, LayerOrigin origin = LayerOrigin::game) {
     builder_.Clear();
-    auto layer_obj = fbs::CreateLayer(builder_, layer, permanent);
-    auto command = fbs::CreateOptions(builder_, 0, layer_obj);
-    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Options, command.Union());
+    auto command = fbs::CreateLayer(builder_, layer, 0, permanent, to_fbs(origin));
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Layer, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
+  void set_layer_name(size_t layer, const std::string &name, bool permanent = false) {
+    builder_.Clear();
+    auto name_obj = builder_.CreateString(name);
+    auto command = fbs::CreateLayer(builder_, layer, name_obj, permanent);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Layer, command.Union());
     builder_.Finish(msg);
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
@@ -129,9 +191,8 @@ class RewindClient {
     auto position_obj =
         fbs::Vector2f(static_cast<float>(position.x), static_cast<float>(position.y));
     auto size_obj = fbs::Vector2f(static_cast<float>(size.x), static_cast<float>(size.y));
-    auto map_obj = fbs::CreateMap(builder_, &position_obj, &size_obj, grid_x, grid_y);
-    auto command = fbs::CreateOptions(builder_, map_obj, 0);
-    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Options, command.Union());
+    auto command = fbs::CreateMap(builder_, &position_obj, &size_obj, grid_x, grid_y);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Map, command.Union());
     builder_.Finish(msg);
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
@@ -382,11 +443,11 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
-  void subscribe(const std::string &name, char key, bool continuous, bool capture_mouse) {
+  void subscribe(char key, const std::string &name, bool continuous, bool capture_mouse) {
     builder_.Clear();
     auto name_obj = builder_.CreateString(name);
     flatbuffers::Offset<fbs::Subscribe> command;
-    command = fbs::CreateSubscribe(builder_, key, continuous, capture_mouse);
+    command = fbs::CreateSubscribe(builder_, key, name_obj, continuous, capture_mouse);
     auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Subscribe, command.Union());
     builder_.Finish(msg);
     send(builder_.GetBufferPointer(), builder_.GetSize());
@@ -401,7 +462,7 @@ class RewindClient {
   }
 
   template <typename Vec2T>
-  std::vector<RewindEvent<Vec2T>> read_events() {
+  EventsResponse<Vec2T> read_events() {
     if (file_.is_open()) {
       return {};  // Return an empty event list if using file
     }
@@ -417,10 +478,10 @@ class RewindClient {
 
     // Parse the received message
     auto event_list = fbs::GetRewindEventList(read_buffer_.data());
-    std::vector<RewindEvent<Vec2T>> events;
+    EventsResponse<Vec2T> result;
 
     for (auto fbs_event : *event_list->key_events()) {
-      auto &event = events.emplace_back(RewindEvent<Vec2T>{.key = fbs_event->key()});
+      auto &event = result.events.emplace_back(RewindEvent<Vec2T>{.key = fbs_event->key()});
       if (fbs_event->mouse_paths()) {
         for (auto fbs_path : *fbs_event->mouse_paths()) {
           auto &path = event.mouse_paths.emplace_back();
@@ -432,54 +493,79 @@ class RewindClient {
         }
       }
     }
-    return events;
+
+    for (auto fbs_action : *event_list->action_events()) {
+      ActionResult::Type type;
+      ActionResult action(fbs_action->name()->str(), type);
+      switch (fbs_action->value_type()) {
+        case fbs::ActionValue::ActionValue_IntValue:
+          type = ActionResult::Type::Int;
+          action.set_value(fbs_action->value_as_IntValue()->value());
+          break;
+        case fbs::ActionValue::ActionValue_FloatValue:
+          type = ActionResult::Type::Float;
+          action.set_value(fbs_action->value_as_FloatValue()->value());
+          break;
+        case fbs::ActionValue::ActionValue_BoolValue:
+          type = ActionResult::Type::Bool;
+          action.set_value(fbs_action->value_as_BoolValue()->value());
+          break;
+        case fbs::ActionValue::ActionValue_StringValue:
+          type = ActionResult::Type::String;
+          action.set_value(fbs_action->value_as_StringValue()->value()->str());
+          break;
+        default: throw std::runtime_error("Unknown ActionValue type");
+      }
+      result.actions.push_back(std::move(action));
+    }
+    return result;
   }
 
-  void create_button_action(const std::string& name) {
+  void create_button_action(const std::string &name) {
     builder_.Clear();
     auto input = fbs::CreateButtonInput(builder_);
     send_action(name, fbs::ActionInput::ActionInput_ButtonInput, input.Union());
   }
 
-  void create_int_input_action(const std::string& name, int32_t default_value, int32_t min_value = 0, int32_t max_value = 0) {
+  void create_int_input_action(const std::string &name, int32_t default_value,
+                               int32_t min_value = 0, int32_t max_value = 0) {
     builder_.Clear();
     auto input = fbs::CreateIntInput(builder_, default_value, min_value, max_value);
     send_action(name, fbs::ActionInput::ActionInput_IntInput, input.Union());
   }
 
-  // Specialized method to create a FloatInput action with optional min/max values
-  void create_float_input_action(const std::string& name, float default_value, float min_value = 0.0f, float max_value = 0.0f) {
+  void create_float_input_action(const std::string &name, float default_value,
+                                 float min_value = 0.0f, float max_value = 0.0f) {
     builder_.Clear();
     auto input = fbs::CreateFloatInput(builder_, default_value, min_value, max_value);
     send_action(name, fbs::ActionInput::ActionInput_FloatInput, input.Union());
   }
 
-  // Specialized method to create a SelectInput action
-  void create_select_input_action(const std::string& name, const std::vector<std::string>& options, uint16_t selected_option) {
+  void create_select_input_action(const std::string &name, const std::vector<std::string> &options,
+                                  uint16_t selected_option) {
     builder_.Clear();
     std::vector<flatbuffers::Offset<flatbuffers::String>> option_offsets;
-    for (const auto& option : options) {
+    for (const auto &option : options) {
       option_offsets.push_back(builder_.CreateString(option));
     }
-    auto input = fbs::CreateSelectInput(builder_, builder_.CreateVector(option_offsets), selected_option);
+    auto input =
+        fbs::CreateSelectInput(builder_, builder_.CreateVector(option_offsets), selected_option);
     send_action(name, fbs::ActionInput::ActionInput_SelectInput, input.Union());
   }
 
-  // Specialized method to create a StringInput action
-  void create_string_input_action(const std::string& name, const std::string& default_value) {
+  void create_string_input_action(const std::string &name, const std::string &default_value) {
     builder_.Clear();
     auto input = fbs::CreateStringInput(builder_, builder_.CreateString(default_value));
     send_action(name, fbs::ActionInput::ActionInput_StringInput, input.Union());
   }
 
-  // Specialized method to create a BoolInput action
-  void create_bool_input_action(const std::string& name, bool default_value = false) {
+  void create_bool_input_action(const std::string &name, bool default_value = false) {
     builder_.Clear();
     auto input = fbs::CreateBoolInput(builder_, default_value);
     send_action(name, fbs::ActionInput::ActionInput_BoolInput, input.Union());
   }
 
-  void remove_action(const std::string& name) {
+  void remove_action(const std::string &name) {
     builder_.Clear();
     auto name_obj = builder_.CreateString(name);
     auto command = fbs::CreateRemoveAction(builder_, name_obj);

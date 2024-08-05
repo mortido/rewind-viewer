@@ -7,15 +7,19 @@ import { CameraView } from '../../rewind-viewer/fbs/camera-view.js';
 import { Circle } from '../../rewind-viewer/fbs/circle.js';
 import { CircleSegment } from '../../rewind-viewer/fbs/circle-segment.js';
 import { CreateAction } from '../../rewind-viewer/fbs/create-action.js';
+import { DrawProto } from '../../rewind-viewer/fbs/draw-proto.js';
 import { EndFrame } from '../../rewind-viewer/fbs/end-frame.js';
+import { EndProto } from '../../rewind-viewer/fbs/end-proto.js';
+import { Layer } from '../../rewind-viewer/fbs/layer.js';
 import { LogText } from '../../rewind-viewer/fbs/log-text.js';
-import { Options } from '../../rewind-viewer/fbs/options.js';
+import { Map } from '../../rewind-viewer/fbs/map.js';
 import { Polyline } from '../../rewind-viewer/fbs/polyline.js';
 import { Popup } from '../../rewind-viewer/fbs/popup.js';
 import { PopupRound } from '../../rewind-viewer/fbs/popup-round.js';
 import { ReadEvents } from '../../rewind-viewer/fbs/read-events.js';
 import { Rectangle } from '../../rewind-viewer/fbs/rectangle.js';
 import { RemoveAction } from '../../rewind-viewer/fbs/remove-action.js';
+import { StartProto } from '../../rewind-viewer/fbs/start-proto.js';
 import { Subscribe } from '../../rewind-viewer/fbs/subscribe.js';
 import { Tiles } from '../../rewind-viewer/fbs/tiles.js';
 import { Triangle } from '../../rewind-viewer/fbs/triangle.js';
@@ -24,79 +28,91 @@ import { Unsubscribe } from '../../rewind-viewer/fbs/unsubscribe.js';
 
 export enum Command {
   NONE = 0,
-  Arc = 1,
-  CameraView = 2,
-  Circle = 3,
-  CircleSegment = 4,
-  CreateAction = 5,
-  LogText = 6,
-  Options = 7,
-  Polyline = 8,
-  Popup = 9,
-  PopupRound = 10,
-  ReadEvents = 11,
-  Rectangle = 12,
-  RemoveAction = 13,
-  Subscribe = 14,
-  Tiles = 15,
-  Triangle = 16,
-  Unsubscribe = 17,
-  EndFrame = 18
+  Subscribe = 1,
+  Unsubscribe = 2,
+  CreateAction = 3,
+  RemoveAction = 4,
+  ReadEvents = 5,
+  Layer = 6,
+  Map = 7,
+  EndFrame = 8,
+  Arc = 9,
+  Circle = 10,
+  CircleSegment = 11,
+  Polyline = 12,
+  Rectangle = 13,
+  Tiles = 14,
+  Triangle = 15,
+  StartProto = 16,
+  EndProto = 17,
+  DrawProto = 18,
+  LogText = 19,
+  Popup = 20,
+  PopupRound = 21,
+  CameraView = 22
 }
 
 export function unionToCommand(
   type: Command,
-  accessor: (obj:Arc|CameraView|Circle|CircleSegment|CreateAction|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|CreateAction|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|Subscribe|Tiles|Triangle|Unsubscribe|null
-): Arc|CameraView|Circle|CircleSegment|CreateAction|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|Subscribe|Tiles|Triangle|Unsubscribe|null {
+  accessor: (obj:Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Tiles|Triangle|Unsubscribe|null
+): Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Tiles|Triangle|Unsubscribe|null {
   switch(Command[type]) {
     case 'NONE': return null; 
+    case 'Subscribe': return accessor(new Subscribe())! as Subscribe;
+    case 'Unsubscribe': return accessor(new Unsubscribe())! as Unsubscribe;
+    case 'CreateAction': return accessor(new CreateAction())! as CreateAction;
+    case 'RemoveAction': return accessor(new RemoveAction())! as RemoveAction;
+    case 'ReadEvents': return accessor(new ReadEvents())! as ReadEvents;
+    case 'Layer': return accessor(new Layer())! as Layer;
+    case 'Map': return accessor(new Map())! as Map;
+    case 'EndFrame': return accessor(new EndFrame())! as EndFrame;
     case 'Arc': return accessor(new Arc())! as Arc;
-    case 'CameraView': return accessor(new CameraView())! as CameraView;
     case 'Circle': return accessor(new Circle())! as Circle;
     case 'CircleSegment': return accessor(new CircleSegment())! as CircleSegment;
-    case 'CreateAction': return accessor(new CreateAction())! as CreateAction;
-    case 'LogText': return accessor(new LogText())! as LogText;
-    case 'Options': return accessor(new Options())! as Options;
     case 'Polyline': return accessor(new Polyline())! as Polyline;
-    case 'Popup': return accessor(new Popup())! as Popup;
-    case 'PopupRound': return accessor(new PopupRound())! as PopupRound;
-    case 'ReadEvents': return accessor(new ReadEvents())! as ReadEvents;
     case 'Rectangle': return accessor(new Rectangle())! as Rectangle;
-    case 'RemoveAction': return accessor(new RemoveAction())! as RemoveAction;
-    case 'Subscribe': return accessor(new Subscribe())! as Subscribe;
     case 'Tiles': return accessor(new Tiles())! as Tiles;
     case 'Triangle': return accessor(new Triangle())! as Triangle;
-    case 'Unsubscribe': return accessor(new Unsubscribe())! as Unsubscribe;
-    case 'EndFrame': return accessor(new EndFrame())! as EndFrame;
+    case 'StartProto': return accessor(new StartProto())! as StartProto;
+    case 'EndProto': return accessor(new EndProto())! as EndProto;
+    case 'DrawProto': return accessor(new DrawProto())! as DrawProto;
+    case 'LogText': return accessor(new LogText())! as LogText;
+    case 'Popup': return accessor(new Popup())! as Popup;
+    case 'PopupRound': return accessor(new PopupRound())! as PopupRound;
+    case 'CameraView': return accessor(new CameraView())! as CameraView;
     default: return null;
   }
 }
 
 export function unionListToCommand(
   type: Command, 
-  accessor: (index: number, obj:Arc|CameraView|Circle|CircleSegment|CreateAction|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|CreateAction|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|Subscribe|Tiles|Triangle|Unsubscribe|null, 
+  accessor: (index: number, obj:Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Tiles|Triangle|Unsubscribe|null, 
   index: number
-): Arc|CameraView|Circle|CircleSegment|CreateAction|EndFrame|LogText|Options|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|Subscribe|Tiles|Triangle|Unsubscribe|null {
+): Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Tiles|Triangle|Unsubscribe|null {
   switch(Command[type]) {
     case 'NONE': return null; 
+    case 'Subscribe': return accessor(index, new Subscribe())! as Subscribe;
+    case 'Unsubscribe': return accessor(index, new Unsubscribe())! as Unsubscribe;
+    case 'CreateAction': return accessor(index, new CreateAction())! as CreateAction;
+    case 'RemoveAction': return accessor(index, new RemoveAction())! as RemoveAction;
+    case 'ReadEvents': return accessor(index, new ReadEvents())! as ReadEvents;
+    case 'Layer': return accessor(index, new Layer())! as Layer;
+    case 'Map': return accessor(index, new Map())! as Map;
+    case 'EndFrame': return accessor(index, new EndFrame())! as EndFrame;
     case 'Arc': return accessor(index, new Arc())! as Arc;
-    case 'CameraView': return accessor(index, new CameraView())! as CameraView;
     case 'Circle': return accessor(index, new Circle())! as Circle;
     case 'CircleSegment': return accessor(index, new CircleSegment())! as CircleSegment;
-    case 'CreateAction': return accessor(index, new CreateAction())! as CreateAction;
-    case 'LogText': return accessor(index, new LogText())! as LogText;
-    case 'Options': return accessor(index, new Options())! as Options;
     case 'Polyline': return accessor(index, new Polyline())! as Polyline;
-    case 'Popup': return accessor(index, new Popup())! as Popup;
-    case 'PopupRound': return accessor(index, new PopupRound())! as PopupRound;
-    case 'ReadEvents': return accessor(index, new ReadEvents())! as ReadEvents;
     case 'Rectangle': return accessor(index, new Rectangle())! as Rectangle;
-    case 'RemoveAction': return accessor(index, new RemoveAction())! as RemoveAction;
-    case 'Subscribe': return accessor(index, new Subscribe())! as Subscribe;
     case 'Tiles': return accessor(index, new Tiles())! as Tiles;
     case 'Triangle': return accessor(index, new Triangle())! as Triangle;
-    case 'Unsubscribe': return accessor(index, new Unsubscribe())! as Unsubscribe;
-    case 'EndFrame': return accessor(index, new EndFrame())! as EndFrame;
+    case 'StartProto': return accessor(index, new StartProto())! as StartProto;
+    case 'EndProto': return accessor(index, new EndProto())! as EndProto;
+    case 'DrawProto': return accessor(index, new DrawProto())! as DrawProto;
+    case 'LogText': return accessor(index, new LogText())! as LogText;
+    case 'Popup': return accessor(index, new Popup())! as Popup;
+    case 'PopupRound': return accessor(index, new PopupRound())! as PopupRound;
+    case 'CameraView': return accessor(index, new CameraView())! as CameraView;
     default: return null;
   }
 }

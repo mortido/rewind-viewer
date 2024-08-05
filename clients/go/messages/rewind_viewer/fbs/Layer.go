@@ -53,8 +53,16 @@ func (rcv *Layer) MutateId(n uint32) bool {
 	return rcv._tab.MutateUint32Slot(4, n)
 }
 
-func (rcv *Layer) UsePermanentFrame() bool {
+func (rcv *Layer) Name() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
+func (rcv *Layer) UsePermanentFrame() bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.GetBool(o + rcv._tab.Pos)
 	}
@@ -62,17 +70,35 @@ func (rcv *Layer) UsePermanentFrame() bool {
 }
 
 func (rcv *Layer) MutateUsePermanentFrame(n bool) bool {
-	return rcv._tab.MutateBoolSlot(6, n)
+	return rcv._tab.MutateBoolSlot(8, n)
+}
+
+func (rcv *Layer) Origin() LayerOrigin {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return LayerOrigin(rcv._tab.GetInt8(o + rcv._tab.Pos))
+	}
+	return 0
+}
+
+func (rcv *Layer) MutateOrigin(n LayerOrigin) bool {
+	return rcv._tab.MutateInt8Slot(10, int8(n))
 }
 
 func LayerStart(builder *flatbuffers.Builder) {
-	builder.StartObject(2)
+	builder.StartObject(4)
 }
 func LayerAddId(builder *flatbuffers.Builder, id uint32) {
 	builder.PrependUint32Slot(0, id, 0)
 }
+func LayerAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(name), 0)
+}
 func LayerAddUsePermanentFrame(builder *flatbuffers.Builder, usePermanentFrame bool) {
-	builder.PrependBoolSlot(1, usePermanentFrame, false)
+	builder.PrependBoolSlot(2, usePermanentFrame, false)
+}
+func LayerAddOrigin(builder *flatbuffers.Builder, origin LayerOrigin) {
+	builder.PrependInt8Slot(3, int8(origin), 0)
 }
 func LayerEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

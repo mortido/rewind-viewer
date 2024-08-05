@@ -17,7 +17,8 @@ Scene::Scene(std::shared_ptr<const SceneConfig> config, bool buffered_mode)
     , permanent_frame_{std::make_shared<Frame>()} {}
 
 void Scene::render(size_t frame_idx) {
-  renderer_.new_frame(camera);
+  renderer_.new_frame();
+  renderer_.set_projections(camera.get_projection_matrices());
   if (config_->show_background) {
     renderer_.render_canvas(config_->background_color);
   }
@@ -27,8 +28,9 @@ void Scene::render(size_t frame_idx) {
 
   auto frame = get_frame(&frame_idx);
   if (frame) {
-    frame->render(frame_context_, renderer_, config_->enabled_layers, prev_rendered_frame_ != frame_idx);
-    permanent_frame_->render(permanent_frame_context_, renderer_, config_->enabled_layers);
+    permanent_frame_->render(permanent_frame_context_, renderer_, config_->enabled_permanent_layers);
+    frame->render(frame_context_, renderer_, config_->enabled_layers,
+                  prev_rendered_frame_ != frame_idx);
     prev_rendered_frame_ = frame_idx;
   }
 }
@@ -39,10 +41,10 @@ void Scene::set_canvas_config(const glm::vec2& position, const glm::vec2& size,
   camera.set_view(view);
   std::lock_guard<Spinlock> lock(mutex_);
 
-  frames_.clear();
-  buffer_frame_ = std::make_shared<UIFrame>();
-  permanent_frame_ = std::make_shared<Frame>();
-  buffer_permanent_frame_ = std::make_shared<Frame>();
+  //  frames_.clear();
+  //  buffer_frame_ = std::make_shared<UIFrame>();
+  //  permanent_frame_ = std::make_shared<Frame>();
+  //  buffer_permanent_frame_ = std::make_shared<Frame>();
   renderer_.update_canvas(position, size, grid);
 }
 
@@ -88,6 +90,8 @@ void Scene::clear() {
   buffer_frame_ = std::make_shared<UIFrame>();
   permanent_frame_ = std::make_shared<Frame>();
   buffer_permanent_frame_ = std::make_shared<Frame>();
+  permanent_layers_names_.fill("");
+  layers_names_.fill("");
 }
 
 std::shared_ptr<UIFrame> Scene::get_ui_frame() {
@@ -101,6 +105,24 @@ std::shared_ptr<Frame> Scene::get_draw_frame(bool permanent) {
     return permanent ? buffer_permanent_frame_ : buffer_frame_;
   } else {
     return permanent ? permanent_frame_ : buffer_frame_;
+  }
+}
+
+void Scene::set_layer_name(size_t id, std::string name, bool permanent) {
+  std::lock_guard<Spinlock> lock(mutex_);
+  if (permanent) {
+    permanent_layers_names_.at(id) = std::move(name);
+  } else {
+    layers_names_.at(id) = std::move(name);
+  }
+}
+
+std::string Scene::get_layer_name(size_t id, bool permanent) const {
+  std::lock_guard<Spinlock> lock(mutex_);
+  if (permanent) {
+    return permanent_layers_names_.at(id);
+  } else {
+    return layers_names_.at(id);
   }
 }
 

@@ -1,0 +1,61 @@
+namespace rewind_viewer.fbs;
+
+table Subscribe {
+  key:byte;
+  name:string (required);
+  continuous:bool = false;
+  capture_mouse:bool = false;
+}
+
+table Unsubscribe {
+  key:byte;
+}
+
+table IntInput {
+  default_value:int32;
+  min_value:int32 = 0;
+  max_value:int32 = 0;
+}
+
+table FloatInput {
+  default_value:float;
+  min_value:float = 0.0;
+  max_value:float = 0.0;
+}
+
+table SelectInput {
+  options:[string] (required);
+  selected_option:uint16;
+}
+
+table StringInput {
+  default_value:string;
+}
+
+table BoolInput {
+  default_value:bool = false;
+}
+
+table ButtonInput {
+}
+
+union ActionInput {
+  BoolInput,
+  ButtonInput,
+  FloatInput,
+  IntInput,
+  SelectInput,
+  StringInput
+}
+
+table  CreateAction {
+  name:string (required);
+  input:ActionInput;
+}
+
+table  RemoveAction {
+  name:string (required);
+}
+
+table ReadEvents {
+}

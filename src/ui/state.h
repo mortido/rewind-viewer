@@ -14,7 +14,6 @@ struct RewindViewerState {
   float playback_controls_height = 0.0f;
   float frame_info_width = 0.0f;
 
-  bool show_status_overlay = true;
   bool show_toolbox_panel = true;
   bool show_control_pad_window = false;
   bool show_playback_controls = true;

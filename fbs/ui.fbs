@@ -1,0 +1,25 @@
+include "vector2f.fbs";
+
+namespace rewind_viewer.fbs;
+
+table LogText {
+  text:string (required);
+}
+
+table Popup {
+  text:string (required);
+  area_position:Vector2f (required);
+  area_size:Vector2f (required);
+}
+
+table PopupRound {
+  text:string (required);
+  area_center:Vector2f (required);
+  area_radius:float;
+}
+
+table CameraView {
+  name:string (required);
+  position:Vector2f (required);
+  view_radius:float;
+}

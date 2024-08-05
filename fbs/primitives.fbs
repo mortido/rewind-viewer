@@ -1,0 +1,67 @@
+include "vector2f.fbs";
+
+namespace rewind_viewer.fbs;
+
+table Color {
+  value:uint32;
+  fill:bool = false;
+}
+
+table Circle {
+  color:Color;
+  center:Vector2f (required);
+  radius:float;
+}
+
+table Arc {
+  color:Color;
+  center:Vector2f (required);
+  radius:float;
+  start_angle:float;
+  end_angle:float;
+}
+
+table CircleSegment {
+  color:Color;
+  center:Vector2f (required);
+  radius:float;
+  start_angle:float;
+  end_angle:float;
+}
+
+table Tiles {
+  position:Vector2f (required);
+  cell_size:Vector2f (required);
+  row_size:uint16;
+  colors:[uint32] (required);
+}
+
+table Rectangle {
+  color:Color;
+  position:Vector2f (required);
+  size:Vector2f (required);
+}
+
+table Triangle {
+  color:Color;
+  points:[Vector2f] (required);
+}
+
+table Polyline {
+  color:Color;
+  points:[Vector2f] (required);
+}
+
+table StartProto {
+}
+
+table EndProto {
+}
+
+table DrawProto {
+  id:uint64;
+  position:Vector2f (required);
+  angle:float=0.0;
+  color:uint32=0;
+  scale:float=1.0;
+}

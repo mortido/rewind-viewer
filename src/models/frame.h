@@ -36,7 +36,7 @@ class UIFrame : public Frame {
   friend class FrameEditor;
 
  public:
-  using PopupCollectionT = std::array<std::vector<Popup>, Frame::LAYERS_COUNT>;
+  using PopupCollectionT = std::array<std::vector<Popup>, LAYERS_COUNT>;
 
   const std::map<std::string, CameraView> &get_cameras() const;
   const std::string &get_user_message() const;

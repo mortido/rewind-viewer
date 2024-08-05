@@ -3,6 +3,7 @@ layout (points) in;
 layout (triangle_strip, max_vertices = 4) out;
 
 in VS_OUT {
+    uint proj_idx;
     float radius;
     float start_angle;
     float end_angle;
@@ -19,7 +20,7 @@ out GS_OUT {
 } gs_out;
 
 layout (std140) uniform MatrixBlock {
-    mat4 proj_view;
+    mat4 proj_views[9];
 };
 
 void main() {
@@ -38,22 +39,22 @@ void main() {
     vec4 point;
     gs_out.current_point = vec2(-r, -r);
     point = center_pos + vec4(-r, -r, 0.0, 0.0);
-    gl_Position = proj_view * point;
+    gl_Position = proj_views[gs_in[0].proj_idx] * point;
     EmitVertex();
 
     gs_out.current_point = vec2(r, -r);
     point = center_pos + vec4(r, -r, 0.0, 0.0);
-    gl_Position = proj_view * point;
+    gl_Position = proj_views[gs_in[0].proj_idx] * point;
     EmitVertex();
 
     gs_out.current_point = vec2(-r, r);
     point = center_pos + vec4(-r, r, 0.0, 0.0);
-    gl_Position = proj_view * point;
+    gl_Position = proj_views[gs_in[0].proj_idx] * point;
     EmitVertex();
 
     gs_out.current_point = vec2(r, r);
     point = center_pos + vec4(r, r, 0.0, 0.0);
-    gl_Position = proj_view * point;
+    gl_Position = proj_views[gs_in[0].proj_idx] * point;
     EmitVertex();
 
     EndPrimitive();

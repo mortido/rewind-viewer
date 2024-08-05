@@ -85,7 +85,7 @@ void Viewport::update(RewindViewerState& ui_state, const models::Config& config,
       }
     }
   }
-  scene.camera.update_projection();
+  scene.camera.update_projections();
 
   if (ui_state.autoplay) {
     double delta_time = ImGui::GetTime() - ui_state.last_frame_time;

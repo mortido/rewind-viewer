@@ -6,26 +6,30 @@ package rewind_viewer.fbs;
 public final class Command {
   private Command() { }
   public static final byte NONE = 0;
-  public static final byte Arc = 1;
-  public static final byte CameraView = 2;
-  public static final byte Circle = 3;
-  public static final byte CircleSegment = 4;
-  public static final byte CreateAction = 5;
-  public static final byte LogText = 6;
-  public static final byte Options = 7;
-  public static final byte Polyline = 8;
-  public static final byte Popup = 9;
-  public static final byte PopupRound = 10;
-  public static final byte ReadEvents = 11;
-  public static final byte Rectangle = 12;
-  public static final byte RemoveAction = 13;
-  public static final byte Subscribe = 14;
-  public static final byte Tiles = 15;
-  public static final byte Triangle = 16;
-  public static final byte Unsubscribe = 17;
-  public static final byte EndFrame = 18;
+  public static final byte Subscribe = 1;
+  public static final byte Unsubscribe = 2;
+  public static final byte CreateAction = 3;
+  public static final byte RemoveAction = 4;
+  public static final byte ReadEvents = 5;
+  public static final byte Layer = 6;
+  public static final byte Map = 7;
+  public static final byte EndFrame = 8;
+  public static final byte Arc = 9;
+  public static final byte Circle = 10;
+  public static final byte CircleSegment = 11;
+  public static final byte Polyline = 12;
+  public static final byte Rectangle = 13;
+  public static final byte Tiles = 14;
+  public static final byte Triangle = 15;
+  public static final byte StartProto = 16;
+  public static final byte EndProto = 17;
+  public static final byte DrawProto = 18;
+  public static final byte LogText = 19;
+  public static final byte Popup = 20;
+  public static final byte PopupRound = 21;
+  public static final byte CameraView = 22;
 
-  public static final String[] names = { "NONE", "Arc", "CameraView", "Circle", "CircleSegment", "CreateAction", "LogText", "Options", "Polyline", "Popup", "PopupRound", "ReadEvents", "Rectangle", "RemoveAction", "Subscribe", "Tiles", "Triangle", "Unsubscribe", "EndFrame", };
+  public static final String[] names = { "NONE", "Subscribe", "Unsubscribe", "CreateAction", "RemoveAction", "ReadEvents", "Layer", "Map", "EndFrame", "Arc", "Circle", "CircleSegment", "Polyline", "Rectangle", "Tiles", "Triangle", "StartProto", "EndProto", "DrawProto", "LogText", "Popup", "PopupRound", "CameraView", };
 
   public static String name(int e) { return names[e]; }
 }

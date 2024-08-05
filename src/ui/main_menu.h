@@ -10,10 +10,12 @@
 #include "ui/style_manager.h"
 
 namespace rewind_viewer::ui {
+
 class MainMenu {
  public:
   void render(RewindViewerState& ui_state, const models::Config& config, models::Scene& scene,
-              gateway::ClientGateway& master_gateway, const StyleManager& style_manager);
+              std::vector<std::unique_ptr<gateway::ClientGateway>>& gateways,
+              StyleManager& style_manager);
 
  private:
   std::string open_file_dialog();

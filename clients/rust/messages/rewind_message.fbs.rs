@@ -3,7 +3,11 @@
 
 // @generated
 
+use crate::ui.fbs::*;
+use crate::primitives.fbs::*;
 use crate::vector2f.fbs::*;
+use crate::actions.fbs::*;
+use crate::auxiliary.fbs::*;
 use core::mem;
 use core::cmp::Ordering;
 
@@ -13,7 +17,11 @@ use self::flatbuffers::{EndianScalar, Follow};
 #[allow(unused_imports, dead_code)]
 pub mod rewind_viewer {
 
+  use crate::ui.fbs::*;
+  use crate::primitives.fbs::*;
   use crate::vector2f.fbs::*;
+  use crate::actions.fbs::*;
+  use crate::auxiliary.fbs::*;
   use core::mem;
   use core::cmp::Ordering;
 
@@ -22,7 +30,11 @@ pub mod rewind_viewer {
 #[allow(unused_imports, dead_code)]
 pub mod fbs {
 
+  use crate::ui.fbs::*;
+  use crate::primitives.fbs::*;
   use crate::vector2f.fbs::*;
+  use crate::actions.fbs::*;
+  use crate::auxiliary.fbs::*;
   use core::mem;
   use core::cmp::Ordering;
 
@@ -30,138 +42,35 @@ pub mod fbs {
   use self::flatbuffers::{EndianScalar, Follow};
 
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
-pub const ENUM_MIN_ACTION_INPUT: u8 = 0;
-#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
-pub const ENUM_MAX_ACTION_INPUT: u8 = 6;
-#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
-#[allow(non_camel_case_types)]
-pub const ENUM_VALUES_ACTION_INPUT: [ActionInput; 7] = [
-  ActionInput::NONE,
-  ActionInput::BoolInput,
-  ActionInput::ButtonInput,
-  ActionInput::FloatInput,
-  ActionInput::IntInput,
-  ActionInput::SelectInput,
-  ActionInput::StringInput,
-];
-
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-#[repr(transparent)]
-pub struct ActionInput(pub u8);
-#[allow(non_upper_case_globals)]
-impl ActionInput {
-  pub const NONE: Self = Self(0);
-  pub const BoolInput: Self = Self(1);
-  pub const ButtonInput: Self = Self(2);
-  pub const FloatInput: Self = Self(3);
-  pub const IntInput: Self = Self(4);
-  pub const SelectInput: Self = Self(5);
-  pub const StringInput: Self = Self(6);
-
-  pub const ENUM_MIN: u8 = 0;
-  pub const ENUM_MAX: u8 = 6;
-  pub const ENUM_VALUES: &'static [Self] = &[
-    Self::NONE,
-    Self::BoolInput,
-    Self::ButtonInput,
-    Self::FloatInput,
-    Self::IntInput,
-    Self::SelectInput,
-    Self::StringInput,
-  ];
-  /// Returns the variant's name or "" if unknown.
-  pub fn variant_name(self) -> Option<&'static str> {
-    match self {
-      Self::NONE => Some("NONE"),
-      Self::BoolInput => Some("BoolInput"),
-      Self::ButtonInput => Some("ButtonInput"),
-      Self::FloatInput => Some("FloatInput"),
-      Self::IntInput => Some("IntInput"),
-      Self::SelectInput => Some("SelectInput"),
-      Self::StringInput => Some("StringInput"),
-      _ => None,
-    }
-  }
-}
-impl core::fmt::Debug for ActionInput {
-  fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-    if let Some(name) = self.variant_name() {
-      f.write_str(name)
-    } else {
-      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
-    }
-  }
-}
-impl<'a> flatbuffers::Follow<'a> for ActionInput {
-  type Inner = Self;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    let b = flatbuffers::read_scalar_at::<u8>(buf, loc);
-    Self(b)
-  }
-}
-
-impl flatbuffers::Push for ActionInput {
-    type Output = ActionInput;
-    #[inline]
-    unsafe fn push(&self, dst: &mut [u8], _written_len: usize) {
-        flatbuffers::emplace_scalar::<u8>(dst, self.0);
-    }
-}
-
-impl flatbuffers::EndianScalar for ActionInput {
-  type Scalar = u8;
-  #[inline]
-  fn to_little_endian(self) -> u8 {
-    self.0.to_le()
-  }
-  #[inline]
-  #[allow(clippy::wrong_self_convention)]
-  fn from_little_endian(v: u8) -> Self {
-    let b = u8::from_le(v);
-    Self(b)
-  }
-}
-
-impl<'a> flatbuffers::Verifiable for ActionInput {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    u8::run_verifier(v, pos)
-  }
-}
-
-impl flatbuffers::SimpleToVerifyInSlice for ActionInput {}
-pub struct ActionInputUnionTableOffset {}
-
-#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 pub const ENUM_MIN_COMMAND: u8 = 0;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
-pub const ENUM_MAX_COMMAND: u8 = 18;
+pub const ENUM_MAX_COMMAND: u8 = 22;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_COMMAND: [Command; 19] = [
+pub const ENUM_VALUES_COMMAND: [Command; 23] = [
   Command::NONE,
+  Command::Subscribe,
+  Command::Unsubscribe,
+  Command::CreateAction,
+  Command::RemoveAction,
+  Command::ReadEvents,
+  Command::Layer,
+  Command::Map,
+  Command::EndFrame,
   Command::Arc,
-  Command::CameraView,
   Command::Circle,
   Command::CircleSegment,
-  Command::CreateAction,
-  Command::LogText,
-  Command::Options,
   Command::Polyline,
-  Command::Popup,
-  Command::PopupRound,
-  Command::ReadEvents,
   Command::Rectangle,
-  Command::RemoveAction,
-  Command::Subscribe,
   Command::Tiles,
   Command::Triangle,
-  Command::Unsubscribe,
-  Command::EndFrame,
+  Command::StartProto,
+  Command::EndProto,
+  Command::DrawProto,
+  Command::LogText,
+  Command::Popup,
+  Command::PopupRound,
+  Command::CameraView,
 ];
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
@@ -170,70 +79,82 @@ pub struct Command(pub u8);
 #[allow(non_upper_case_globals)]
 impl Command {
   pub const NONE: Self = Self(0);
-  pub const Arc: Self = Self(1);
-  pub const CameraView: Self = Self(2);
-  pub const Circle: Self = Self(3);
-  pub const CircleSegment: Self = Self(4);
-  pub const CreateAction: Self = Self(5);
-  pub const LogText: Self = Self(6);
-  pub const Options: Self = Self(7);
-  pub const Polyline: Self = Self(8);
-  pub const Popup: Self = Self(9);
-  pub const PopupRound: Self = Self(10);
-  pub const ReadEvents: Self = Self(11);
-  pub const Rectangle: Self = Self(12);
-  pub const RemoveAction: Self = Self(13);
-  pub const Subscribe: Self = Self(14);
-  pub const Tiles: Self = Self(15);
-  pub const Triangle: Self = Self(16);
-  pub const Unsubscribe: Self = Self(17);
-  pub const EndFrame: Self = Self(18);
+  pub const Subscribe: Self = Self(1);
+  pub const Unsubscribe: Self = Self(2);
+  pub const CreateAction: Self = Self(3);
+  pub const RemoveAction: Self = Self(4);
+  pub const ReadEvents: Self = Self(5);
+  pub const Layer: Self = Self(6);
+  pub const Map: Self = Self(7);
+  pub const EndFrame: Self = Self(8);
+  pub const Arc: Self = Self(9);
+  pub const Circle: Self = Self(10);
+  pub const CircleSegment: Self = Self(11);
+  pub const Polyline: Self = Self(12);
+  pub const Rectangle: Self = Self(13);
+  pub const Tiles: Self = Self(14);
+  pub const Triangle: Self = Self(15);
+  pub const StartProto: Self = Self(16);
+  pub const EndProto: Self = Self(17);
+  pub const DrawProto: Self = Self(18);
+  pub const LogText: Self = Self(19);
+  pub const Popup: Self = Self(20);
+  pub const PopupRound: Self = Self(21);
+  pub const CameraView: Self = Self(22);
 
   pub const ENUM_MIN: u8 = 0;
-  pub const ENUM_MAX: u8 = 18;
+  pub const ENUM_MAX: u8 = 22;
   pub const ENUM_VALUES: &'static [Self] = &[
     Self::NONE,
+    Self::Subscribe,
+    Self::Unsubscribe,
+    Self::CreateAction,
+    Self::RemoveAction,
+    Self::ReadEvents,
+    Self::Layer,
+    Self::Map,
+    Self::EndFrame,
     Self::Arc,
-    Self::CameraView,
     Self::Circle,
     Self::CircleSegment,
-    Self::CreateAction,
-    Self::LogText,
-    Self::Options,
     Self::Polyline,
-    Self::Popup,
-    Self::PopupRound,
-    Self::ReadEvents,
     Self::Rectangle,
-    Self::RemoveAction,
-    Self::Subscribe,
     Self::Tiles,
     Self::Triangle,
-    Self::Unsubscribe,
-    Self::EndFrame,
+    Self::StartProto,
+    Self::EndProto,
+    Self::DrawProto,
+    Self::LogText,
+    Self::Popup,
+    Self::PopupRound,
+    Self::CameraView,
   ];
   /// Returns the variant's name or "" if unknown.
   pub fn variant_name(self) -> Option<&'static str> {
     match self {
       Self::NONE => Some("NONE"),
+      Self::Subscribe => Some("Subscribe"),
+      Self::Unsubscribe => Some("Unsubscribe"),
+      Self::CreateAction => Some("CreateAction"),
+      Self::RemoveAction => Some("RemoveAction"),
+      Self::ReadEvents => Some("ReadEvents"),
+      Self::Layer => Some("Layer"),
+      Self::Map => Some("Map"),
+      Self::EndFrame => Some("EndFrame"),
       Self::Arc => Some("Arc"),
-      Self::CameraView => Some("CameraView"),
       Self::Circle => Some("Circle"),
       Self::CircleSegment => Some("CircleSegment"),
-      Self::CreateAction => Some("CreateAction"),
-      Self::LogText => Some("LogText"),
-      Self::Options => Some("Options"),
       Self::Polyline => Some("Polyline"),
-      Self::Popup => Some("Popup"),
-      Self::PopupRound => Some("PopupRound"),
-      Self::ReadEvents => Some("ReadEvents"),
       Self::Rectangle => Some("Rectangle"),
-      Self::RemoveAction => Some("RemoveAction"),
-      Self::Subscribe => Some("Subscribe"),
       Self::Tiles => Some("Tiles"),
       Self::Triangle => Some("Triangle"),
-      Self::Unsubscribe => Some("Unsubscribe"),
-      Self::EndFrame => Some("EndFrame"),
+      Self::StartProto => Some("StartProto"),
+      Self::EndProto => Some("EndProto"),
+      Self::DrawProto => Some("DrawProto"),
+      Self::LogText => Some("LogText"),
+      Self::Popup => Some("Popup"),
+      Self::PopupRound => Some("PopupRound"),
+      Self::CameraView => Some("CameraView"),
       _ => None,
     }
   }
@@ -291,3404 +212,6 @@ impl<'a> flatbuffers::Verifiable for Command {
 impl flatbuffers::SimpleToVerifyInSlice for Command {}
 pub struct CommandUnionTableOffset {}
 
-pub enum ColorOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct Color<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for Color<'a> {
-  type Inner = Color<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> Color<'a> {
-  pub const VT_VALUE: flatbuffers::VOffsetT = 4;
-  pub const VT_FILL: flatbuffers::VOffsetT = 6;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Color { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args ColorArgs
-  ) -> flatbuffers::WIPOffset<Color<'bldr>> {
-    let mut builder = ColorBuilder::new(_fbb);
-    builder.add_value(args.value);
-    builder.add_fill(args.fill);
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn value(&self) -> u32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<u32>(Color::VT_VALUE, Some(0)).unwrap()}
-  }
-  #[inline]
-  pub fn fill(&self) -> bool {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<bool>(Color::VT_FILL, Some(false)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for Color<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<u32>("value", Self::VT_VALUE, false)?
-     .visit_field::<bool>("fill", Self::VT_FILL, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct ColorArgs {
-    pub value: u32,
-    pub fill: bool,
-}
-impl<'a> Default for ColorArgs {
-  #[inline]
-  fn default() -> Self {
-    ColorArgs {
-      value: 0,
-      fill: false,
-    }
-  }
-}
-
-pub struct ColorBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ColorBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_value(&mut self, value: u32) {
-    self.fbb_.push_slot::<u32>(Color::VT_VALUE, value, 0);
-  }
-  #[inline]
-  pub fn add_fill(&mut self, fill: bool) {
-    self.fbb_.push_slot::<bool>(Color::VT_FILL, fill, false);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> ColorBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    ColorBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Color<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for Color<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Color");
-      ds.field("value", &self.value());
-      ds.field("fill", &self.fill());
-      ds.finish()
-  }
-}
-pub enum CircleOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct Circle<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for Circle<'a> {
-  type Inner = Circle<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> Circle<'a> {
-  pub const VT_COLOR: flatbuffers::VOffsetT = 4;
-  pub const VT_CENTER: flatbuffers::VOffsetT = 6;
-  pub const VT_RADIUS: flatbuffers::VOffsetT = 8;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Circle { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args CircleArgs<'args>
-  ) -> flatbuffers::WIPOffset<Circle<'bldr>> {
-    let mut builder = CircleBuilder::new(_fbb);
-    builder.add_radius(args.radius);
-    if let Some(x) = args.center { builder.add_center(x); }
-    if let Some(x) = args.color { builder.add_color(x); }
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn color(&self) -> Option<Color<'a>> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<Color>>(Circle::VT_COLOR, None)}
-  }
-  #[inline]
-  pub fn center(&self) -> &'a Vector2f {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<Vector2f>(Circle::VT_CENTER, None).unwrap()}
-  }
-  #[inline]
-  pub fn radius(&self) -> f32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(Circle::VT_RADIUS, Some(0.0)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for Circle<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<Color>>("color", Self::VT_COLOR, false)?
-     .visit_field::<Vector2f>("center", Self::VT_CENTER, true)?
-     .visit_field::<f32>("radius", Self::VT_RADIUS, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct CircleArgs<'a> {
-    pub color: Option<flatbuffers::WIPOffset<Color<'a>>>,
-    pub center: Option<&'a Vector2f>,
-    pub radius: f32,
-}
-impl<'a> Default for CircleArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    CircleArgs {
-      color: None,
-      center: None, // required field
-      radius: 0.0,
-    }
-  }
-}
-
-pub struct CircleBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> CircleBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_color(&mut self, color: flatbuffers::WIPOffset<Color<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Color>>(Circle::VT_COLOR, color);
-  }
-  #[inline]
-  pub fn add_center(&mut self, center: &Vector2f) {
-    self.fbb_.push_slot_always::<&Vector2f>(Circle::VT_CENTER, center);
-  }
-  #[inline]
-  pub fn add_radius(&mut self, radius: f32) {
-    self.fbb_.push_slot::<f32>(Circle::VT_RADIUS, radius, 0.0);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> CircleBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    CircleBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Circle<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, Circle::VT_CENTER,"center");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for Circle<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Circle");
-      ds.field("color", &self.color());
-      ds.field("center", &self.center());
-      ds.field("radius", &self.radius());
-      ds.finish()
-  }
-}
-pub enum ArcOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct Arc<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for Arc<'a> {
-  type Inner = Arc<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> Arc<'a> {
-  pub const VT_COLOR: flatbuffers::VOffsetT = 4;
-  pub const VT_CENTER: flatbuffers::VOffsetT = 6;
-  pub const VT_RADIUS: flatbuffers::VOffsetT = 8;
-  pub const VT_START_ANGLE: flatbuffers::VOffsetT = 10;
-  pub const VT_END_ANGLE: flatbuffers::VOffsetT = 12;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Arc { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args ArcArgs<'args>
-  ) -> flatbuffers::WIPOffset<Arc<'bldr>> {
-    let mut builder = ArcBuilder::new(_fbb);
-    builder.add_end_angle(args.end_angle);
-    builder.add_start_angle(args.start_angle);
-    builder.add_radius(args.radius);
-    if let Some(x) = args.center { builder.add_center(x); }
-    if let Some(x) = args.color { builder.add_color(x); }
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn color(&self) -> Option<Color<'a>> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<Color>>(Arc::VT_COLOR, None)}
-  }
-  #[inline]
-  pub fn center(&self) -> &'a Vector2f {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<Vector2f>(Arc::VT_CENTER, None).unwrap()}
-  }
-  #[inline]
-  pub fn radius(&self) -> f32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(Arc::VT_RADIUS, Some(0.0)).unwrap()}
-  }
-  #[inline]
-  pub fn start_angle(&self) -> f32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(Arc::VT_START_ANGLE, Some(0.0)).unwrap()}
-  }
-  #[inline]
-  pub fn end_angle(&self) -> f32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(Arc::VT_END_ANGLE, Some(0.0)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for Arc<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<Color>>("color", Self::VT_COLOR, false)?
-     .visit_field::<Vector2f>("center", Self::VT_CENTER, true)?
-     .visit_field::<f32>("radius", Self::VT_RADIUS, false)?
-     .visit_field::<f32>("start_angle", Self::VT_START_ANGLE, false)?
-     .visit_field::<f32>("end_angle", Self::VT_END_ANGLE, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct ArcArgs<'a> {
-    pub color: Option<flatbuffers::WIPOffset<Color<'a>>>,
-    pub center: Option<&'a Vector2f>,
-    pub radius: f32,
-    pub start_angle: f32,
-    pub end_angle: f32,
-}
-impl<'a> Default for ArcArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    ArcArgs {
-      color: None,
-      center: None, // required field
-      radius: 0.0,
-      start_angle: 0.0,
-      end_angle: 0.0,
-    }
-  }
-}
-
-pub struct ArcBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ArcBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_color(&mut self, color: flatbuffers::WIPOffset<Color<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Color>>(Arc::VT_COLOR, color);
-  }
-  #[inline]
-  pub fn add_center(&mut self, center: &Vector2f) {
-    self.fbb_.push_slot_always::<&Vector2f>(Arc::VT_CENTER, center);
-  }
-  #[inline]
-  pub fn add_radius(&mut self, radius: f32) {
-    self.fbb_.push_slot::<f32>(Arc::VT_RADIUS, radius, 0.0);
-  }
-  #[inline]
-  pub fn add_start_angle(&mut self, start_angle: f32) {
-    self.fbb_.push_slot::<f32>(Arc::VT_START_ANGLE, start_angle, 0.0);
-  }
-  #[inline]
-  pub fn add_end_angle(&mut self, end_angle: f32) {
-    self.fbb_.push_slot::<f32>(Arc::VT_END_ANGLE, end_angle, 0.0);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> ArcBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    ArcBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Arc<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, Arc::VT_CENTER,"center");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for Arc<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Arc");
-      ds.field("color", &self.color());
-      ds.field("center", &self.center());
-      ds.field("radius", &self.radius());
-      ds.field("start_angle", &self.start_angle());
-      ds.field("end_angle", &self.end_angle());
-      ds.finish()
-  }
-}
-pub enum CircleSegmentOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct CircleSegment<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for CircleSegment<'a> {
-  type Inner = CircleSegment<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> CircleSegment<'a> {
-  pub const VT_COLOR: flatbuffers::VOffsetT = 4;
-  pub const VT_CENTER: flatbuffers::VOffsetT = 6;
-  pub const VT_RADIUS: flatbuffers::VOffsetT = 8;
-  pub const VT_START_ANGLE: flatbuffers::VOffsetT = 10;
-  pub const VT_END_ANGLE: flatbuffers::VOffsetT = 12;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    CircleSegment { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args CircleSegmentArgs<'args>
-  ) -> flatbuffers::WIPOffset<CircleSegment<'bldr>> {
-    let mut builder = CircleSegmentBuilder::new(_fbb);
-    builder.add_end_angle(args.end_angle);
-    builder.add_start_angle(args.start_angle);
-    builder.add_radius(args.radius);
-    if let Some(x) = args.center { builder.add_center(x); }
-    if let Some(x) = args.color { builder.add_color(x); }
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn color(&self) -> Option<Color<'a>> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<Color>>(CircleSegment::VT_COLOR, None)}
-  }
-  #[inline]
-  pub fn center(&self) -> &'a Vector2f {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<Vector2f>(CircleSegment::VT_CENTER, None).unwrap()}
-  }
-  #[inline]
-  pub fn radius(&self) -> f32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(CircleSegment::VT_RADIUS, Some(0.0)).unwrap()}
-  }
-  #[inline]
-  pub fn start_angle(&self) -> f32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(CircleSegment::VT_START_ANGLE, Some(0.0)).unwrap()}
-  }
-  #[inline]
-  pub fn end_angle(&self) -> f32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(CircleSegment::VT_END_ANGLE, Some(0.0)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for CircleSegment<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<Color>>("color", Self::VT_COLOR, false)?
-     .visit_field::<Vector2f>("center", Self::VT_CENTER, true)?
-     .visit_field::<f32>("radius", Self::VT_RADIUS, false)?
-     .visit_field::<f32>("start_angle", Self::VT_START_ANGLE, false)?
-     .visit_field::<f32>("end_angle", Self::VT_END_ANGLE, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct CircleSegmentArgs<'a> {
-    pub color: Option<flatbuffers::WIPOffset<Color<'a>>>,
-    pub center: Option<&'a Vector2f>,
-    pub radius: f32,
-    pub start_angle: f32,
-    pub end_angle: f32,
-}
-impl<'a> Default for CircleSegmentArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    CircleSegmentArgs {
-      color: None,
-      center: None, // required field
-      radius: 0.0,
-      start_angle: 0.0,
-      end_angle: 0.0,
-    }
-  }
-}
-
-pub struct CircleSegmentBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> CircleSegmentBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_color(&mut self, color: flatbuffers::WIPOffset<Color<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Color>>(CircleSegment::VT_COLOR, color);
-  }
-  #[inline]
-  pub fn add_center(&mut self, center: &Vector2f) {
-    self.fbb_.push_slot_always::<&Vector2f>(CircleSegment::VT_CENTER, center);
-  }
-  #[inline]
-  pub fn add_radius(&mut self, radius: f32) {
-    self.fbb_.push_slot::<f32>(CircleSegment::VT_RADIUS, radius, 0.0);
-  }
-  #[inline]
-  pub fn add_start_angle(&mut self, start_angle: f32) {
-    self.fbb_.push_slot::<f32>(CircleSegment::VT_START_ANGLE, start_angle, 0.0);
-  }
-  #[inline]
-  pub fn add_end_angle(&mut self, end_angle: f32) {
-    self.fbb_.push_slot::<f32>(CircleSegment::VT_END_ANGLE, end_angle, 0.0);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> CircleSegmentBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    CircleSegmentBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<CircleSegment<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, CircleSegment::VT_CENTER,"center");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for CircleSegment<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("CircleSegment");
-      ds.field("color", &self.color());
-      ds.field("center", &self.center());
-      ds.field("radius", &self.radius());
-      ds.field("start_angle", &self.start_angle());
-      ds.field("end_angle", &self.end_angle());
-      ds.finish()
-  }
-}
-pub enum TilesOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct Tiles<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for Tiles<'a> {
-  type Inner = Tiles<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> Tiles<'a> {
-  pub const VT_POSITION: flatbuffers::VOffsetT = 4;
-  pub const VT_CELL_SIZE: flatbuffers::VOffsetT = 6;
-  pub const VT_ROW_SIZE: flatbuffers::VOffsetT = 8;
-  pub const VT_COLORS: flatbuffers::VOffsetT = 10;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Tiles { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args TilesArgs<'args>
-  ) -> flatbuffers::WIPOffset<Tiles<'bldr>> {
-    let mut builder = TilesBuilder::new(_fbb);
-    if let Some(x) = args.colors { builder.add_colors(x); }
-    if let Some(x) = args.cell_size { builder.add_cell_size(x); }
-    if let Some(x) = args.position { builder.add_position(x); }
-    builder.add_row_size(args.row_size);
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn position(&self) -> &'a Vector2f {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<Vector2f>(Tiles::VT_POSITION, None).unwrap()}
-  }
-  #[inline]
-  pub fn cell_size(&self) -> &'a Vector2f {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<Vector2f>(Tiles::VT_CELL_SIZE, None).unwrap()}
-  }
-  #[inline]
-  pub fn row_size(&self) -> u16 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<u16>(Tiles::VT_ROW_SIZE, Some(0)).unwrap()}
-  }
-  #[inline]
-  pub fn colors(&self) -> flatbuffers::Vector<'a, u32> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(Tiles::VT_COLORS, None).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for Tiles<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<Vector2f>("position", Self::VT_POSITION, true)?
-     .visit_field::<Vector2f>("cell_size", Self::VT_CELL_SIZE, true)?
-     .visit_field::<u16>("row_size", Self::VT_ROW_SIZE, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>("colors", Self::VT_COLORS, true)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct TilesArgs<'a> {
-    pub position: Option<&'a Vector2f>,
-    pub cell_size: Option<&'a Vector2f>,
-    pub row_size: u16,
-    pub colors: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
-}
-impl<'a> Default for TilesArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    TilesArgs {
-      position: None, // required field
-      cell_size: None, // required field
-      row_size: 0,
-      colors: None, // required field
-    }
-  }
-}
-
-pub struct TilesBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> TilesBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_position(&mut self, position: &Vector2f) {
-    self.fbb_.push_slot_always::<&Vector2f>(Tiles::VT_POSITION, position);
-  }
-  #[inline]
-  pub fn add_cell_size(&mut self, cell_size: &Vector2f) {
-    self.fbb_.push_slot_always::<&Vector2f>(Tiles::VT_CELL_SIZE, cell_size);
-  }
-  #[inline]
-  pub fn add_row_size(&mut self, row_size: u16) {
-    self.fbb_.push_slot::<u16>(Tiles::VT_ROW_SIZE, row_size, 0);
-  }
-  #[inline]
-  pub fn add_colors(&mut self, colors: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Tiles::VT_COLORS, colors);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> TilesBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    TilesBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Tiles<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, Tiles::VT_POSITION,"position");
-    self.fbb_.required(o, Tiles::VT_CELL_SIZE,"cell_size");
-    self.fbb_.required(o, Tiles::VT_COLORS,"colors");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for Tiles<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Tiles");
-      ds.field("position", &self.position());
-      ds.field("cell_size", &self.cell_size());
-      ds.field("row_size", &self.row_size());
-      ds.field("colors", &self.colors());
-      ds.finish()
-  }
-}
-pub enum RectangleOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct Rectangle<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for Rectangle<'a> {
-  type Inner = Rectangle<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> Rectangle<'a> {
-  pub const VT_COLOR: flatbuffers::VOffsetT = 4;
-  pub const VT_POSITION: flatbuffers::VOffsetT = 6;
-  pub const VT_SIZE_: flatbuffers::VOffsetT = 8;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Rectangle { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args RectangleArgs<'args>
-  ) -> flatbuffers::WIPOffset<Rectangle<'bldr>> {
-    let mut builder = RectangleBuilder::new(_fbb);
-    if let Some(x) = args.size_ { builder.add_size_(x); }
-    if let Some(x) = args.position { builder.add_position(x); }
-    if let Some(x) = args.color { builder.add_color(x); }
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn color(&self) -> Option<Color<'a>> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<Color>>(Rectangle::VT_COLOR, None)}
-  }
-  #[inline]
-  pub fn position(&self) -> &'a Vector2f {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<Vector2f>(Rectangle::VT_POSITION, None).unwrap()}
-  }
-  #[inline]
-  pub fn size_(&self) -> &'a Vector2f {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<Vector2f>(Rectangle::VT_SIZE_, None).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for Rectangle<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<Color>>("color", Self::VT_COLOR, false)?
-     .visit_field::<Vector2f>("position", Self::VT_POSITION, true)?
-     .visit_field::<Vector2f>("size_", Self::VT_SIZE_, true)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct RectangleArgs<'a> {
-    pub color: Option<flatbuffers::WIPOffset<Color<'a>>>,
-    pub position: Option<&'a Vector2f>,
-    pub size_: Option<&'a Vector2f>,
-}
-impl<'a> Default for RectangleArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    RectangleArgs {
-      color: None,
-      position: None, // required field
-      size_: None, // required field
-    }
-  }
-}
-
-pub struct RectangleBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> RectangleBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_color(&mut self, color: flatbuffers::WIPOffset<Color<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Color>>(Rectangle::VT_COLOR, color);
-  }
-  #[inline]
-  pub fn add_position(&mut self, position: &Vector2f) {
-    self.fbb_.push_slot_always::<&Vector2f>(Rectangle::VT_POSITION, position);
-  }
-  #[inline]
-  pub fn add_size_(&mut self, size_: &Vector2f) {
-    self.fbb_.push_slot_always::<&Vector2f>(Rectangle::VT_SIZE_, size_);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> RectangleBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    RectangleBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Rectangle<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, Rectangle::VT_POSITION,"position");
-    self.fbb_.required(o, Rectangle::VT_SIZE_,"size_");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for Rectangle<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Rectangle");
-      ds.field("color", &self.color());
-      ds.field("position", &self.position());
-      ds.field("size_", &self.size_());
-      ds.finish()
-  }
-}
-pub enum TriangleOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct Triangle<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for Triangle<'a> {
-  type Inner = Triangle<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> Triangle<'a> {
-  pub const VT_COLOR: flatbuffers::VOffsetT = 4;
-  pub const VT_POINTS: flatbuffers::VOffsetT = 6;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Triangle { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args TriangleArgs<'args>
-  ) -> flatbuffers::WIPOffset<Triangle<'bldr>> {
-    let mut builder = TriangleBuilder::new(_fbb);
-    if let Some(x) = args.points { builder.add_points(x); }
-    if let Some(x) = args.color { builder.add_color(x); }
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn color(&self) -> Option<Color<'a>> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<Color>>(Triangle::VT_COLOR, None)}
-  }
-  #[inline]
-  pub fn points(&self) -> flatbuffers::Vector<'a, Vector2f> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, Vector2f>>>(Triangle::VT_POINTS, None).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for Triangle<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<Color>>("color", Self::VT_COLOR, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, Vector2f>>>("points", Self::VT_POINTS, true)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct TriangleArgs<'a> {
-    pub color: Option<flatbuffers::WIPOffset<Color<'a>>>,
-    pub points: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, Vector2f>>>,
-}
-impl<'a> Default for TriangleArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    TriangleArgs {
-      color: None,
-      points: None, // required field
-    }
-  }
-}
-
-pub struct TriangleBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> TriangleBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_color(&mut self, color: flatbuffers::WIPOffset<Color<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Color>>(Triangle::VT_COLOR, color);
-  }
-  #[inline]
-  pub fn add_points(&mut self, points: flatbuffers::WIPOffset<flatbuffers::Vector<'b , Vector2f>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Triangle::VT_POINTS, points);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> TriangleBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    TriangleBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Triangle<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, Triangle::VT_POINTS,"points");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for Triangle<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Triangle");
-      ds.field("color", &self.color());
-      ds.field("points", &self.points());
-      ds.finish()
-  }
-}
-pub enum PolylineOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct Polyline<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for Polyline<'a> {
-  type Inner = Polyline<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> Polyline<'a> {
-  pub const VT_COLOR: flatbuffers::VOffsetT = 4;
-  pub const VT_POINTS: flatbuffers::VOffsetT = 6;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Polyline { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args PolylineArgs<'args>
-  ) -> flatbuffers::WIPOffset<Polyline<'bldr>> {
-    let mut builder = PolylineBuilder::new(_fbb);
-    if let Some(x) = args.points { builder.add_points(x); }
-    if let Some(x) = args.color { builder.add_color(x); }
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn color(&self) -> Option<Color<'a>> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<Color>>(Polyline::VT_COLOR, None)}
-  }
-  #[inline]
-  pub fn points(&self) -> flatbuffers::Vector<'a, Vector2f> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, Vector2f>>>(Polyline::VT_POINTS, None).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for Polyline<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<Color>>("color", Self::VT_COLOR, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, Vector2f>>>("points", Self::VT_POINTS, true)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct PolylineArgs<'a> {
-    pub color: Option<flatbuffers::WIPOffset<Color<'a>>>,
-    pub points: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, Vector2f>>>,
-}
-impl<'a> Default for PolylineArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    PolylineArgs {
-      color: None,
-      points: None, // required field
-    }
-  }
-}
-
-pub struct PolylineBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> PolylineBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_color(&mut self, color: flatbuffers::WIPOffset<Color<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Color>>(Polyline::VT_COLOR, color);
-  }
-  #[inline]
-  pub fn add_points(&mut self, points: flatbuffers::WIPOffset<flatbuffers::Vector<'b , Vector2f>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Polyline::VT_POINTS, points);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> PolylineBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    PolylineBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Polyline<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, Polyline::VT_POINTS,"points");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for Polyline<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Polyline");
-      ds.field("color", &self.color());
-      ds.field("points", &self.points());
-      ds.finish()
-  }
-}
-pub enum LogTextOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct LogText<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for LogText<'a> {
-  type Inner = LogText<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> LogText<'a> {
-  pub const VT_TEXT: flatbuffers::VOffsetT = 4;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    LogText { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args LogTextArgs<'args>
-  ) -> flatbuffers::WIPOffset<LogText<'bldr>> {
-    let mut builder = LogTextBuilder::new(_fbb);
-    if let Some(x) = args.text { builder.add_text(x); }
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn text(&self) -> &'a str {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(LogText::VT_TEXT, None).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for LogText<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("text", Self::VT_TEXT, true)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct LogTextArgs<'a> {
-    pub text: Option<flatbuffers::WIPOffset<&'a str>>,
-}
-impl<'a> Default for LogTextArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    LogTextArgs {
-      text: None, // required field
-    }
-  }
-}
-
-pub struct LogTextBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> LogTextBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_text(&mut self, text: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(LogText::VT_TEXT, text);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> LogTextBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    LogTextBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<LogText<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, LogText::VT_TEXT,"text");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for LogText<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("LogText");
-      ds.field("text", &self.text());
-      ds.finish()
-  }
-}
-pub enum PopupOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct Popup<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for Popup<'a> {
-  type Inner = Popup<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> Popup<'a> {
-  pub const VT_TEXT: flatbuffers::VOffsetT = 4;
-  pub const VT_AREA_POSITION: flatbuffers::VOffsetT = 6;
-  pub const VT_AREA_SIZE: flatbuffers::VOffsetT = 8;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Popup { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args PopupArgs<'args>
-  ) -> flatbuffers::WIPOffset<Popup<'bldr>> {
-    let mut builder = PopupBuilder::new(_fbb);
-    if let Some(x) = args.area_size { builder.add_area_size(x); }
-    if let Some(x) = args.area_position { builder.add_area_position(x); }
-    if let Some(x) = args.text { builder.add_text(x); }
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn text(&self) -> &'a str {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Popup::VT_TEXT, None).unwrap()}
-  }
-  #[inline]
-  pub fn area_position(&self) -> &'a Vector2f {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<Vector2f>(Popup::VT_AREA_POSITION, None).unwrap()}
-  }
-  #[inline]
-  pub fn area_size(&self) -> &'a Vector2f {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<Vector2f>(Popup::VT_AREA_SIZE, None).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for Popup<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("text", Self::VT_TEXT, true)?
-     .visit_field::<Vector2f>("area_position", Self::VT_AREA_POSITION, true)?
-     .visit_field::<Vector2f>("area_size", Self::VT_AREA_SIZE, true)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct PopupArgs<'a> {
-    pub text: Option<flatbuffers::WIPOffset<&'a str>>,
-    pub area_position: Option<&'a Vector2f>,
-    pub area_size: Option<&'a Vector2f>,
-}
-impl<'a> Default for PopupArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    PopupArgs {
-      text: None, // required field
-      area_position: None, // required field
-      area_size: None, // required field
-    }
-  }
-}
-
-pub struct PopupBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> PopupBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_text(&mut self, text: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Popup::VT_TEXT, text);
-  }
-  #[inline]
-  pub fn add_area_position(&mut self, area_position: &Vector2f) {
-    self.fbb_.push_slot_always::<&Vector2f>(Popup::VT_AREA_POSITION, area_position);
-  }
-  #[inline]
-  pub fn add_area_size(&mut self, area_size: &Vector2f) {
-    self.fbb_.push_slot_always::<&Vector2f>(Popup::VT_AREA_SIZE, area_size);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> PopupBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    PopupBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Popup<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, Popup::VT_TEXT,"text");
-    self.fbb_.required(o, Popup::VT_AREA_POSITION,"area_position");
-    self.fbb_.required(o, Popup::VT_AREA_SIZE,"area_size");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for Popup<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Popup");
-      ds.field("text", &self.text());
-      ds.field("area_position", &self.area_position());
-      ds.field("area_size", &self.area_size());
-      ds.finish()
-  }
-}
-pub enum PopupRoundOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct PopupRound<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for PopupRound<'a> {
-  type Inner = PopupRound<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> PopupRound<'a> {
-  pub const VT_TEXT: flatbuffers::VOffsetT = 4;
-  pub const VT_AREA_CENTER: flatbuffers::VOffsetT = 6;
-  pub const VT_AREA_RADIUS: flatbuffers::VOffsetT = 8;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    PopupRound { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args PopupRoundArgs<'args>
-  ) -> flatbuffers::WIPOffset<PopupRound<'bldr>> {
-    let mut builder = PopupRoundBuilder::new(_fbb);
-    builder.add_area_radius(args.area_radius);
-    if let Some(x) = args.area_center { builder.add_area_center(x); }
-    if let Some(x) = args.text { builder.add_text(x); }
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn text(&self) -> &'a str {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(PopupRound::VT_TEXT, None).unwrap()}
-  }
-  #[inline]
-  pub fn area_center(&self) -> &'a Vector2f {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<Vector2f>(PopupRound::VT_AREA_CENTER, None).unwrap()}
-  }
-  #[inline]
-  pub fn area_radius(&self) -> f32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(PopupRound::VT_AREA_RADIUS, Some(0.0)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for PopupRound<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("text", Self::VT_TEXT, true)?
-     .visit_field::<Vector2f>("area_center", Self::VT_AREA_CENTER, true)?
-     .visit_field::<f32>("area_radius", Self::VT_AREA_RADIUS, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct PopupRoundArgs<'a> {
-    pub text: Option<flatbuffers::WIPOffset<&'a str>>,
-    pub area_center: Option<&'a Vector2f>,
-    pub area_radius: f32,
-}
-impl<'a> Default for PopupRoundArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    PopupRoundArgs {
-      text: None, // required field
-      area_center: None, // required field
-      area_radius: 0.0,
-    }
-  }
-}
-
-pub struct PopupRoundBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> PopupRoundBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_text(&mut self, text: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(PopupRound::VT_TEXT, text);
-  }
-  #[inline]
-  pub fn add_area_center(&mut self, area_center: &Vector2f) {
-    self.fbb_.push_slot_always::<&Vector2f>(PopupRound::VT_AREA_CENTER, area_center);
-  }
-  #[inline]
-  pub fn add_area_radius(&mut self, area_radius: f32) {
-    self.fbb_.push_slot::<f32>(PopupRound::VT_AREA_RADIUS, area_radius, 0.0);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> PopupRoundBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    PopupRoundBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<PopupRound<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, PopupRound::VT_TEXT,"text");
-    self.fbb_.required(o, PopupRound::VT_AREA_CENTER,"area_center");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for PopupRound<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("PopupRound");
-      ds.field("text", &self.text());
-      ds.field("area_center", &self.area_center());
-      ds.field("area_radius", &self.area_radius());
-      ds.finish()
-  }
-}
-pub enum CameraViewOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct CameraView<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for CameraView<'a> {
-  type Inner = CameraView<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> CameraView<'a> {
-  pub const VT_NAME: flatbuffers::VOffsetT = 4;
-  pub const VT_POSITION: flatbuffers::VOffsetT = 6;
-  pub const VT_VIEW_RADIUS: flatbuffers::VOffsetT = 8;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    CameraView { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args CameraViewArgs<'args>
-  ) -> flatbuffers::WIPOffset<CameraView<'bldr>> {
-    let mut builder = CameraViewBuilder::new(_fbb);
-    builder.add_view_radius(args.view_radius);
-    if let Some(x) = args.position { builder.add_position(x); }
-    if let Some(x) = args.name { builder.add_name(x); }
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn name(&self) -> &'a str {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(CameraView::VT_NAME, None).unwrap()}
-  }
-  #[inline]
-  pub fn position(&self) -> &'a Vector2f {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<Vector2f>(CameraView::VT_POSITION, None).unwrap()}
-  }
-  #[inline]
-  pub fn view_radius(&self) -> f32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(CameraView::VT_VIEW_RADIUS, Some(0.0)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for CameraView<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("name", Self::VT_NAME, true)?
-     .visit_field::<Vector2f>("position", Self::VT_POSITION, true)?
-     .visit_field::<f32>("view_radius", Self::VT_VIEW_RADIUS, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct CameraViewArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
-    pub position: Option<&'a Vector2f>,
-    pub view_radius: f32,
-}
-impl<'a> Default for CameraViewArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    CameraViewArgs {
-      name: None, // required field
-      position: None, // required field
-      view_radius: 0.0,
-    }
-  }
-}
-
-pub struct CameraViewBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> CameraViewBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CameraView::VT_NAME, name);
-  }
-  #[inline]
-  pub fn add_position(&mut self, position: &Vector2f) {
-    self.fbb_.push_slot_always::<&Vector2f>(CameraView::VT_POSITION, position);
-  }
-  #[inline]
-  pub fn add_view_radius(&mut self, view_radius: f32) {
-    self.fbb_.push_slot::<f32>(CameraView::VT_VIEW_RADIUS, view_radius, 0.0);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> CameraViewBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    CameraViewBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<CameraView<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, CameraView::VT_NAME,"name");
-    self.fbb_.required(o, CameraView::VT_POSITION,"position");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for CameraView<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("CameraView");
-      ds.field("name", &self.name());
-      ds.field("position", &self.position());
-      ds.field("view_radius", &self.view_radius());
-      ds.finish()
-  }
-}
-pub enum LayerOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct Layer<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for Layer<'a> {
-  type Inner = Layer<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> Layer<'a> {
-  pub const VT_ID: flatbuffers::VOffsetT = 4;
-  pub const VT_USE_PERMANENT_FRAME: flatbuffers::VOffsetT = 6;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Layer { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args LayerArgs
-  ) -> flatbuffers::WIPOffset<Layer<'bldr>> {
-    let mut builder = LayerBuilder::new(_fbb);
-    builder.add_id(args.id);
-    builder.add_use_permanent_frame(args.use_permanent_frame);
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn id(&self) -> u32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<u32>(Layer::VT_ID, Some(0)).unwrap()}
-  }
-  #[inline]
-  pub fn use_permanent_frame(&self) -> bool {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<bool>(Layer::VT_USE_PERMANENT_FRAME, Some(false)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for Layer<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<u32>("id", Self::VT_ID, false)?
-     .visit_field::<bool>("use_permanent_frame", Self::VT_USE_PERMANENT_FRAME, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct LayerArgs {
-    pub id: u32,
-    pub use_permanent_frame: bool,
-}
-impl<'a> Default for LayerArgs {
-  #[inline]
-  fn default() -> Self {
-    LayerArgs {
-      id: 0,
-      use_permanent_frame: false,
-    }
-  }
-}
-
-pub struct LayerBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> LayerBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_id(&mut self, id: u32) {
-    self.fbb_.push_slot::<u32>(Layer::VT_ID, id, 0);
-  }
-  #[inline]
-  pub fn add_use_permanent_frame(&mut self, use_permanent_frame: bool) {
-    self.fbb_.push_slot::<bool>(Layer::VT_USE_PERMANENT_FRAME, use_permanent_frame, false);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> LayerBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    LayerBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Layer<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for Layer<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Layer");
-      ds.field("id", &self.id());
-      ds.field("use_permanent_frame", &self.use_permanent_frame());
-      ds.finish()
-  }
-}
-pub enum MapOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct Map<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for Map<'a> {
-  type Inner = Map<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> Map<'a> {
-  pub const VT_POSITION: flatbuffers::VOffsetT = 4;
-  pub const VT_SIZE_: flatbuffers::VOffsetT = 6;
-  pub const VT_X_GRID: flatbuffers::VOffsetT = 8;
-  pub const VT_Y_GRID: flatbuffers::VOffsetT = 10;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Map { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args MapArgs<'args>
-  ) -> flatbuffers::WIPOffset<Map<'bldr>> {
-    let mut builder = MapBuilder::new(_fbb);
-    if let Some(x) = args.size_ { builder.add_size_(x); }
-    if let Some(x) = args.position { builder.add_position(x); }
-    builder.add_y_grid(args.y_grid);
-    builder.add_x_grid(args.x_grid);
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn position(&self) -> &'a Vector2f {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<Vector2f>(Map::VT_POSITION, None).unwrap()}
-  }
-  #[inline]
-  pub fn size_(&self) -> &'a Vector2f {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<Vector2f>(Map::VT_SIZE_, None).unwrap()}
-  }
-  #[inline]
-  pub fn x_grid(&self) -> u16 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<u16>(Map::VT_X_GRID, Some(0)).unwrap()}
-  }
-  #[inline]
-  pub fn y_grid(&self) -> u16 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<u16>(Map::VT_Y_GRID, Some(0)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for Map<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<Vector2f>("position", Self::VT_POSITION, true)?
-     .visit_field::<Vector2f>("size_", Self::VT_SIZE_, true)?
-     .visit_field::<u16>("x_grid", Self::VT_X_GRID, false)?
-     .visit_field::<u16>("y_grid", Self::VT_Y_GRID, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct MapArgs<'a> {
-    pub position: Option<&'a Vector2f>,
-    pub size_: Option<&'a Vector2f>,
-    pub x_grid: u16,
-    pub y_grid: u16,
-}
-impl<'a> Default for MapArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    MapArgs {
-      position: None, // required field
-      size_: None, // required field
-      x_grid: 0,
-      y_grid: 0,
-    }
-  }
-}
-
-pub struct MapBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> MapBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_position(&mut self, position: &Vector2f) {
-    self.fbb_.push_slot_always::<&Vector2f>(Map::VT_POSITION, position);
-  }
-  #[inline]
-  pub fn add_size_(&mut self, size_: &Vector2f) {
-    self.fbb_.push_slot_always::<&Vector2f>(Map::VT_SIZE_, size_);
-  }
-  #[inline]
-  pub fn add_x_grid(&mut self, x_grid: u16) {
-    self.fbb_.push_slot::<u16>(Map::VT_X_GRID, x_grid, 0);
-  }
-  #[inline]
-  pub fn add_y_grid(&mut self, y_grid: u16) {
-    self.fbb_.push_slot::<u16>(Map::VT_Y_GRID, y_grid, 0);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> MapBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    MapBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Map<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, Map::VT_POSITION,"position");
-    self.fbb_.required(o, Map::VT_SIZE_,"size_");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for Map<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Map");
-      ds.field("position", &self.position());
-      ds.field("size_", &self.size_());
-      ds.field("x_grid", &self.x_grid());
-      ds.field("y_grid", &self.y_grid());
-      ds.finish()
-  }
-}
-pub enum OptionsOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct Options<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for Options<'a> {
-  type Inner = Options<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> Options<'a> {
-  pub const VT_MAP: flatbuffers::VOffsetT = 4;
-  pub const VT_LAYER: flatbuffers::VOffsetT = 6;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Options { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args OptionsArgs<'args>
-  ) -> flatbuffers::WIPOffset<Options<'bldr>> {
-    let mut builder = OptionsBuilder::new(_fbb);
-    if let Some(x) = args.layer { builder.add_layer(x); }
-    if let Some(x) = args.map { builder.add_map(x); }
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn map(&self) -> Option<Map<'a>> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<Map>>(Options::VT_MAP, None)}
-  }
-  #[inline]
-  pub fn layer(&self) -> Option<Layer<'a>> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<Layer>>(Options::VT_LAYER, None)}
-  }
-}
-
-impl flatbuffers::Verifiable for Options<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<Map>>("map", Self::VT_MAP, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<Layer>>("layer", Self::VT_LAYER, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct OptionsArgs<'a> {
-    pub map: Option<flatbuffers::WIPOffset<Map<'a>>>,
-    pub layer: Option<flatbuffers::WIPOffset<Layer<'a>>>,
-}
-impl<'a> Default for OptionsArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    OptionsArgs {
-      map: None,
-      layer: None,
-    }
-  }
-}
-
-pub struct OptionsBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> OptionsBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_map(&mut self, map: flatbuffers::WIPOffset<Map<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Map>>(Options::VT_MAP, map);
-  }
-  #[inline]
-  pub fn add_layer(&mut self, layer: flatbuffers::WIPOffset<Layer<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Layer>>(Options::VT_LAYER, layer);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> OptionsBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    OptionsBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Options<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for Options<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Options");
-      ds.field("map", &self.map());
-      ds.field("layer", &self.layer());
-      ds.finish()
-  }
-}
-pub enum SubscribeOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct Subscribe<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for Subscribe<'a> {
-  type Inner = Subscribe<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> Subscribe<'a> {
-  pub const VT_KEY: flatbuffers::VOffsetT = 4;
-  pub const VT_NAME: flatbuffers::VOffsetT = 6;
-  pub const VT_CONTINUOUS: flatbuffers::VOffsetT = 8;
-  pub const VT_CAPTURE_MOUSE: flatbuffers::VOffsetT = 10;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Subscribe { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args SubscribeArgs<'args>
-  ) -> flatbuffers::WIPOffset<Subscribe<'bldr>> {
-    let mut builder = SubscribeBuilder::new(_fbb);
-    if let Some(x) = args.name { builder.add_name(x); }
-    builder.add_capture_mouse(args.capture_mouse);
-    builder.add_continuous(args.continuous);
-    builder.add_key(args.key);
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn key(&self) -> i8 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<i8>(Subscribe::VT_KEY, Some(0)).unwrap()}
-  }
-  #[inline]
-  pub fn name(&self) -> &'a str {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Subscribe::VT_NAME, None).unwrap()}
-  }
-  #[inline]
-  pub fn continuous(&self) -> bool {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<bool>(Subscribe::VT_CONTINUOUS, Some(false)).unwrap()}
-  }
-  #[inline]
-  pub fn capture_mouse(&self) -> bool {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<bool>(Subscribe::VT_CAPTURE_MOUSE, Some(false)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for Subscribe<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<i8>("key", Self::VT_KEY, false)?
-     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("name", Self::VT_NAME, true)?
-     .visit_field::<bool>("continuous", Self::VT_CONTINUOUS, false)?
-     .visit_field::<bool>("capture_mouse", Self::VT_CAPTURE_MOUSE, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct SubscribeArgs<'a> {
-    pub key: i8,
-    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
-    pub continuous: bool,
-    pub capture_mouse: bool,
-}
-impl<'a> Default for SubscribeArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    SubscribeArgs {
-      key: 0,
-      name: None, // required field
-      continuous: false,
-      capture_mouse: false,
-    }
-  }
-}
-
-pub struct SubscribeBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> SubscribeBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_key(&mut self, key: i8) {
-    self.fbb_.push_slot::<i8>(Subscribe::VT_KEY, key, 0);
-  }
-  #[inline]
-  pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Subscribe::VT_NAME, name);
-  }
-  #[inline]
-  pub fn add_continuous(&mut self, continuous: bool) {
-    self.fbb_.push_slot::<bool>(Subscribe::VT_CONTINUOUS, continuous, false);
-  }
-  #[inline]
-  pub fn add_capture_mouse(&mut self, capture_mouse: bool) {
-    self.fbb_.push_slot::<bool>(Subscribe::VT_CAPTURE_MOUSE, capture_mouse, false);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> SubscribeBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    SubscribeBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Subscribe<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, Subscribe::VT_NAME,"name");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for Subscribe<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Subscribe");
-      ds.field("key", &self.key());
-      ds.field("name", &self.name());
-      ds.field("continuous", &self.continuous());
-      ds.field("capture_mouse", &self.capture_mouse());
-      ds.finish()
-  }
-}
-pub enum UnsubscribeOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct Unsubscribe<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for Unsubscribe<'a> {
-  type Inner = Unsubscribe<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> Unsubscribe<'a> {
-  pub const VT_KEY: flatbuffers::VOffsetT = 4;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    Unsubscribe { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args UnsubscribeArgs
-  ) -> flatbuffers::WIPOffset<Unsubscribe<'bldr>> {
-    let mut builder = UnsubscribeBuilder::new(_fbb);
-    builder.add_key(args.key);
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn key(&self) -> i8 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<i8>(Unsubscribe::VT_KEY, Some(0)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for Unsubscribe<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<i8>("key", Self::VT_KEY, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct UnsubscribeArgs {
-    pub key: i8,
-}
-impl<'a> Default for UnsubscribeArgs {
-  #[inline]
-  fn default() -> Self {
-    UnsubscribeArgs {
-      key: 0,
-    }
-  }
-}
-
-pub struct UnsubscribeBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> UnsubscribeBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_key(&mut self, key: i8) {
-    self.fbb_.push_slot::<i8>(Unsubscribe::VT_KEY, key, 0);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> UnsubscribeBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    UnsubscribeBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<Unsubscribe<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for Unsubscribe<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("Unsubscribe");
-      ds.field("key", &self.key());
-      ds.finish()
-  }
-}
-pub enum IntInputOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct IntInput<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for IntInput<'a> {
-  type Inner = IntInput<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> IntInput<'a> {
-  pub const VT_DEFAULT_VALUE: flatbuffers::VOffsetT = 4;
-  pub const VT_MIN_VALUE: flatbuffers::VOffsetT = 6;
-  pub const VT_MAX_VALUE: flatbuffers::VOffsetT = 8;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    IntInput { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args IntInputArgs
-  ) -> flatbuffers::WIPOffset<IntInput<'bldr>> {
-    let mut builder = IntInputBuilder::new(_fbb);
-    builder.add_max_value(args.max_value);
-    builder.add_min_value(args.min_value);
-    builder.add_default_value(args.default_value);
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn default_value(&self) -> i32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<i32>(IntInput::VT_DEFAULT_VALUE, Some(0)).unwrap()}
-  }
-  #[inline]
-  pub fn min_value(&self) -> i32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<i32>(IntInput::VT_MIN_VALUE, Some(0)).unwrap()}
-  }
-  #[inline]
-  pub fn max_value(&self) -> i32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<i32>(IntInput::VT_MAX_VALUE, Some(0)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for IntInput<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<i32>("default_value", Self::VT_DEFAULT_VALUE, false)?
-     .visit_field::<i32>("min_value", Self::VT_MIN_VALUE, false)?
-     .visit_field::<i32>("max_value", Self::VT_MAX_VALUE, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct IntInputArgs {
-    pub default_value: i32,
-    pub min_value: i32,
-    pub max_value: i32,
-}
-impl<'a> Default for IntInputArgs {
-  #[inline]
-  fn default() -> Self {
-    IntInputArgs {
-      default_value: 0,
-      min_value: 0,
-      max_value: 0,
-    }
-  }
-}
-
-pub struct IntInputBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> IntInputBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_default_value(&mut self, default_value: i32) {
-    self.fbb_.push_slot::<i32>(IntInput::VT_DEFAULT_VALUE, default_value, 0);
-  }
-  #[inline]
-  pub fn add_min_value(&mut self, min_value: i32) {
-    self.fbb_.push_slot::<i32>(IntInput::VT_MIN_VALUE, min_value, 0);
-  }
-  #[inline]
-  pub fn add_max_value(&mut self, max_value: i32) {
-    self.fbb_.push_slot::<i32>(IntInput::VT_MAX_VALUE, max_value, 0);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> IntInputBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    IntInputBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<IntInput<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for IntInput<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("IntInput");
-      ds.field("default_value", &self.default_value());
-      ds.field("min_value", &self.min_value());
-      ds.field("max_value", &self.max_value());
-      ds.finish()
-  }
-}
-pub enum FloatInputOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct FloatInput<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for FloatInput<'a> {
-  type Inner = FloatInput<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> FloatInput<'a> {
-  pub const VT_DEFAULT_VALUE: flatbuffers::VOffsetT = 4;
-  pub const VT_MIN_VALUE: flatbuffers::VOffsetT = 6;
-  pub const VT_MAX_VALUE: flatbuffers::VOffsetT = 8;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    FloatInput { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args FloatInputArgs
-  ) -> flatbuffers::WIPOffset<FloatInput<'bldr>> {
-    let mut builder = FloatInputBuilder::new(_fbb);
-    builder.add_max_value(args.max_value);
-    builder.add_min_value(args.min_value);
-    builder.add_default_value(args.default_value);
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn default_value(&self) -> f32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(FloatInput::VT_DEFAULT_VALUE, Some(0.0)).unwrap()}
-  }
-  #[inline]
-  pub fn min_value(&self) -> f32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(FloatInput::VT_MIN_VALUE, Some(0.0)).unwrap()}
-  }
-  #[inline]
-  pub fn max_value(&self) -> f32 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<f32>(FloatInput::VT_MAX_VALUE, Some(0.0)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for FloatInput<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<f32>("default_value", Self::VT_DEFAULT_VALUE, false)?
-     .visit_field::<f32>("min_value", Self::VT_MIN_VALUE, false)?
-     .visit_field::<f32>("max_value", Self::VT_MAX_VALUE, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct FloatInputArgs {
-    pub default_value: f32,
-    pub min_value: f32,
-    pub max_value: f32,
-}
-impl<'a> Default for FloatInputArgs {
-  #[inline]
-  fn default() -> Self {
-    FloatInputArgs {
-      default_value: 0.0,
-      min_value: 0.0,
-      max_value: 0.0,
-    }
-  }
-}
-
-pub struct FloatInputBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> FloatInputBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_default_value(&mut self, default_value: f32) {
-    self.fbb_.push_slot::<f32>(FloatInput::VT_DEFAULT_VALUE, default_value, 0.0);
-  }
-  #[inline]
-  pub fn add_min_value(&mut self, min_value: f32) {
-    self.fbb_.push_slot::<f32>(FloatInput::VT_MIN_VALUE, min_value, 0.0);
-  }
-  #[inline]
-  pub fn add_max_value(&mut self, max_value: f32) {
-    self.fbb_.push_slot::<f32>(FloatInput::VT_MAX_VALUE, max_value, 0.0);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> FloatInputBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    FloatInputBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FloatInput<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for FloatInput<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("FloatInput");
-      ds.field("default_value", &self.default_value());
-      ds.field("min_value", &self.min_value());
-      ds.field("max_value", &self.max_value());
-      ds.finish()
-  }
-}
-pub enum SelectInputOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct SelectInput<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for SelectInput<'a> {
-  type Inner = SelectInput<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> SelectInput<'a> {
-  pub const VT_OPTIONS: flatbuffers::VOffsetT = 4;
-  pub const VT_SELECTED_OPTION: flatbuffers::VOffsetT = 6;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    SelectInput { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args SelectInputArgs<'args>
-  ) -> flatbuffers::WIPOffset<SelectInput<'bldr>> {
-    let mut builder = SelectInputBuilder::new(_fbb);
-    if let Some(x) = args.options { builder.add_options(x); }
-    builder.add_selected_option(args.selected_option);
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn options(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<&'a str>> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<&'a str>>>>(SelectInput::VT_OPTIONS, None).unwrap()}
-  }
-  #[inline]
-  pub fn selected_option(&self) -> u16 {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<u16>(SelectInput::VT_SELECTED_OPTION, Some(0)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for SelectInput<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<&'_ str>>>>("options", Self::VT_OPTIONS, true)?
-     .visit_field::<u16>("selected_option", Self::VT_SELECTED_OPTION, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct SelectInputArgs<'a> {
-    pub options: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<&'a str>>>>,
-    pub selected_option: u16,
-}
-impl<'a> Default for SelectInputArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    SelectInputArgs {
-      options: None, // required field
-      selected_option: 0,
-    }
-  }
-}
-
-pub struct SelectInputBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> SelectInputBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_options(&mut self, options: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<&'b  str>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(SelectInput::VT_OPTIONS, options);
-  }
-  #[inline]
-  pub fn add_selected_option(&mut self, selected_option: u16) {
-    self.fbb_.push_slot::<u16>(SelectInput::VT_SELECTED_OPTION, selected_option, 0);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> SelectInputBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    SelectInputBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<SelectInput<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, SelectInput::VT_OPTIONS,"options");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for SelectInput<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("SelectInput");
-      ds.field("options", &self.options());
-      ds.field("selected_option", &self.selected_option());
-      ds.finish()
-  }
-}
-pub enum StringInputOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct StringInput<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for StringInput<'a> {
-  type Inner = StringInput<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> StringInput<'a> {
-  pub const VT_DEFAULT_VALUE: flatbuffers::VOffsetT = 4;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    StringInput { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args StringInputArgs<'args>
-  ) -> flatbuffers::WIPOffset<StringInput<'bldr>> {
-    let mut builder = StringInputBuilder::new(_fbb);
-    if let Some(x) = args.default_value { builder.add_default_value(x); }
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn default_value(&self) -> Option<&'a str> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(StringInput::VT_DEFAULT_VALUE, None)}
-  }
-}
-
-impl flatbuffers::Verifiable for StringInput<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("default_value", Self::VT_DEFAULT_VALUE, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct StringInputArgs<'a> {
-    pub default_value: Option<flatbuffers::WIPOffset<&'a str>>,
-}
-impl<'a> Default for StringInputArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    StringInputArgs {
-      default_value: None,
-    }
-  }
-}
-
-pub struct StringInputBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> StringInputBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_default_value(&mut self, default_value: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(StringInput::VT_DEFAULT_VALUE, default_value);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> StringInputBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    StringInputBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<StringInput<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for StringInput<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("StringInput");
-      ds.field("default_value", &self.default_value());
-      ds.finish()
-  }
-}
-pub enum BoolInputOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct BoolInput<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for BoolInput<'a> {
-  type Inner = BoolInput<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> BoolInput<'a> {
-  pub const VT_DEFAULT_VALUE: flatbuffers::VOffsetT = 4;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    BoolInput { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args BoolInputArgs
-  ) -> flatbuffers::WIPOffset<BoolInput<'bldr>> {
-    let mut builder = BoolInputBuilder::new(_fbb);
-    builder.add_default_value(args.default_value);
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn default_value(&self) -> bool {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<bool>(BoolInput::VT_DEFAULT_VALUE, Some(false)).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for BoolInput<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<bool>("default_value", Self::VT_DEFAULT_VALUE, false)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct BoolInputArgs {
-    pub default_value: bool,
-}
-impl<'a> Default for BoolInputArgs {
-  #[inline]
-  fn default() -> Self {
-    BoolInputArgs {
-      default_value: false,
-    }
-  }
-}
-
-pub struct BoolInputBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> BoolInputBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_default_value(&mut self, default_value: bool) {
-    self.fbb_.push_slot::<bool>(BoolInput::VT_DEFAULT_VALUE, default_value, false);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> BoolInputBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    BoolInputBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<BoolInput<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for BoolInput<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("BoolInput");
-      ds.field("default_value", &self.default_value());
-      ds.finish()
-  }
-}
-pub enum ButtonInputOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct ButtonInput<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for ButtonInput<'a> {
-  type Inner = ButtonInput<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> ButtonInput<'a> {
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    ButtonInput { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    _args: &'args ButtonInputArgs
-  ) -> flatbuffers::WIPOffset<ButtonInput<'bldr>> {
-    let mut builder = ButtonInputBuilder::new(_fbb);
-    builder.finish()
-  }
-
-}
-
-impl flatbuffers::Verifiable for ButtonInput<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct ButtonInputArgs {
-}
-impl<'a> Default for ButtonInputArgs {
-  #[inline]
-  fn default() -> Self {
-    ButtonInputArgs {
-    }
-  }
-}
-
-pub struct ButtonInputBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ButtonInputBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> ButtonInputBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    ButtonInputBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<ButtonInput<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for ButtonInput<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("ButtonInput");
-      ds.finish()
-  }
-}
-pub enum CreateActionOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct CreateAction<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for CreateAction<'a> {
-  type Inner = CreateAction<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> CreateAction<'a> {
-  pub const VT_NAME: flatbuffers::VOffsetT = 4;
-  pub const VT_INPUT_TYPE: flatbuffers::VOffsetT = 6;
-  pub const VT_INPUT: flatbuffers::VOffsetT = 8;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    CreateAction { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args CreateActionArgs<'args>
-  ) -> flatbuffers::WIPOffset<CreateAction<'bldr>> {
-    let mut builder = CreateActionBuilder::new(_fbb);
-    if let Some(x) = args.input { builder.add_input(x); }
-    if let Some(x) = args.name { builder.add_name(x); }
-    builder.add_input_type(args.input_type);
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn name(&self) -> &'a str {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(CreateAction::VT_NAME, None).unwrap()}
-  }
-  #[inline]
-  pub fn input_type(&self) -> ActionInput {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<ActionInput>(CreateAction::VT_INPUT_TYPE, Some(ActionInput::NONE)).unwrap()}
-  }
-  #[inline]
-  pub fn input(&self) -> Option<flatbuffers::Table<'a>> {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Table<'a>>>(CreateAction::VT_INPUT, None)}
-  }
-  #[inline]
-  #[allow(non_snake_case)]
-  pub fn input_as_bool_input(&self) -> Option<BoolInput<'a>> {
-    if self.input_type() == ActionInput::BoolInput {
-      self.input().map(|t| {
-       // Safety:
-       // Created from a valid Table for this object
-       // Which contains a valid union in this slot
-       unsafe { BoolInput::init_from_table(t) }
-     })
-    } else {
-      None
-    }
-  }
-
-  #[inline]
-  #[allow(non_snake_case)]
-  pub fn input_as_button_input(&self) -> Option<ButtonInput<'a>> {
-    if self.input_type() == ActionInput::ButtonInput {
-      self.input().map(|t| {
-       // Safety:
-       // Created from a valid Table for this object
-       // Which contains a valid union in this slot
-       unsafe { ButtonInput::init_from_table(t) }
-     })
-    } else {
-      None
-    }
-  }
-
-  #[inline]
-  #[allow(non_snake_case)]
-  pub fn input_as_float_input(&self) -> Option<FloatInput<'a>> {
-    if self.input_type() == ActionInput::FloatInput {
-      self.input().map(|t| {
-       // Safety:
-       // Created from a valid Table for this object
-       // Which contains a valid union in this slot
-       unsafe { FloatInput::init_from_table(t) }
-     })
-    } else {
-      None
-    }
-  }
-
-  #[inline]
-  #[allow(non_snake_case)]
-  pub fn input_as_int_input(&self) -> Option<IntInput<'a>> {
-    if self.input_type() == ActionInput::IntInput {
-      self.input().map(|t| {
-       // Safety:
-       // Created from a valid Table for this object
-       // Which contains a valid union in this slot
-       unsafe { IntInput::init_from_table(t) }
-     })
-    } else {
-      None
-    }
-  }
-
-  #[inline]
-  #[allow(non_snake_case)]
-  pub fn input_as_select_input(&self) -> Option<SelectInput<'a>> {
-    if self.input_type() == ActionInput::SelectInput {
-      self.input().map(|t| {
-       // Safety:
-       // Created from a valid Table for this object
-       // Which contains a valid union in this slot
-       unsafe { SelectInput::init_from_table(t) }
-     })
-    } else {
-      None
-    }
-  }
-
-  #[inline]
-  #[allow(non_snake_case)]
-  pub fn input_as_string_input(&self) -> Option<StringInput<'a>> {
-    if self.input_type() == ActionInput::StringInput {
-      self.input().map(|t| {
-       // Safety:
-       // Created from a valid Table for this object
-       // Which contains a valid union in this slot
-       unsafe { StringInput::init_from_table(t) }
-     })
-    } else {
-      None
-    }
-  }
-
-}
-
-impl flatbuffers::Verifiable for CreateAction<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("name", Self::VT_NAME, true)?
-     .visit_union::<ActionInput, _>("input_type", Self::VT_INPUT_TYPE, "input", Self::VT_INPUT, false, |key, v, pos| {
-        match key {
-          ActionInput::BoolInput => v.verify_union_variant::<flatbuffers::ForwardsUOffset<BoolInput>>("ActionInput::BoolInput", pos),
-          ActionInput::ButtonInput => v.verify_union_variant::<flatbuffers::ForwardsUOffset<ButtonInput>>("ActionInput::ButtonInput", pos),
-          ActionInput::FloatInput => v.verify_union_variant::<flatbuffers::ForwardsUOffset<FloatInput>>("ActionInput::FloatInput", pos),
-          ActionInput::IntInput => v.verify_union_variant::<flatbuffers::ForwardsUOffset<IntInput>>("ActionInput::IntInput", pos),
-          ActionInput::SelectInput => v.verify_union_variant::<flatbuffers::ForwardsUOffset<SelectInput>>("ActionInput::SelectInput", pos),
-          ActionInput::StringInput => v.verify_union_variant::<flatbuffers::ForwardsUOffset<StringInput>>("ActionInput::StringInput", pos),
-          _ => Ok(()),
-        }
-     })?
-     .finish();
-    Ok(())
-  }
-}
-pub struct CreateActionArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
-    pub input_type: ActionInput,
-    pub input: Option<flatbuffers::WIPOffset<flatbuffers::UnionWIPOffset>>,
-}
-impl<'a> Default for CreateActionArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    CreateActionArgs {
-      name: None, // required field
-      input_type: ActionInput::NONE,
-      input: None,
-    }
-  }
-}
-
-pub struct CreateActionBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> CreateActionBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CreateAction::VT_NAME, name);
-  }
-  #[inline]
-  pub fn add_input_type(&mut self, input_type: ActionInput) {
-    self.fbb_.push_slot::<ActionInput>(CreateAction::VT_INPUT_TYPE, input_type, ActionInput::NONE);
-  }
-  #[inline]
-  pub fn add_input(&mut self, input: flatbuffers::WIPOffset<flatbuffers::UnionWIPOffset>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(CreateAction::VT_INPUT, input);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> CreateActionBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    CreateActionBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<CreateAction<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, CreateAction::VT_NAME,"name");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for CreateAction<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("CreateAction");
-      ds.field("name", &self.name());
-      ds.field("input_type", &self.input_type());
-      match self.input_type() {
-        ActionInput::BoolInput => {
-          if let Some(x) = self.input_as_bool_input() {
-            ds.field("input", &x)
-          } else {
-            ds.field("input", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
-        ActionInput::ButtonInput => {
-          if let Some(x) = self.input_as_button_input() {
-            ds.field("input", &x)
-          } else {
-            ds.field("input", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
-        ActionInput::FloatInput => {
-          if let Some(x) = self.input_as_float_input() {
-            ds.field("input", &x)
-          } else {
-            ds.field("input", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
-        ActionInput::IntInput => {
-          if let Some(x) = self.input_as_int_input() {
-            ds.field("input", &x)
-          } else {
-            ds.field("input", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
-        ActionInput::SelectInput => {
-          if let Some(x) = self.input_as_select_input() {
-            ds.field("input", &x)
-          } else {
-            ds.field("input", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
-        ActionInput::StringInput => {
-          if let Some(x) = self.input_as_string_input() {
-            ds.field("input", &x)
-          } else {
-            ds.field("input", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
-        _ => {
-          let x: Option<()> = None;
-          ds.field("input", &x)
-        },
-      };
-      ds.finish()
-  }
-}
-pub enum RemoveActionOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct RemoveAction<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for RemoveAction<'a> {
-  type Inner = RemoveAction<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> RemoveAction<'a> {
-  pub const VT_NAME: flatbuffers::VOffsetT = 4;
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    RemoveAction { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    args: &'args RemoveActionArgs<'args>
-  ) -> flatbuffers::WIPOffset<RemoveAction<'bldr>> {
-    let mut builder = RemoveActionBuilder::new(_fbb);
-    if let Some(x) = args.name { builder.add_name(x); }
-    builder.finish()
-  }
-
-
-  #[inline]
-  pub fn name(&self) -> &'a str {
-    // Safety:
-    // Created from valid Table for this object
-    // which contains a valid value in this slot
-    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(RemoveAction::VT_NAME, None).unwrap()}
-  }
-}
-
-impl flatbuffers::Verifiable for RemoveAction<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("name", Self::VT_NAME, true)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct RemoveActionArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
-}
-impl<'a> Default for RemoveActionArgs<'a> {
-  #[inline]
-  fn default() -> Self {
-    RemoveActionArgs {
-      name: None, // required field
-    }
-  }
-}
-
-pub struct RemoveActionBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> RemoveActionBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(RemoveAction::VT_NAME, name);
-  }
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> RemoveActionBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    RemoveActionBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<RemoveAction<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, RemoveAction::VT_NAME,"name");
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for RemoveAction<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("RemoveAction");
-      ds.field("name", &self.name());
-      ds.finish()
-  }
-}
-pub enum ReadEventsOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct ReadEvents<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for ReadEvents<'a> {
-  type Inner = ReadEvents<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> ReadEvents<'a> {
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    ReadEvents { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    _args: &'args ReadEventsArgs
-  ) -> flatbuffers::WIPOffset<ReadEvents<'bldr>> {
-    let mut builder = ReadEventsBuilder::new(_fbb);
-    builder.finish()
-  }
-
-}
-
-impl flatbuffers::Verifiable for ReadEvents<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct ReadEventsArgs {
-}
-impl<'a> Default for ReadEventsArgs {
-  #[inline]
-  fn default() -> Self {
-    ReadEventsArgs {
-    }
-  }
-}
-
-pub struct ReadEventsBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> ReadEventsBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> ReadEventsBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    ReadEventsBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<ReadEvents<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for ReadEvents<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("ReadEvents");
-      ds.finish()
-  }
-}
-pub enum EndFrameOffset {}
-#[derive(Copy, Clone, PartialEq)]
-
-pub struct EndFrame<'a> {
-  pub _tab: flatbuffers::Table<'a>,
-}
-
-impl<'a> flatbuffers::Follow<'a> for EndFrame<'a> {
-  type Inner = EndFrame<'a>;
-  #[inline]
-  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    Self { _tab: flatbuffers::Table::new(buf, loc) }
-  }
-}
-
-impl<'a> EndFrame<'a> {
-
-  #[inline]
-  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-    EndFrame { _tab: table }
-  }
-  #[allow(unused_mut)]
-  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
-    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
-    _args: &'args EndFrameArgs
-  ) -> flatbuffers::WIPOffset<EndFrame<'bldr>> {
-    let mut builder = EndFrameBuilder::new(_fbb);
-    builder.finish()
-  }
-
-}
-
-impl flatbuffers::Verifiable for EndFrame<'_> {
-  #[inline]
-  fn run_verifier(
-    v: &mut flatbuffers::Verifier, pos: usize
-  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
-    use self::flatbuffers::Verifiable;
-    v.visit_table(pos)?
-     .finish();
-    Ok(())
-  }
-}
-pub struct EndFrameArgs {
-}
-impl<'a> Default for EndFrameArgs {
-  #[inline]
-  fn default() -> Self {
-    EndFrameArgs {
-    }
-  }
-}
-
-pub struct EndFrameBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
-  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
-  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
-}
-impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> EndFrameBuilder<'a, 'b, A> {
-  #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> EndFrameBuilder<'a, 'b, A> {
-    let start = _fbb.start_table();
-    EndFrameBuilder {
-      fbb_: _fbb,
-      start_: start,
-    }
-  }
-  #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<EndFrame<'a>> {
-    let o = self.fbb_.end_table(self.start_);
-    flatbuffers::WIPOffset::new(o.value())
-  }
-}
-
-impl core::fmt::Debug for EndFrame<'_> {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    let mut ds = f.debug_struct("EndFrame");
-      ds.finish()
-  }
-}
 pub enum RewindMessageOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -3740,13 +263,13 @@ impl<'a> RewindMessage<'a> {
   }
   #[inline]
   #[allow(non_snake_case)]
-  pub fn command_as_arc(&self) -> Option<Arc<'a>> {
-    if self.command_type() == Command::Arc {
+  pub fn command_as_subscribe(&self) -> Option<Subscribe<'a>> {
+    if self.command_type() == Command::Subscribe {
       let u = self.command();
       // Safety:
       // Created from a valid Table for this object
       // Which contains a valid union in this slot
-      Some(unsafe { Arc::init_from_table(u) })
+      Some(unsafe { Subscribe::init_from_table(u) })
     } else {
       None
     }
@@ -3754,13 +277,111 @@ impl<'a> RewindMessage<'a> {
 
   #[inline]
   #[allow(non_snake_case)]
-  pub fn command_as_camera_view(&self) -> Option<CameraView<'a>> {
-    if self.command_type() == Command::CameraView {
+  pub fn command_as_unsubscribe(&self) -> Option<Unsubscribe<'a>> {
+    if self.command_type() == Command::Unsubscribe {
       let u = self.command();
       // Safety:
       // Created from a valid Table for this object
       // Which contains a valid union in this slot
-      Some(unsafe { CameraView::init_from_table(u) })
+      Some(unsafe { Unsubscribe::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_create_action(&self) -> Option<CreateAction<'a>> {
+    if self.command_type() == Command::CreateAction {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { CreateAction::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_remove_action(&self) -> Option<RemoveAction<'a>> {
+    if self.command_type() == Command::RemoveAction {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { RemoveAction::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_read_events(&self) -> Option<ReadEvents<'a>> {
+    if self.command_type() == Command::ReadEvents {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { ReadEvents::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_layer(&self) -> Option<Layer<'a>> {
+    if self.command_type() == Command::Layer {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { Layer::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_map(&self) -> Option<Map<'a>> {
+    if self.command_type() == Command::Map {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { Map::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_end_frame(&self) -> Option<EndFrame<'a>> {
+    if self.command_type() == Command::EndFrame {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { EndFrame::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_arc(&self) -> Option<Arc<'a>> {
+    if self.command_type() == Command::Arc {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { Arc::init_from_table(u) })
     } else {
       None
     }
@@ -3796,48 +417,6 @@ impl<'a> RewindMessage<'a> {
 
   #[inline]
   #[allow(non_snake_case)]
-  pub fn command_as_create_action(&self) -> Option<CreateAction<'a>> {
-    if self.command_type() == Command::CreateAction {
-      let u = self.command();
-      // Safety:
-      // Created from a valid Table for this object
-      // Which contains a valid union in this slot
-      Some(unsafe { CreateAction::init_from_table(u) })
-    } else {
-      None
-    }
-  }
-
-  #[inline]
-  #[allow(non_snake_case)]
-  pub fn command_as_log_text(&self) -> Option<LogText<'a>> {
-    if self.command_type() == Command::LogText {
-      let u = self.command();
-      // Safety:
-      // Created from a valid Table for this object
-      // Which contains a valid union in this slot
-      Some(unsafe { LogText::init_from_table(u) })
-    } else {
-      None
-    }
-  }
-
-  #[inline]
-  #[allow(non_snake_case)]
-  pub fn command_as_options(&self) -> Option<Options<'a>> {
-    if self.command_type() == Command::Options {
-      let u = self.command();
-      // Safety:
-      // Created from a valid Table for this object
-      // Which contains a valid union in this slot
-      Some(unsafe { Options::init_from_table(u) })
-    } else {
-      None
-    }
-  }
-
-  #[inline]
-  #[allow(non_snake_case)]
   pub fn command_as_polyline(&self) -> Option<Polyline<'a>> {
     if self.command_type() == Command::Polyline {
       let u = self.command();
@@ -3852,48 +431,6 @@ impl<'a> RewindMessage<'a> {
 
   #[inline]
   #[allow(non_snake_case)]
-  pub fn command_as_popup(&self) -> Option<Popup<'a>> {
-    if self.command_type() == Command::Popup {
-      let u = self.command();
-      // Safety:
-      // Created from a valid Table for this object
-      // Which contains a valid union in this slot
-      Some(unsafe { Popup::init_from_table(u) })
-    } else {
-      None
-    }
-  }
-
-  #[inline]
-  #[allow(non_snake_case)]
-  pub fn command_as_popup_round(&self) -> Option<PopupRound<'a>> {
-    if self.command_type() == Command::PopupRound {
-      let u = self.command();
-      // Safety:
-      // Created from a valid Table for this object
-      // Which contains a valid union in this slot
-      Some(unsafe { PopupRound::init_from_table(u) })
-    } else {
-      None
-    }
-  }
-
-  #[inline]
-  #[allow(non_snake_case)]
-  pub fn command_as_read_events(&self) -> Option<ReadEvents<'a>> {
-    if self.command_type() == Command::ReadEvents {
-      let u = self.command();
-      // Safety:
-      // Created from a valid Table for this object
-      // Which contains a valid union in this slot
-      Some(unsafe { ReadEvents::init_from_table(u) })
-    } else {
-      None
-    }
-  }
-
-  #[inline]
-  #[allow(non_snake_case)]
   pub fn command_as_rectangle(&self) -> Option<Rectangle<'a>> {
     if self.command_type() == Command::Rectangle {
       let u = self.command();
@@ -3901,34 +438,6 @@ impl<'a> RewindMessage<'a> {
       // Created from a valid Table for this object
       // Which contains a valid union in this slot
       Some(unsafe { Rectangle::init_from_table(u) })
-    } else {
-      None
-    }
-  }
-
-  #[inline]
-  #[allow(non_snake_case)]
-  pub fn command_as_remove_action(&self) -> Option<RemoveAction<'a>> {
-    if self.command_type() == Command::RemoveAction {
-      let u = self.command();
-      // Safety:
-      // Created from a valid Table for this object
-      // Which contains a valid union in this slot
-      Some(unsafe { RemoveAction::init_from_table(u) })
-    } else {
-      None
-    }
-  }
-
-  #[inline]
-  #[allow(non_snake_case)]
-  pub fn command_as_subscribe(&self) -> Option<Subscribe<'a>> {
-    if self.command_type() == Command::Subscribe {
-      let u = self.command();
-      // Safety:
-      // Created from a valid Table for this object
-      // Which contains a valid union in this slot
-      Some(unsafe { Subscribe::init_from_table(u) })
     } else {
       None
     }
@@ -3964,13 +473,13 @@ impl<'a> RewindMessage<'a> {
 
   #[inline]
   #[allow(non_snake_case)]
-  pub fn command_as_unsubscribe(&self) -> Option<Unsubscribe<'a>> {
-    if self.command_type() == Command::Unsubscribe {
+  pub fn command_as_start_proto(&self) -> Option<StartProto<'a>> {
+    if self.command_type() == Command::StartProto {
       let u = self.command();
       // Safety:
       // Created from a valid Table for this object
       // Which contains a valid union in this slot
-      Some(unsafe { Unsubscribe::init_from_table(u) })
+      Some(unsafe { StartProto::init_from_table(u) })
     } else {
       None
     }
@@ -3978,13 +487,83 @@ impl<'a> RewindMessage<'a> {
 
   #[inline]
   #[allow(non_snake_case)]
-  pub fn command_as_end_frame(&self) -> Option<EndFrame<'a>> {
-    if self.command_type() == Command::EndFrame {
+  pub fn command_as_end_proto(&self) -> Option<EndProto<'a>> {
+    if self.command_type() == Command::EndProto {
       let u = self.command();
       // Safety:
       // Created from a valid Table for this object
       // Which contains a valid union in this slot
-      Some(unsafe { EndFrame::init_from_table(u) })
+      Some(unsafe { EndProto::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_draw_proto(&self) -> Option<DrawProto<'a>> {
+    if self.command_type() == Command::DrawProto {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { DrawProto::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_log_text(&self) -> Option<LogText<'a>> {
+    if self.command_type() == Command::LogText {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { LogText::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_popup(&self) -> Option<Popup<'a>> {
+    if self.command_type() == Command::Popup {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { Popup::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_popup_round(&self) -> Option<PopupRound<'a>> {
+    if self.command_type() == Command::PopupRound {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { PopupRound::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_camera_view(&self) -> Option<CameraView<'a>> {
+    if self.command_type() == Command::CameraView {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { CameraView::init_from_table(u) })
     } else {
       None
     }
@@ -4001,24 +580,28 @@ impl flatbuffers::Verifiable for RewindMessage<'_> {
     v.visit_table(pos)?
      .visit_union::<Command, _>("command_type", Self::VT_COMMAND_TYPE, "command", Self::VT_COMMAND, true, |key, v, pos| {
         match key {
+          Command::Subscribe => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Subscribe>>("Command::Subscribe", pos),
+          Command::Unsubscribe => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Unsubscribe>>("Command::Unsubscribe", pos),
+          Command::CreateAction => v.verify_union_variant::<flatbuffers::ForwardsUOffset<CreateAction>>("Command::CreateAction", pos),
+          Command::RemoveAction => v.verify_union_variant::<flatbuffers::ForwardsUOffset<RemoveAction>>("Command::RemoveAction", pos),
+          Command::ReadEvents => v.verify_union_variant::<flatbuffers::ForwardsUOffset<ReadEvents>>("Command::ReadEvents", pos),
+          Command::Layer => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Layer>>("Command::Layer", pos),
+          Command::Map => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Map>>("Command::Map", pos),
+          Command::EndFrame => v.verify_union_variant::<flatbuffers::ForwardsUOffset<EndFrame>>("Command::EndFrame", pos),
           Command::Arc => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Arc>>("Command::Arc", pos),
-          Command::CameraView => v.verify_union_variant::<flatbuffers::ForwardsUOffset<CameraView>>("Command::CameraView", pos),
           Command::Circle => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Circle>>("Command::Circle", pos),
           Command::CircleSegment => v.verify_union_variant::<flatbuffers::ForwardsUOffset<CircleSegment>>("Command::CircleSegment", pos),
-          Command::CreateAction => v.verify_union_variant::<flatbuffers::ForwardsUOffset<CreateAction>>("Command::CreateAction", pos),
-          Command::LogText => v.verify_union_variant::<flatbuffers::ForwardsUOffset<LogText>>("Command::LogText", pos),
-          Command::Options => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Options>>("Command::Options", pos),
           Command::Polyline => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Polyline>>("Command::Polyline", pos),
-          Command::Popup => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Popup>>("Command::Popup", pos),
-          Command::PopupRound => v.verify_union_variant::<flatbuffers::ForwardsUOffset<PopupRound>>("Command::PopupRound", pos),
-          Command::ReadEvents => v.verify_union_variant::<flatbuffers::ForwardsUOffset<ReadEvents>>("Command::ReadEvents", pos),
           Command::Rectangle => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Rectangle>>("Command::Rectangle", pos),
-          Command::RemoveAction => v.verify_union_variant::<flatbuffers::ForwardsUOffset<RemoveAction>>("Command::RemoveAction", pos),
-          Command::Subscribe => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Subscribe>>("Command::Subscribe", pos),
           Command::Tiles => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Tiles>>("Command::Tiles", pos),
           Command::Triangle => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Triangle>>("Command::Triangle", pos),
-          Command::Unsubscribe => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Unsubscribe>>("Command::Unsubscribe", pos),
-          Command::EndFrame => v.verify_union_variant::<flatbuffers::ForwardsUOffset<EndFrame>>("Command::EndFrame", pos),
+          Command::StartProto => v.verify_union_variant::<flatbuffers::ForwardsUOffset<StartProto>>("Command::StartProto", pos),
+          Command::EndProto => v.verify_union_variant::<flatbuffers::ForwardsUOffset<EndProto>>("Command::EndProto", pos),
+          Command::DrawProto => v.verify_union_variant::<flatbuffers::ForwardsUOffset<DrawProto>>("Command::DrawProto", pos),
+          Command::LogText => v.verify_union_variant::<flatbuffers::ForwardsUOffset<LogText>>("Command::LogText", pos),
+          Command::Popup => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Popup>>("Command::Popup", pos),
+          Command::PopupRound => v.verify_union_variant::<flatbuffers::ForwardsUOffset<PopupRound>>("Command::PopupRound", pos),
+          Command::CameraView => v.verify_union_variant::<flatbuffers::ForwardsUOffset<CameraView>>("Command::CameraView", pos),
           _ => Ok(()),
         }
      })?
@@ -4074,15 +657,64 @@ impl core::fmt::Debug for RewindMessage<'_> {
     let mut ds = f.debug_struct("RewindMessage");
       ds.field("command_type", &self.command_type());
       match self.command_type() {
-        Command::Arc => {
-          if let Some(x) = self.command_as_arc() {
+        Command::Subscribe => {
+          if let Some(x) = self.command_as_subscribe() {
             ds.field("command", &x)
           } else {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
           }
         },
-        Command::CameraView => {
-          if let Some(x) = self.command_as_camera_view() {
+        Command::Unsubscribe => {
+          if let Some(x) = self.command_as_unsubscribe() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::CreateAction => {
+          if let Some(x) = self.command_as_create_action() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::RemoveAction => {
+          if let Some(x) = self.command_as_remove_action() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::ReadEvents => {
+          if let Some(x) = self.command_as_read_events() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::Layer => {
+          if let Some(x) = self.command_as_layer() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::Map => {
+          if let Some(x) = self.command_as_map() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::EndFrame => {
+          if let Some(x) = self.command_as_end_frame() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::Arc => {
+          if let Some(x) = self.command_as_arc() {
             ds.field("command", &x)
           } else {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
@@ -4102,27 +734,6 @@ impl core::fmt::Debug for RewindMessage<'_> {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
           }
         },
-        Command::CreateAction => {
-          if let Some(x) = self.command_as_create_action() {
-            ds.field("command", &x)
-          } else {
-            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
-        Command::LogText => {
-          if let Some(x) = self.command_as_log_text() {
-            ds.field("command", &x)
-          } else {
-            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
-        Command::Options => {
-          if let Some(x) = self.command_as_options() {
-            ds.field("command", &x)
-          } else {
-            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
         Command::Polyline => {
           if let Some(x) = self.command_as_polyline() {
             ds.field("command", &x)
@@ -4130,43 +741,8 @@ impl core::fmt::Debug for RewindMessage<'_> {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
           }
         },
-        Command::Popup => {
-          if let Some(x) = self.command_as_popup() {
-            ds.field("command", &x)
-          } else {
-            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
-        Command::PopupRound => {
-          if let Some(x) = self.command_as_popup_round() {
-            ds.field("command", &x)
-          } else {
-            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
-        Command::ReadEvents => {
-          if let Some(x) = self.command_as_read_events() {
-            ds.field("command", &x)
-          } else {
-            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
         Command::Rectangle => {
           if let Some(x) = self.command_as_rectangle() {
-            ds.field("command", &x)
-          } else {
-            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
-        Command::RemoveAction => {
-          if let Some(x) = self.command_as_remove_action() {
-            ds.field("command", &x)
-          } else {
-            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
-          }
-        },
-        Command::Subscribe => {
-          if let Some(x) = self.command_as_subscribe() {
             ds.field("command", &x)
           } else {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
@@ -4186,15 +762,50 @@ impl core::fmt::Debug for RewindMessage<'_> {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
           }
         },
-        Command::Unsubscribe => {
-          if let Some(x) = self.command_as_unsubscribe() {
+        Command::StartProto => {
+          if let Some(x) = self.command_as_start_proto() {
             ds.field("command", &x)
           } else {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
           }
         },
-        Command::EndFrame => {
-          if let Some(x) = self.command_as_end_frame() {
+        Command::EndProto => {
+          if let Some(x) = self.command_as_end_proto() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::DrawProto => {
+          if let Some(x) = self.command_as_draw_proto() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::LogText => {
+          if let Some(x) = self.command_as_log_text() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::Popup => {
+          if let Some(x) = self.command_as_popup() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::PopupRound => {
+          if let Some(x) = self.command_as_popup_round() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::CameraView => {
+          if let Some(x) = self.command_as_camera_view() {
             ds.field("command", &x)
           } else {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")

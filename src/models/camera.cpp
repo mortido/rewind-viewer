@@ -9,9 +9,8 @@ Camera::Camera(const glm::vec2& position, float scale, bool y_axis_up)
     : position_{position}
     , scale_{scale}
     , y_axis_up_{y_axis_up}
-    , projection_{}
     , viewport_size_{100.0f, 100.0f} {
-  update_projection();
+  update_projections();
 }
 
 void Camera::set_viewport_size(const glm::vec2& new_size) {
@@ -56,9 +55,9 @@ glm::vec2 Camera::screen_to_game(const glm::vec2& screen_coords) {
   return position_ + (ndc * viewport_size_ * scale_);
 }
 
-const glm::mat4& Camera::get_projection_matrix() const {
+const std::array<glm::mat4, static_cast<size_t>(CameraOrigin::COUNT)>& Camera::get_projection_matrices() const {
   std::lock_guard<Spinlock> lock(mutex_);
-  return projection_;
+  return projections_;
 }
 
 const glm::vec2& Camera::get_position() const {
@@ -102,17 +101,35 @@ void Camera::set_view(const CameraView& view, bool ignore_viewport) {
   //    update_projection();
 }
 
-void Camera::update_projection() {
+void Camera::update_projections() {
   std::lock_guard<Spinlock> lock(mutex_);
-  float half_width = viewport_size_.x * scale_ / 2.0f;
-  float half_height = viewport_size_.y * scale_ / 2.0f;
+  float half_width = viewport_size_.x * 0.5f;
+  float half_width_scaled = half_width * scale_;
+  float half_height = viewport_size_.y  * 0.5f;
+  float half_height_scaled = half_height * scale_;
 
   if (y_axis_up_) {
-    projection_ = glm::ortho(position_.x - half_width, position_.x + half_width,
-                             position_.y - half_height, position_.y + half_height);
+    projections_[0] = glm::ortho(position_.x - half_width_scaled, position_.x + half_width_scaled,
+                             position_.y - half_height_scaled, position_.y + half_height_scaled);
+    projections_[1] = glm::ortho(0.0f, viewport_size_.x, -viewport_size_.y, 0.0f);     // left_top
+    projections_[2] = glm::ortho(0.0f, viewport_size_.x, -half_height, half_height);   // left_center
+    projections_[3] = glm::ortho(0.0f, viewport_size_.x, 0.0f, viewport_size_.y);      // left_bottom
+    projections_[4] = glm::ortho(-viewport_size_.x, 0.0f, -viewport_size_.y, 0.0f);    // right_top
+    projections_[5] = glm::ortho(-viewport_size_.x, 0.0f, -half_height, half_height);  // right_center
+    projections_[6] = glm::ortho(-viewport_size_.x, 0.0f, 0.0f, viewport_size_.y);     // right_bottom
+    projections_[7] = glm::ortho(-half_width, half_width, -viewport_size_.y, 0.0f);    // top_center
+    projections_[8] = glm::ortho(-half_width, half_width, 0.0f, viewport_size_.y);     // bottom_center
   } else {
-    projection_ = glm::ortho(position_.x - half_width, position_.x + half_width,
-                             position_.y + half_height, position_.y - half_height);
+    projections_[0] = glm::ortho(position_.x - half_width_scaled, position_.x + half_width_scaled,
+                             position_.y + half_height_scaled, position_.y - half_height_scaled);
+    projections_[1] = glm::ortho(0.0f, viewport_size_.x, viewport_size_.y, 0.0f);      // left_top
+    projections_[2] = glm::ortho(0.0f, viewport_size_.x, half_height, -half_height);   // left_center
+    projections_[3] = glm::ortho(0.0f, viewport_size_.x, 0.0f, -viewport_size_.y);     // left_bottom
+    projections_[4] = glm::ortho(-viewport_size_.x, 0.0f, viewport_size_.y, 0.0f);     // right_top
+    projections_[5] = glm::ortho(-viewport_size_.x, 0.0f, half_height, -half_height);  // right_center
+    projections_[6] = glm::ortho(-viewport_size_.x, 0.0f, 0.0f, -viewport_size_.y);    // right_bottom
+    projections_[7] = glm::ortho(-half_width, half_width, viewport_size_.y, 0.0f);     // top_center
+    projections_[8] = glm::ortho(-half_width, half_width, 0.0f, -viewport_size_.y);    // bottom_center
   }
 }
 

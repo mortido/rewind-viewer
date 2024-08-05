@@ -10,20 +10,22 @@
 
 namespace rewind_viewer::ui {
 void MainMenu::render(RewindViewerState& ui_state, const models::Config& config,
-                      models::Scene& scene, gateway::ClientGateway& master_gateway, const StyleManager& style_manager) {
+                      models::Scene& scene,
+                      std::vector<std::unique_ptr<gateway::ClientGateway>>& gateways,
+                      StyleManager& style_manager) {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu(ICON_FA_FILE " File", true)) {
       if (ImGui::MenuItem("Open")) {
         std::string file_path = open_file_dialog();
         if (!file_path.empty()) {
           ui_state.current_frame_idx = 0;
-          master_gateway.substitute_transport(std::make_shared<gateway::DumpReader>(file_path));
+          gateways[0]->substitute_transport(std::make_shared<gateway::DumpReader>(file_path));
         }
       }
-//      if (ImGui::MenuItem("Save ...")) {
-//        std::string file_path = save_file_dialog();
-//        // TODO: Save replays
-//      }
+      //      if (ImGui::MenuItem("Save ...")) {
+      //        std::string file_path = save_file_dialog();
+      //        // TODO: Save replays
+      //      }
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu(ICON_FA_GEARS " Settings", true)) {
@@ -58,7 +60,6 @@ void MainMenu::render(RewindViewerState& ui_state, const models::Config& config,
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu(ICON_FA_EYE " View", true)) {
-      ImGui::MenuItem("Status", nullptr, &ui_state.show_status_overlay);
       ImGui::MenuItem("Toolbox", nullptr, &ui_state.show_toolbox_panel);
       if (ui_state.developer_mode) {
         ImGui::Separator();
@@ -73,6 +74,46 @@ void MainMenu::render(RewindViewerState& ui_state, const models::Config& config,
       ImGui::EndMenu();
     }
     ImGui::TextDisabled(ICON_FA_TAG " v%s", APP_VERSION);
+    ImGui::Dummy(ImVec2(100.0f, 0.0f));
+    ImGui::Separator();
+
+    const auto& colors=style_manager.get_color_scheme();
+    ImGui::TextColored(colors.warn_accent, "FPS %.1f [%.1f ms]", ImGui::GetIO().Framerate,
+                       1000.0f / ImGui::GetIO().Framerate);
+
+
+    if (!config.ui->buffered_mode) {
+      ImGui::TextColored(colors.error_accent, ICON_FA_TRIANGLE_EXCLAMATION "Buffered mode disabled");
+    }
+
+    std::string str_status;
+    const ImVec4* color;
+    for (const auto& gateway : gateways) {
+      switch (gateway->get_state()) {
+        case gateway::ClientGateway::State::wait:
+          str_status = "WAITING";
+          color = &colors.warn_accent;
+          break;
+        case gateway::ClientGateway::State::established:
+          str_status = "CONNECTED";
+          color = &colors.ok_accent;
+          break;
+        case gateway::ClientGateway::State::aborting:
+        case gateway::ClientGateway::State::closed:
+          str_status = gateway->get_state() == gateway::ClientGateway::State::aborting
+                           ? "ABORTING"
+                           : "CLOSED";
+          color = &colors.error_accent;
+          break;
+        default:
+          str_status = "UNKNOWN";
+          color = &colors.error_accent;
+      }
+
+      ImGui::TextColored(*color, ICON_FA_PLUG " %s: %s", gateway->get_name().c_str(),
+                         str_status.c_str());
+    }
+
     ImGui::EndMainMenuBar();
 
     ui_state.main_menu_height = ImGui::GetFrameHeight();

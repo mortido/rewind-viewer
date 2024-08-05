@@ -8,7 +8,6 @@
 #include "models/scene.h"
 #include "ui/state.h"
 #include "ui/main_menu.h"
-#include "ui/status_overlay.h"
 #include "ui/style_manager.h"
 #include "ui/playback_controls.h"
 #include "ui/toolbox_panel.h"
@@ -36,7 +35,6 @@ class RewindViewer {
   ui::RewindViewerState ui_state_;
 
   ui::MainMenu main_menu_;
-  ui::StatusOverlay status_overlay_;
   ui::PlaybackControls playback_controls_;
   ui::ToolboxPanel toolbox_panel_;
   ui::Viewport viewport_;

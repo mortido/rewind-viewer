@@ -15,7 +15,7 @@
 #include <utility>
 
 #include "common/lock.h"
-#include "gateway/messages/rewind_event.fbs.h"
+#include "gateway/messages/events.fbs.h"
 
 namespace rewind_viewer::gateway {
 

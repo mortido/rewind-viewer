@@ -28,7 +28,6 @@ set(SOURCES
         ui/control_pad.cpp
         ui/main_menu.cpp
         ui/playback_controls.cpp
-        ui/status_overlay.cpp
         ui/style_manager.cpp
         ui/toolbox_panel.cpp
         ui/viewport.cpp

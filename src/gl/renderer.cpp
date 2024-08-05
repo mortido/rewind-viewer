@@ -76,8 +76,8 @@ void Renderer::update_canvas([[maybe_unused]] const glm::vec2 &position, const g
 
   // TODO: support position for canvas model
   canvas_model = glm::scale(glm::mat4(1.0f), {size, 1.0f});
-//  canvas_model = glm::rotate(canvas_model, static_cast<float>(M_PI / 4), glm::vec3(0.0f, 0.0f, 1.0f));
-  //  canvas_model = glm::translate(canvas_model, {position,1.0});
+  //  canvas_model = glm::rotate(canvas_model, static_cast<float>(M_PI / 4), glm::vec3(0.0f,
+  //  0.0f, 1.0f)); canvas_model = glm::translate(canvas_model, {position,1.0});
 
   grid.clear();
   const float step_x = 1.0f / static_cast<float>(cells.x);
@@ -109,17 +109,18 @@ void Renderer::update_canvas([[maybe_unused]] const glm::vec2 &position, const g
   grid_vertex_count = static_cast<GLsizei>(grid.size() / 3);
 }
 
-void Renderer::new_frame(const models::Camera &cam) {
-  // Update projection matrix
-  glBindBuffer(GL_UNIFORM_BUFFER, uniform_buf);
-  glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), glm::value_ptr(cam.get_projection_matrix()),
-               GL_DYNAMIC_DRAW);
-  glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
+void Renderer::new_frame() {
   glStencilMask(0xFF);
   glClear(GL_STENCIL_BUFFER_BIT);
   glStencilMask(0x00);
   stencil_ref = 1;
+}
+
+void Renderer::set_projections(const std::array<glm::mat4, 9> &projections) {
+  glBindBuffer(GL_UNIFORM_BUFFER, uniform_buf);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * projections.size(), projections.data(),
+               GL_DYNAMIC_DRAW);
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void Renderer::render_canvas(glm::vec3 color) {
@@ -203,24 +204,30 @@ void Renderer::render_primitives(const RenderContext &context, const PrimitiveIn
   glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
   glStencilMask(0xFF);
 
-  shaders_.uniform_color.use();
-  glBindVertexArray(context.vertex_vao);
-  load_indices(primitives.stencil_triangles);
-  glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(primitives.stencil_triangles.size()),
-                 GL_UNSIGNED_INT, nullptr);
+  if (!primitives.stencil_triangles.empty()) {
+    shaders_.uniform_color.use();
+    glBindVertexArray(context.vertex_vao);
+    load_indices(primitives.stencil_triangles);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(primitives.stencil_triangles.size()),
+                   GL_UNSIGNED_INT, nullptr);
+  }
 
-  shaders_.uniform_color_circle.use();
-  shaders_.uniform_color_circle.set_int("is_segment", 0);
-  glBindVertexArray(context.circle_vao);
-  load_indices(primitives.stencil_circles);
-  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.stencil_circles.size()),
-                 GL_UNSIGNED_INT, nullptr);
+  if (!primitives.stencil_circles.empty()) {
+    shaders_.uniform_color_circle.use();
+    shaders_.uniform_color_circle.set_int("is_segment", 0);
+    glBindVertexArray(context.circle_vao);
+    load_indices(primitives.stencil_circles);
+    glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.stencil_circles.size()),
+                   GL_UNSIGNED_INT, nullptr);
+  }
 
-  shaders_.uniform_color_circle.set_int("is_segment", 1);
-  glBindVertexArray(context.circle_vao);
-  load_indices(primitives.stencil_segments);
-  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.stencil_segments.size()),
-                 GL_UNSIGNED_INT, nullptr);
+  if (!primitives.stencil_segments.empty()) {
+    shaders_.uniform_color_circle.set_int("is_segment", 1);
+    glBindVertexArray(context.circle_vao);
+    load_indices(primitives.stencil_segments);
+    glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.stencil_segments.size()),
+                   GL_UNSIGNED_INT, nullptr);
+  }
 
   // Normal drawings
   glStencilFunc(GL_NOTEQUAL, stencil_ref, 0xFF);
@@ -230,31 +237,43 @@ void Renderer::render_primitives(const RenderContext &context, const PrimitiveIn
   // Simple pass shader - triangles and lines
   shaders_.color_pass.use();
   glBindVertexArray(context.color_vertex_vao);
-  load_indices(primitives.triangles);
-  glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(primitives.triangles.size()), GL_UNSIGNED_INT,
-                 nullptr);
+  if (!primitives.triangles.empty()) {
+    load_indices(primitives.triangles);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(primitives.triangles.size()), GL_UNSIGNED_INT,
+                   nullptr);
+  }
 
-  load_indices(primitives.lines);
-  glDrawElements(GL_LINES, static_cast<GLsizei>(primitives.lines.size()), GL_UNSIGNED_INT, nullptr);
+  if (!primitives.lines.empty()) {
+    load_indices(primitives.lines);
+    glDrawElements(GL_LINES, static_cast<GLsizei>(primitives.lines.size()), GL_UNSIGNED_INT,
+                   nullptr);
+  }
 
   // Circles shader
   shaders_.color_circle.use();
   glBindVertexArray(context.color_circle_vao);
-  shaders_.color_circle.set_int("is_segment", 0);
-  shaders_.color_circle.set_uint("line_width", 1);
-  load_indices(primitives.thin_circles);
-  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.thin_circles.size()), GL_UNSIGNED_INT,
-                 nullptr);
 
-  shaders_.color_circle.set_uint("line_width", 0);
-  load_indices(primitives.filled_circles);
-  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.filled_circles.size()), GL_UNSIGNED_INT,
-                 nullptr);
+  if (!primitives.thin_circles.empty()) {
+    shaders_.color_circle.set_int("is_segment", 0);
+    shaders_.color_circle.set_uint("line_width", 1);
+    load_indices(primitives.thin_circles);
+    glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.thin_circles.size()), GL_UNSIGNED_INT,
+                   nullptr);
+  }
 
-  shaders_.color_circle.set_int("is_segment", 1);
-  load_indices(primitives.filled_segments);
-  glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.filled_segments.size()),
-                 GL_UNSIGNED_INT, nullptr);
+  if (!primitives.filled_circles.empty()) {
+    shaders_.color_circle.set_uint("line_width", 0);
+    load_indices(primitives.filled_circles);
+    glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.filled_circles.size()),
+                   GL_UNSIGNED_INT, nullptr);
+  }
+
+  if (!primitives.filled_segments.empty()) {
+    shaders_.color_circle.set_int("is_segment", 1);
+    load_indices(primitives.filled_segments);
+    glDrawElements(GL_POINTS, static_cast<GLsizei>(primitives.filled_segments.size()),
+                   GL_UNSIGNED_INT, nullptr);
+  }
 
   // glLineWidth(1);
   // glDisable(GL_LINE_SMOOTH);

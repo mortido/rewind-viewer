@@ -7,7 +7,7 @@ find_program(FLATC_EXECUTABLE NAMES flatc)
 # Define the input and output files for FlatBuffers.
 set(FBS_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/rewind_events.fbs"
-        "${CMAKE_CURRENT_SOURCE_DIR}/rewind_message.fbs"
+        "${CMAKE_CURRENT_SOURCE_DIR}/client_request.fbs"
         "${CMAKE_CURRENT_SOURCE_DIR}/vector2f.fbs"
         )
 set(INCLUDE_FBS_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")

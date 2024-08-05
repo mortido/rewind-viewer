@@ -22,24 +22,28 @@ public struct RewindMessage : IFlatbufferObject
 
   public rewind_viewer.fbs.Command CommandType { get { int o = __p.__offset(4); return o != 0 ? (rewind_viewer.fbs.Command)__p.bb.Get(o + __p.bb_pos) : rewind_viewer.fbs.Command.NONE; } }
   public TTable? Command<TTable>() where TTable : struct, IFlatbufferObject { int o = __p.__offset(6); return o != 0 ? (TTable?)__p.__union<TTable>(o + __p.bb_pos) : null; }
+  public rewind_viewer.fbs.Subscribe CommandAsSubscribe() { return Command<rewind_viewer.fbs.Subscribe>().Value; }
+  public rewind_viewer.fbs.Unsubscribe CommandAsUnsubscribe() { return Command<rewind_viewer.fbs.Unsubscribe>().Value; }
+  public rewind_viewer.fbs.CreateAction CommandAsCreateAction() { return Command<rewind_viewer.fbs.CreateAction>().Value; }
+  public rewind_viewer.fbs.RemoveAction CommandAsRemoveAction() { return Command<rewind_viewer.fbs.RemoveAction>().Value; }
+  public rewind_viewer.fbs.ReadEvents CommandAsReadEvents() { return Command<rewind_viewer.fbs.ReadEvents>().Value; }
+  public rewind_viewer.fbs.Layer CommandAsLayer() { return Command<rewind_viewer.fbs.Layer>().Value; }
+  public rewind_viewer.fbs.Map CommandAsMap() { return Command<rewind_viewer.fbs.Map>().Value; }
+  public rewind_viewer.fbs.EndFrame CommandAsEndFrame() { return Command<rewind_viewer.fbs.EndFrame>().Value; }
   public rewind_viewer.fbs.Arc CommandAsArc() { return Command<rewind_viewer.fbs.Arc>().Value; }
-  public rewind_viewer.fbs.CameraView CommandAsCameraView() { return Command<rewind_viewer.fbs.CameraView>().Value; }
   public rewind_viewer.fbs.Circle CommandAsCircle() { return Command<rewind_viewer.fbs.Circle>().Value; }
   public rewind_viewer.fbs.CircleSegment CommandAsCircleSegment() { return Command<rewind_viewer.fbs.CircleSegment>().Value; }
-  public rewind_viewer.fbs.CreateAction CommandAsCreateAction() { return Command<rewind_viewer.fbs.CreateAction>().Value; }
-  public rewind_viewer.fbs.LogText CommandAsLogText() { return Command<rewind_viewer.fbs.LogText>().Value; }
-  public rewind_viewer.fbs.Options CommandAsOptions() { return Command<rewind_viewer.fbs.Options>().Value; }
   public rewind_viewer.fbs.Polyline CommandAsPolyline() { return Command<rewind_viewer.fbs.Polyline>().Value; }
-  public rewind_viewer.fbs.Popup CommandAsPopup() { return Command<rewind_viewer.fbs.Popup>().Value; }
-  public rewind_viewer.fbs.PopupRound CommandAsPopupRound() { return Command<rewind_viewer.fbs.PopupRound>().Value; }
-  public rewind_viewer.fbs.ReadEvents CommandAsReadEvents() { return Command<rewind_viewer.fbs.ReadEvents>().Value; }
   public rewind_viewer.fbs.Rectangle CommandAsRectangle() { return Command<rewind_viewer.fbs.Rectangle>().Value; }
-  public rewind_viewer.fbs.RemoveAction CommandAsRemoveAction() { return Command<rewind_viewer.fbs.RemoveAction>().Value; }
-  public rewind_viewer.fbs.Subscribe CommandAsSubscribe() { return Command<rewind_viewer.fbs.Subscribe>().Value; }
   public rewind_viewer.fbs.Tiles CommandAsTiles() { return Command<rewind_viewer.fbs.Tiles>().Value; }
   public rewind_viewer.fbs.Triangle CommandAsTriangle() { return Command<rewind_viewer.fbs.Triangle>().Value; }
-  public rewind_viewer.fbs.Unsubscribe CommandAsUnsubscribe() { return Command<rewind_viewer.fbs.Unsubscribe>().Value; }
-  public rewind_viewer.fbs.EndFrame CommandAsEndFrame() { return Command<rewind_viewer.fbs.EndFrame>().Value; }
+  public rewind_viewer.fbs.StartProto CommandAsStartProto() { return Command<rewind_viewer.fbs.StartProto>().Value; }
+  public rewind_viewer.fbs.EndProto CommandAsEndProto() { return Command<rewind_viewer.fbs.EndProto>().Value; }
+  public rewind_viewer.fbs.DrawProto CommandAsDrawProto() { return Command<rewind_viewer.fbs.DrawProto>().Value; }
+  public rewind_viewer.fbs.LogText CommandAsLogText() { return Command<rewind_viewer.fbs.LogText>().Value; }
+  public rewind_viewer.fbs.Popup CommandAsPopup() { return Command<rewind_viewer.fbs.Popup>().Value; }
+  public rewind_viewer.fbs.PopupRound CommandAsPopupRound() { return Command<rewind_viewer.fbs.PopupRound>().Value; }
+  public rewind_viewer.fbs.CameraView CommandAsCameraView() { return Command<rewind_viewer.fbs.CameraView>().Value; }
 
   public static Offset<rewind_viewer.fbs.RewindMessage> CreateRewindMessage(FlatBufferBuilder builder,
       rewind_viewer.fbs.Command command_type = rewind_viewer.fbs.Command.NONE,

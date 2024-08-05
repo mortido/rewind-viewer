@@ -3,7 +3,7 @@
 #include <flatbuffers/flatbuffers.h>
 
 #include "gateway/handlers/abstract.h"
-#include "gateway/messages/rewind_event.fbs.h"
+#include "gateway/messages/events.fbs.h"
 #include "gateway/messages/rewind_message.fbs.h"
 
 namespace rewind_viewer::gateway {
@@ -27,11 +27,12 @@ class FlatbuffersMessageHandler : public MessageHandler {
         }
 
         if (circle->color() == nullptr) {
-          frame_editor.add_stencil_circle({circle->center()->x(), circle->center()->y()},
+          frame_editor.add_stencil_circle(glm::vec2{circle->center()->x(), circle->center()->y()},
                                           circle->radius());
         } else {
-          frame_editor.add_circle({circle->center()->x(), circle->center()->y()}, circle->radius(),
-                                  circle->color()->value(), circle->color()->fill());
+          frame_editor.add_circle(glm::vec2{circle->center()->x(), circle->center()->y()},
+                                  circle->radius(), circle->color()->value(),
+                                  circle->color()->fill());
         }
         break;
       }
@@ -43,11 +44,11 @@ class FlatbuffersMessageHandler : public MessageHandler {
                              std::to_string(segment->radius())};
         }
         if (segment->color() == nullptr) {
-          frame_editor.add_stencil_segment({segment->center()->x(), segment->center()->y()},
-                                           segment->radius(), segment->start_angle(),
-                                           segment->end_angle());
+          frame_editor.add_stencil_segment(
+              glm::vec2{segment->center()->x(), segment->center()->y()}, segment->radius(),
+              segment->start_angle(), segment->end_angle());
         } else {
-          frame_editor.add_segment({segment->center()->x(), segment->center()->y()},
+          frame_editor.add_segment(glm::vec2{segment->center()->x(), segment->center()->y()},
                                    segment->radius(), segment->start_angle(), segment->end_angle(),
                                    segment->color()->value(), segment->color()->fill());
         }
@@ -60,10 +61,10 @@ class FlatbuffersMessageHandler : public MessageHandler {
           throw ParsingError{"Arc radius should be positive, got " + std::to_string(arc->radius())};
         }
         if (arc->color() == nullptr) {
-          frame_editor.add_stencil_arc({arc->center()->x(), arc->center()->y()}, arc->radius(),
-                                       arc->start_angle(), arc->end_angle());
+          frame_editor.add_stencil_arc(glm::vec2{arc->center()->x(), arc->center()->y()},
+                                       arc->radius(), arc->start_angle(), arc->end_angle());
         } else {
-          frame_editor.add_arc({arc->center()->x(), arc->center()->y()}, arc->radius(),
+          frame_editor.add_arc(glm::vec2{arc->center()->x(), arc->center()->y()}, arc->radius(),
                                arc->start_angle(), arc->end_angle(), arc->color()->value(),
                                arc->color()->fill());
         }
@@ -173,30 +174,30 @@ class FlatbuffersMessageHandler : public MessageHandler {
         frame_editor.add_camera_view(cam_view_msg->name()->str(), cam_view);
         break;
       }
-      case fbs::Command_Options: {
-        LOG_V8("FlatBuffersHandler::OPTIONS");
-        auto options = message->command_as_Options();
-        if (options->map() != nullptr) {
-          LOG_V8("FlatBuffersHandler::OPTIONS->MAP");
-
-          auto map = options->map();
-          if (map->size()->x() <= 0.0) {
-            throw ParsingError{"Map width should be positive, got " +
-                               std::to_string(map->size()->x())};
-          }
-          if (map->size()->y() <= 0.0) {
-            throw ParsingError{"Map height should be positive, got " +
-                               std::to_string(map->size()->y())};
-          }
-          frame_editor.set_map({map->position()->x(), map->position()->y()},
-                               {map->size()->x(), map->size()->y()},
-                               {map->x_grid(), map->y_grid()});
+      case fbs::Command_Layer: {
+        LOG_V8("FlatBuffersHandler::OPTIONS->LAYER");
+        auto layer = message->command_as_Layer();
+        frame_editor.set_layer(layer->id(), layer->use_permanent_frame(),
+                               static_cast<models::CameraOrigin>(layer->origin()));
+        if (layer->name()) {
+          frame_editor.set_layer_name(layer->id(), layer->name()->str(),
+                                      layer->use_permanent_frame());
         }
-        if (options->layer() != nullptr) {
-          LOG_V8("FlatBuffersHandler::OPTIONS->LAYER");
-          auto layer = options->layer();
-          frame_editor.set_layer(layer->id(), layer->use_permanent_frame());
+        break;
+      }
+      case fbs::Command_Map: {
+        LOG_V8("FlatBuffersHandler::OPTIONS->MAP");
+        auto map = message->command_as_Map();
+        if (map->size()->x() <= 0.0) {
+          throw ParsingError{"Map width should be positive, got " +
+                             std::to_string(map->size()->x())};
         }
+        if (map->size()->y() <= 0.0) {
+          throw ParsingError{"Map height should be positive, got " +
+                             std::to_string(map->size()->y())};
+        }
+        frame_editor.set_map({map->position()->x(), map->position()->y()},
+                             {map->size()->x(), map->size()->y()}, {map->x_grid(), map->y_grid()});
         break;
       }
       case fbs::Command_LogText: {
@@ -342,6 +343,23 @@ class FlatbuffersMessageHandler : public MessageHandler {
         auto remove_action = message->command_as_RemoveAction();
         const auto& action_name = remove_action->name()->str();
         actions.remove(action_name);
+        break;
+      }
+      case fbs::Command_StartProto: {
+        LOG_V8("FlatBuffersHandler::START_PROTO");
+        frame_editor.start_proto();
+        break;
+      }
+      case fbs::Command_EndProto: {
+        LOG_V8("FlatBuffersHandler::END_PROTO");
+        frame_editor.end_proto();
+        break;
+      }
+      case fbs::Command_DrawProto: {
+        LOG_V8("FlatBuffersHandler::DRAW_PROTO");
+        auto command = message->command_as_DrawProto();
+        frame_editor.add_proto(command->id(), {command->position()->x(), command->position()->y()},
+                               command->angle(), command->color(), command->scale());
         break;
       }
       default: {

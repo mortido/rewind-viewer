@@ -33,8 +33,7 @@ bool RewindViewer::update() {
   handle_inputs();
   current_frame_ = scene_->get_frame(&ui_state_.current_frame_idx);
 
-  main_menu_.render(ui_state_, config_, *scene_, *gateways_[0], style_manager_);
-  status_overlay_.render(ui_state_, config_, gateways_);
+  main_menu_.render(ui_state_, config_, *scene_, gateways_, style_manager_);
   playback_controls_.handle_inputs(ui_state_, config_);
   playback_controls_.render(ui_state_, config_, *scene_);
     toolbox_panel_.render(ui_state_, config_, *scene_, gateways_);
@@ -78,7 +77,7 @@ void RewindViewer::shortcuts_help() {
 }
 
 void RewindViewer::handle_inputs() {
-  static const std::array<ImGuiKey, models::SceneConfig::LAYERS_COUNT> layer_shortcuts = {
+  static const std::array<ImGuiKey, models::Frame::LAYERS_COUNT> layer_shortcuts = {
       ImGuiKey_1, ImGuiKey_2, ImGuiKey_3, ImGuiKey_4, ImGuiKey_5,
       ImGuiKey_6, ImGuiKey_7, ImGuiKey_8, ImGuiKey_9, ImGuiKey_0,
   };
