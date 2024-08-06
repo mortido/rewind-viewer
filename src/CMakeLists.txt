@@ -23,7 +23,7 @@ set(SOURCES
         models/frame.cpp
         models/popup.cpp
         models/scene.cpp
-        models/frame_editor.cpp
+        models/scene_editor.cpp
 
         ui/control_pad.cpp
         ui/main_menu.cpp

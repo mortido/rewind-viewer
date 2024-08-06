@@ -1,5 +1,5 @@
 #version 330 core
-layout (location = 0) in uint a_proj_idx;
+layout (location = 0) in uint a_proj_view_id;
 layout (location = 1) in uint a_color;
 layout (location = 2) in vec2 a_pos;
 
@@ -22,6 +22,6 @@ vec4 unpack_color(uint color) {
 
 
 void main() {
-    gl_Position = proj_views[a_proj_idx] * vec4(a_pos, 0.2, 1.0);
+    gl_Position = proj_views[a_proj_view_id] * vec4(a_pos, 0.2, 1.0);
     vs_out.color = unpack_color(a_color);
 }

@@ -1,5 +1,5 @@
 #version 330 core
-layout (location = 0) in uint a_proj_idx;
+layout (location = 0) in uint a_proj_view_id;
 layout (location = 1) in uint a_color;
 layout (location = 2) in vec2 a_pos;
 layout (location = 3) in float a_radius;
@@ -7,7 +7,7 @@ layout (location = 4) in float a_start_angle;
 layout (location = 5) in float a_end_angle;
 
 out VS_OUT {
-    uint proj_idx;
+    uint proj_view_id;
     vec4 color;
     float radius;
     float start_angle;
@@ -25,7 +25,7 @@ vec4 unpack_color(uint color) {
 
 void main() {
     gl_Position = vec4(a_pos, 0.2, 1.0);
-    vs_out.proj_idx = a_proj_idx;
+    vs_out.proj_view_id = a_proj_view_id;
     vs_out.color = unpack_color(a_color);
     vs_out.radius = a_radius;
     vs_out.start_angle = a_start_angle;

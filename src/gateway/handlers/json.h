@@ -13,15 +13,16 @@ class JsonMessageHandler : public MessageHandler {
   rapidjson::StringBuffer json_buffer_;
 
  public:
-  void handle_message(const uint8_t* buffer, uint32_t,
-                      LockDictionary<char, std::unique_ptr<Event>>& events,
-                      LockDictionary<std::string, std::unique_ptr<Action>>& /*actions*/,
-                      models::FrameEditor& frame_editor, Transport& transport) override {
+  JsonMessageHandler(models::SceneEditor& scene_editor, std::shared_ptr<Transport> transport)
+      : MessageHandler(scene_editor, std::move(transport)) {}
+
+  void handle_message(uint32_t /*size*/, LockDictionary<char, std::unique_ptr<Event>>& events,
+                      LockDictionary<std::string, std::unique_ptr<Action>>& /*actions*/) override {
     rapidjson::Document doc;
     // TODO: zero terminated?
-    if (doc.Parse(reinterpret_cast<const char*>(buffer)).HasParseError()) {
+    if (doc.Parse(reinterpret_cast<const char*>(read_buffer_.data())).HasParseError()) {
       LOG_ERROR("JSON parse error: %s %s", rapidjson::GetParseError_En(doc.GetParseError()),
-                reinterpret_cast<const char*>(buffer));
+                reinterpret_cast<const char*>(read_buffer_.data()));
       return;
     }
 
@@ -45,12 +46,12 @@ class JsonMessageHandler : public MessageHandler {
         throw std::runtime_error("Circle radius should be positive, got " + std::to_string(radius));
       }
       if (!data_obj.HasMember("c")) {
-        frame_editor.add_stencil_circle(center, radius);
+        scene_editor_.add_stencil_circle(center, radius);
       } else {
         auto color_obj = data_obj["c"].GetObject();
         uint32_t color = color_obj["v"].GetUint();
         bool fill = color_obj["f"].GetBool();
-        frame_editor.add_circle(center, radius, color, fill);
+        scene_editor_.add_circle(center, radius, color, fill);
       }
     } else if (cmd_type == "CS") {
       LOG_V8("JSONHandler::CIRCLE_SEGMENT");
@@ -63,12 +64,12 @@ class JsonMessageHandler : public MessageHandler {
                                  std::to_string(radius));
       }
       if (!data_obj.HasMember("c")) {
-        frame_editor.add_stencil_segment(center, radius, start_angle, end_angle);
+        scene_editor_.add_stencil_segment(center, radius, start_angle, end_angle);
       } else {
         auto color_obj = data_obj["c"].GetObject();
         uint32_t color = color_obj["v"].GetUint();
         bool fill = color_obj["f"].GetBool();
-        frame_editor.add_segment(center, radius, start_angle, end_angle, color, fill);
+        scene_editor_.add_segment(center, radius, start_angle, end_angle, color, fill);
       }
     } else if (cmd_type == "A") {
       LOG_V8("JSONHandler::ARC");
@@ -80,12 +81,12 @@ class JsonMessageHandler : public MessageHandler {
         throw std::runtime_error("Arc radius should be positive, got " + std::to_string(radius));
       }
       if (!data_obj.HasMember("c")) {
-        frame_editor.add_stencil_arc(center, radius, start_angle, end_angle);
+        scene_editor_.add_stencil_arc(center, radius, start_angle, end_angle);
       } else {
         auto color_obj = data_obj["c"].GetObject();
         uint32_t color = color_obj["v"].GetUint();
         bool fill = color_obj["f"].GetBool();
-        frame_editor.add_arc(center, radius, start_angle, end_angle, color, fill);
+        scene_editor_.add_arc(center, radius, start_angle, end_angle, color, fill);
       }
     } else if (cmd_type == "TR") {
       LOG_V8("JSONHandler::TRIANGLE");
@@ -99,12 +100,12 @@ class JsonMessageHandler : public MessageHandler {
         points.emplace_back(p["x"].GetFloat(), p["y"].GetFloat());
       }
       if (!data_obj.HasMember("c")) {
-        frame_editor.add_stencil_triangle(points[0], points[1], points[2]);
+        scene_editor_.add_stencil_triangle(points[0], points[1], points[2]);
       } else {
         auto color_obj = data_obj["c"].GetObject();
         uint32_t color = color_obj["v"].GetUint();
         bool fill = color_obj["f"].GetBool();
-        frame_editor.add_triangle(points[0], points[1], points[2], color, fill);
+        scene_editor_.add_triangle(points[0], points[1], points[2], color, fill);
       }
     } else if (cmd_type == "P") {
       LOG_V8("JSONHandler::POLYLINE");
@@ -126,7 +127,7 @@ class JsonMessageHandler : public MessageHandler {
       for (const auto& p : points_array) {
         points.emplace_back(p["x"].GetFloat(), p["y"].GetFloat());
       }
-      frame_editor.add_polyline(points, color);
+      scene_editor_.add_polyline(points, color);
     } else if (cmd_type == "R") {
       LOG_V8("JSONHandler::RECTANGLE");
       glm::vec2 position{data_obj["p"]["x"].GetFloat(), data_obj["p"]["y"].GetFloat()};
@@ -143,12 +144,12 @@ class JsonMessageHandler : public MessageHandler {
       glm::vec2 bottom_right{top_left.x + size.x, top_left.y + size.y};
       normalize_AABB(top_left, bottom_right);
       if (!data_obj.HasMember("c")) {
-        frame_editor.add_stencil_rectangle(top_left, bottom_right);
+        scene_editor_.add_stencil_rectangle(top_left, bottom_right);
       } else {
         auto color_obj = data_obj["c"].GetObject();
         uint32_t color = color_obj["v"].GetUint();
         bool fill = color_obj["f"].GetBool();
-        frame_editor.add_rectangle(top_left, bottom_right, color, fill);
+        scene_editor_.add_rectangle(top_left, bottom_right, color, fill);
       }
     } else if (cmd_type == "PP") {
       LOG_V8("JSONHandler::POPUP");
@@ -164,7 +165,7 @@ class JsonMessageHandler : public MessageHandler {
       }
       std::string text = data_obj["t"].GetString();
 
-      frame_editor.add_box_popup(area_position + 0.5f * area_size, area_size, text);
+      scene_editor_.add_box_popup(area_position + 0.5f * area_size, area_size, text);
     } else if (cmd_type == "PR") {
       LOG_V8("JSONHandler::POPUP_ROUND");
       glm::vec2 area_center{data_obj["ac"]["x"].GetFloat(), data_obj["ac"]["y"].GetFloat()};
@@ -175,14 +176,14 @@ class JsonMessageHandler : public MessageHandler {
       }
       std::string text = data_obj["t"].GetString();
 
-      frame_editor.add_round_popup(area_center, area_radius, text);
+      scene_editor_.add_round_popup(area_center, area_radius, text);
     } else if (cmd_type == "CV") {
       LOG_V8("JSONHandler::CAMERA_VIEW");
       glm::vec2 position{data_obj["p"]["x"].GetFloat(), data_obj["p"]["y"].GetFloat()};
       float view_radius = data_obj["vr"].GetFloat();
       models::CameraView cam_view{position, {view_radius * 2.0f, view_radius * 2.0f}};
 
-      frame_editor.add_camera_view(data_obj["n"].GetString(), cam_view);
+      scene_editor_.add_camera_view(data_obj["n"].GetString(), cam_view);
     } else if (cmd_type == "O") {
       LOG_V8("JSONHandler::OPTIONS");
       if (data_obj.HasMember("m")) {
@@ -199,20 +200,21 @@ class JsonMessageHandler : public MessageHandler {
         if (size.y <= 0.0f) {
           throw std::runtime_error("Map height should be positive, got " + std::to_string(size.y));
         }
-        frame_editor.set_map(position, size, {x_grid, y_grid});
+        scene_editor_.set_map(position, size, {x_grid, y_grid});
       }
       if (data_obj.HasMember("l")) {
         LOG_V8("JSONHandler::OPTIONS->LAYER");
         auto layer_obj = data_obj["l"].GetObject();
-        frame_editor.set_layer(layer_obj["i"].GetUint(), layer_obj["upf"].GetBool(), models::CameraOrigin::game); //todo: parse origin
+        scene_editor_.set_layer(layer_obj["i"].GetUint(), layer_obj["upf"].GetBool(),
+                                models::CameraOrigin::game);  // todo: parse origin
       }
     } else if (cmd_type == "LT") {
       LOG_V8("JSONHandler::LOG_TEXT");
       std::string text = data_obj["t"].GetString();
-      frame_editor.add_user_text(text);
+      scene_editor_.add_user_text(text);
     } else if (cmd_type == "EF") {
       LOG_V8("JSONHandler::END_FRAME");
-      frame_editor.finish_frame();
+      scene_editor_.finish_frame();
     } else if (cmd_type == "CF") {
       LOG_V8("JSONHandler::COLOR_FIELD");
       glm::vec2 cell{data_obj["s"]["x"].GetFloat(), data_obj["s"]["y"].GetFloat()};
@@ -226,7 +228,7 @@ class JsonMessageHandler : public MessageHandler {
       for (const auto& color : data_obj["clrs"].GetArray()) {
         uint32_t color_value = color.GetUint();
         if (color_value & 0xFF000000) {  // Ignore transparent
-          frame_editor.add_rectangle(position, position + cell, color_value, true);
+          scene_editor_.add_rectangle(position, position + cell, color_value, true);
         }
         if (++i == row_size) {
           i = 0;
@@ -257,8 +259,8 @@ class JsonMessageHandler : public MessageHandler {
         event->serialize(writer);
         event->reset_state();
       });
-      transport.send_msg(reinterpret_cast<const uint8_t*>(json_buffer_.GetString()),
-                         static_cast<uint32_t>(json_buffer_.GetSize()));
+      transport_->send_msg(reinterpret_cast<const uint8_t*>(json_buffer_.GetString()),
+                           static_cast<uint32_t>(json_buffer_.GetSize()));
     } else {
       LOG_ERROR("Unknown command type");
     }

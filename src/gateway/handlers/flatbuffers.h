@@ -12,11 +12,12 @@ class FlatbuffersMessageHandler : public MessageHandler {
   flatbuffers::FlatBufferBuilder builder_;
 
  public:
-  void handle_message(const uint8_t* buffer, uint32_t,
-                      LockDictionary<char, std::unique_ptr<Event>>& events,
-                      LockDictionary<std::string, std::unique_ptr<Action>>& actions,
-                      models::FrameEditor& frame_editor, Transport& transport) override {
-    auto message = fbs::GetRewindMessage(buffer);
+  FlatbuffersMessageHandler(models::SceneEditor& scene_editor, std::shared_ptr<Transport> transport)
+      : MessageHandler(scene_editor, std::move(transport)) {}
+
+  void handle_message(uint32_t /*size*/, LockDictionary<char, std::unique_ptr<Event>>& events,
+                      LockDictionary<std::string, std::unique_ptr<Action>>& actions) override {
+    auto message = fbs::GetRewindMessage(read_buffer_.data());
     switch (message->command_type()) {
       case fbs::Command_Circle: {
         LOG_V8("FlatBuffersHandler::CIRCLE");
@@ -27,12 +28,12 @@ class FlatbuffersMessageHandler : public MessageHandler {
         }
 
         if (circle->color() == nullptr) {
-          frame_editor.add_stencil_circle(glm::vec2{circle->center()->x(), circle->center()->y()},
-                                          circle->radius());
+          scene_editor_.add_stencil_circle(glm::vec2{circle->center()->x(), circle->center()->y()},
+                                           circle->radius());
         } else {
-          frame_editor.add_circle(glm::vec2{circle->center()->x(), circle->center()->y()},
-                                  circle->radius(), circle->color()->value(),
-                                  circle->color()->fill());
+          scene_editor_.add_circle(glm::vec2{circle->center()->x(), circle->center()->y()},
+                                   circle->radius(), circle->color()->value(),
+                                   circle->color()->fill());
         }
         break;
       }
@@ -44,13 +45,13 @@ class FlatbuffersMessageHandler : public MessageHandler {
                              std::to_string(segment->radius())};
         }
         if (segment->color() == nullptr) {
-          frame_editor.add_stencil_segment(
+          scene_editor_.add_stencil_segment(
               glm::vec2{segment->center()->x(), segment->center()->y()}, segment->radius(),
               segment->start_angle(), segment->end_angle());
         } else {
-          frame_editor.add_segment(glm::vec2{segment->center()->x(), segment->center()->y()},
-                                   segment->radius(), segment->start_angle(), segment->end_angle(),
-                                   segment->color()->value(), segment->color()->fill());
+          scene_editor_.add_segment(glm::vec2{segment->center()->x(), segment->center()->y()},
+                                    segment->radius(), segment->start_angle(), segment->end_angle(),
+                                    segment->color()->value(), segment->color()->fill());
         }
         break;
       }
@@ -61,12 +62,12 @@ class FlatbuffersMessageHandler : public MessageHandler {
           throw ParsingError{"Arc radius should be positive, got " + std::to_string(arc->radius())};
         }
         if (arc->color() == nullptr) {
-          frame_editor.add_stencil_arc(glm::vec2{arc->center()->x(), arc->center()->y()},
-                                       arc->radius(), arc->start_angle(), arc->end_angle());
+          scene_editor_.add_stencil_arc(glm::vec2{arc->center()->x(), arc->center()->y()},
+                                        arc->radius(), arc->start_angle(), arc->end_angle());
         } else {
-          frame_editor.add_arc(glm::vec2{arc->center()->x(), arc->center()->y()}, arc->radius(),
-                               arc->start_angle(), arc->end_angle(), arc->color()->value(),
-                               arc->color()->fill());
+          scene_editor_.add_arc(glm::vec2{arc->center()->x(), arc->center()->y()}, arc->radius(),
+                                arc->start_angle(), arc->end_angle(), arc->color()->value(),
+                                arc->color()->fill());
         }
         break;
       }
@@ -82,11 +83,11 @@ class FlatbuffersMessageHandler : public MessageHandler {
           points.emplace_back(p->x(), p->y());
         }
         if (triangle->color() == nullptr) {
-          frame_editor.add_stencil_triangle(points[0], points[1], points[2]);
+          scene_editor_.add_stencil_triangle(points[0], points[1], points[2]);
         } else {
           // TODO: support for gradient colors
-          frame_editor.add_triangle(points[0], points[1], points[2], triangle->color()->value(),
-                                    triangle->color()->fill());
+          scene_editor_.add_triangle(points[0], points[1], points[2], triangle->color()->value(),
+                                     triangle->color()->fill());
         }
         break;
       }
@@ -107,7 +108,7 @@ class FlatbuffersMessageHandler : public MessageHandler {
         for (auto p : *polyline->points()) {
           points.emplace_back(p->x(), p->y());
         }
-        frame_editor.add_polyline(points, polyline->color()->value());
+        scene_editor_.add_polyline(points, polyline->color()->value());
         break;
       }
       case fbs::Command_Rectangle: {
@@ -126,10 +127,10 @@ class FlatbuffersMessageHandler : public MessageHandler {
                                top_left.y + rectangle->size()->y()};
         normalize_AABB(top_left, bottom_right);
         if (rectangle->color() == nullptr) {
-          frame_editor.add_stencil_rectangle(top_left, bottom_right);
+          scene_editor_.add_stencil_rectangle(top_left, bottom_right);
         } else {
-          frame_editor.add_rectangle(top_left, bottom_right, rectangle->color()->value(),
-                                     rectangle->color()->fill());
+          scene_editor_.add_rectangle(top_left, bottom_right, rectangle->color()->value(),
+                                      rectangle->color()->fill());
         }
         break;
       }
@@ -145,7 +146,7 @@ class FlatbuffersMessageHandler : public MessageHandler {
                              std::to_string(popup->area_size()->y())};
         }
 
-        frame_editor.add_box_popup(
+        scene_editor_.add_box_popup(
 
             {popup->area_position()->x() + 0.5 * popup->area_size()->x(),
              popup->area_position()->y() + 0.5 * popup->area_size()->y()},
@@ -160,8 +161,8 @@ class FlatbuffersMessageHandler : public MessageHandler {
                              std::to_string(popup->area_radius())};
         }
 
-        frame_editor.add_round_popup({popup->area_center()->x(), popup->area_center()->y()},
-                                     popup->area_radius(), popup->text()->str());
+        scene_editor_.add_round_popup({popup->area_center()->x(), popup->area_center()->y()},
+                                      popup->area_radius(), popup->text()->str());
         break;
       }
       case fbs::Command_CameraView: {
@@ -171,17 +172,17 @@ class FlatbuffersMessageHandler : public MessageHandler {
             {cam_view_msg->position()->x(), cam_view_msg->position()->y()},
             {cam_view_msg->view_radius() * 2.0f, cam_view_msg->view_radius() * 2.0f}};
 
-        frame_editor.add_camera_view(cam_view_msg->name()->str(), cam_view);
+        scene_editor_.add_camera_view(cam_view_msg->name()->str(), cam_view);
         break;
       }
       case fbs::Command_Layer: {
         LOG_V8("FlatBuffersHandler::OPTIONS->LAYER");
         auto layer = message->command_as_Layer();
-        frame_editor.set_layer(layer->id(), layer->use_permanent_frame(),
-                               static_cast<models::CameraOrigin>(layer->origin()));
+        scene_editor_.set_layer(layer->id(), layer->use_permanent_frame(),
+                                static_cast<models::CameraOrigin>(layer->origin()));
         if (layer->name()) {
-          frame_editor.set_layer_name(layer->id(), layer->name()->str(),
-                                      layer->use_permanent_frame());
+          scene_editor_.set_layer_name(layer->id(), layer->name()->str(),
+                                       layer->use_permanent_frame());
         }
         break;
       }
@@ -196,20 +197,20 @@ class FlatbuffersMessageHandler : public MessageHandler {
           throw ParsingError{"Map height should be positive, got " +
                              std::to_string(map->size()->y())};
         }
-        frame_editor.set_map({map->position()->x(), map->position()->y()},
-                             {map->size()->x(), map->size()->y()}, {map->x_grid(), map->y_grid()});
+        scene_editor_.set_map({map->position()->x(), map->position()->y()},
+                              {map->size()->x(), map->size()->y()}, {map->x_grid(), map->y_grid()});
         break;
       }
       case fbs::Command_LogText: {
         LOG_V8("FlatBuffersHandler::LOG_TEXT");
         auto logText = message->command_as_LogText();
 
-        frame_editor.add_user_text(logText->text()->str());
+        scene_editor_.add_user_text(logText->text()->str());
         break;
       }
       case fbs::Command_EndFrame: {
         LOG_V8("FlatBuffersHandler::END_FRAME");
-        frame_editor.finish_frame();
+        scene_editor_.finish_frame();
         break;
       }
       case fbs::Command_Tiles: {
@@ -226,7 +227,7 @@ class FlatbuffersMessageHandler : public MessageHandler {
         size_t i = 0;
         for (auto color : *tiles->colors()) {
           if (color & 0xFF000000) {  // Ignore transparent
-            frame_editor.add_rectangle(position, position + cell, color, true);
+            scene_editor_.add_rectangle(position, position + cell, color, true);
           }
           if (++i == row_size) {
             i = 0;
@@ -281,7 +282,7 @@ class FlatbuffersMessageHandler : public MessageHandler {
         auto event_list =
             rewind_viewer::fbs::CreateRewindEventList(builder_, events_vector, actions_vector);
         builder_.Finish(event_list);
-        transport.send_msg(builder_.GetBufferPointer(), builder_.GetSize());
+        transport_->send_msg(builder_.GetBufferPointer(), builder_.GetSize());
         break;
       }
       case fbs::Command_CreateAction: {
@@ -347,19 +348,19 @@ class FlatbuffersMessageHandler : public MessageHandler {
       }
       case fbs::Command_StartProto: {
         LOG_V8("FlatBuffersHandler::START_PROTO");
-        frame_editor.start_proto();
+        scene_editor_.start_proto();
         break;
       }
       case fbs::Command_EndProto: {
         LOG_V8("FlatBuffersHandler::END_PROTO");
-        frame_editor.end_proto();
+        scene_editor_.end_proto();
         break;
       }
       case fbs::Command_DrawProto: {
         LOG_V8("FlatBuffersHandler::DRAW_PROTO");
         auto command = message->command_as_DrawProto();
-        frame_editor.add_proto(command->id(), {command->position()->x(), command->position()->y()},
-                               command->angle(), command->color(), command->scale());
+        scene_editor_.add_proto(command->id(), {command->position()->x(), command->position()->y()},
+                                command->angle(), command->color(), command->scale());
         break;
       }
       default: {

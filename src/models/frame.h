@@ -14,10 +14,10 @@
 
 namespace rewind_viewer::models {
 
-class FrameEditor;
+class SceneEditor;
 
 class Frame {
-  friend class FrameEditor;
+  friend class SceneEditor;
 
  public:
   constexpr static size_t LAYERS_COUNT = 10;
@@ -33,7 +33,7 @@ class Frame {
 };
 
 class UIFrame : public Frame {
-  friend class FrameEditor;
+  friend class SceneEditor;
 
  public:
   using PopupCollectionT = std::array<std::vector<Popup>, LAYERS_COUNT>;

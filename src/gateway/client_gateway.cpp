@@ -6,13 +6,10 @@ namespace rewind_viewer::gateway {
 
 ClientGateway::ClientGateway(std::shared_ptr<models::Scene> scene,
                              std::shared_ptr<ReusableTransport> transport, bool master)
-    : frame_editor_(std::move(scene), master)
-    , read_buffer_(MAX_MESSAGE_SIZE)
+    : scene_editor_(std::move(scene), master)
     , state_{State::wait}
     , name_{transport->get_name()}
     , default_transport_{std::move(transport)} {
-  message_handlers_[JSON_MESSAGE_SCHEMA_VERSION] = std::make_unique<JsonMessageHandler>();
-  message_handlers_[FBS_MESSAGE_SCHEMA_VERSION] = std::make_unique<FlatbuffersMessageHandler>();
   transport_thread_ = std::thread(&ClientGateway::transport_loop, this);
   transport_thread_.detach();
 
@@ -28,54 +25,60 @@ ClientGateway::~ClientGateway() {
   }
 }
 
+std::unique_ptr<MessageHandler> ClientGateway::create_message_handler(std::shared_ptr<Transport> transport){
+  try {
+    auto schema_version = transport->read<uint16_t>();
+    if (schema_version == JSON_MESSAGE_SCHEMA_VERSION) {
+      return std::make_unique<JsonMessageHandler>(scene_editor_, transport);
+    } else if(schema_version == FBS_MESSAGE_SCHEMA_VERSION) {
+      return std::make_unique<FlatbuffersMessageHandler>(scene_editor_, transport);
+    } else {
+      LOG_ERROR("Unsupported schema version %u, update client code", schema_version);
+    }
+  } catch (std::exception const& e) {
+    LOG_ERROR("Error reading schema version: %s", e.what());
+  } catch (...) {
+    LOG_ERROR("Unknown error reading schema version");
+  }
+  return nullptr;
+}
+
+std::unique_ptr<MessageHandler> ClientGateway::accept_connection() {
+  scene_editor_.reset();
+  while (state_.load(std::memory_order_relaxed) != State::closed) {
+    if (default_transport_->accept_connection(RETRY_TIMEOUT_MS)) {
+      std::lock_guard lock(mutex_);
+      name_ = default_transport_->get_name();
+      return create_message_handler(default_transport_);
+    } else {
+      std::lock_guard lock(mutex_);
+      if (one_use_transport_) {
+        name_ = one_use_transport_->get_name();
+        return create_message_handler(one_use_transport_);
+      }
+    }
+  }
+  return nullptr;
+}
+
 void ClientGateway::transport_loop() {
   while (state_.load(std::memory_order_relaxed) != State::closed) {
     // It is ok to crash thread on accept connection error
     LOG_INFO("Waiting new connection...");
-    while (!active_transport_ && state_.load(std::memory_order_relaxed) != State::closed) {
-      if (default_transport_->accept_connection(RETRY_TIMEOUT_MS)) {
-        std::lock_guard lock(mutex_);
-        active_transport_ = default_transport_;
-        name_ = active_transport_->get_name();
-      } else {
-        std::lock_guard lock(mutex_);
-        if (one_use_transport_) {
-          if (one_use_transport_->is_connected()) {
-            active_transport_ = std::move(one_use_transport_);
-            name_ = active_transport_->get_name();
-          } else {
-            one_use_transport_.reset();
-            LOG_ERROR("One use transport is not connected: %s",
-                      one_use_transport_->get_name().c_str());
-          }
-        }
-      }
-    }
-
-    if (!active_transport_) {
+    auto message_handler = accept_connection();
+    if (!message_handler) {
       // Closed
       break;
     }
 
     try {
-      auto schema_version = active_transport_->read<uint16_t>();
-      if (message_handlers_.count(schema_version) > 0) {
-        LOG_INFO("Schema version %u", schema_version);
-        auto& message_handler = message_handlers_.at(schema_version);
-        State expected = State::wait;
-        if (state_.compare_exchange_strong(expected, State::established)) {
-          frame_editor_.reset();
-          while (state_.load(std::memory_order_relaxed) == State::established) {
-            if (!active_transport_->is_connected()) {
-              break;
-            }
-            uint32_t bytes = active_transport_->read_msg(read_buffer_.data(), read_buffer_.size());
-            message_handler->handle_message(read_buffer_.data(), bytes, events_, actions_,
-                                            frame_editor_, *active_transport_);
+      State expected = State::wait;
+      if (state_.compare_exchange_strong(expected, State::established)) {
+        while (state_.load(std::memory_order_relaxed) == State::established) {
+          if (!message_handler->next_message(events_, actions_)) {
+            break;
           }
         }
-      } else {
-        LOG_ERROR("Unsupported schema version %u, update client code", schema_version);
       }
     } catch (std::exception const& e) {
       LOG_ERROR("Error reading transport: %s", e.what());
@@ -83,8 +86,6 @@ void ClientGateway::transport_loop() {
       LOG_ERROR("Unknown error during transport reading");
     }
 
-    active_transport_->close_connection();
-    active_transport_.reset();
     {
       std::lock_guard lock(mutex_);
       name_ = default_transport_->get_name();

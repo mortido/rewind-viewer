@@ -1,7 +1,6 @@
 #pragma once
 
 #include <filesystem>
-#include <map>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -10,20 +9,19 @@
 #include <vector>
 
 #include "common/lock.h"
+#include "common/lock_dictionary.h"
 #include "gateway/actions.h"
 #include "gateway/events.h"
 #include "gateway/handlers/flatbuffers.h"
 #include "gateway/handlers/json.h"
-#include "gateway/lock_dictionary.h"
 #include "gateway/transport/transport.h"
-#include "models/frame_editor.h"
 #include "models/scene.h"
+#include "models/scene_editor.h"
 
 namespace rewind_viewer::gateway {
 
 constexpr uint16_t FBS_MESSAGE_SCHEMA_VERSION = 7;
 constexpr uint16_t JSON_MESSAGE_SCHEMA_VERSION = 6;
-constexpr uint64_t MAX_MESSAGE_SIZE = 1024 * 1024;  // 1MB
 constexpr int RETRY_TIMEOUT_MS = 250;
 
 class ClientGateway {
@@ -55,19 +53,18 @@ class ClientGateway {
   }
 
  private:
-  models::FrameEditor frame_editor_;
-  std::vector<uint8_t> read_buffer_;
+  models::SceneEditor scene_editor_;
   std::atomic<State> state_;
   std::string name_;
   std::thread transport_thread_;
-  std::map<uint16_t, std::unique_ptr<MessageHandler>> message_handlers_;
   LockDictionary<char, std::unique_ptr<Event>> events_;
   LockDictionary<std::string, std::unique_ptr<Action>> actions_;
   mutable Spinlock mutex_;
   std::shared_ptr<ReusableTransport> default_transport_;
   std::shared_ptr<Transport> one_use_transport_;
-  std::shared_ptr<Transport> active_transport_;
 
+  std::unique_ptr<MessageHandler> create_message_handler(std::shared_ptr<Transport> transport);
+  std::unique_ptr<MessageHandler> accept_connection();
   void transport_loop();
 };
 
