@@ -114,13 +114,23 @@ struct UIConfig : public YamlConfig {
   uint16_t fast_skip_speed = 20;
   bool close_with_esc = false;
   bool update_unfocused = false;
-  int utility_width = 300;
+  int toolbox_width = 270;
   bool buffered_mode = true;
   int replay_fps = 240;
   glm::vec3 canvas_background_color = {0.2, 0.3, 0.3};
   std::string icon_file = "resources/icon.png";
-  std::vector<std::string> font_files = {"resources/fonts/fa-regular-400.ttf",
-                                         "resources/fonts/fa-solid-900.ttf"};
+//  std::string default_font = "resources/fonts/Roboto-Regular.ttf";
+  std::string default_font = "resources/fonts/OpenSans-Regular.ttf";
+//  std::string default_font = "resources/fonts/OpenSans-SemiBold.ttf";
+//  std::string default_font = "resources/fonts/NotoSans-Regular.ttf";
+//  std::string emoji_font = "resources/fonts/NotoColorEmoji-Regular.ttf";
+  std::string emoji_font = "resources/fonts/noto-untouchedsvg.ttf";
+  std::string font_awesome_regular = "resources/fonts/fa-regular-400.ttf";
+  std::string font_awesome_solid = "resources/fonts/fa-solid-900.ttf";
+
+  float font_size_pixels = 16.0f;
+  float draw_font_size_pixels = 100.0f;
+
   UIStyle style{UIStyle::light};
 
   void parse(ryml::ConstNodeRef node) override {

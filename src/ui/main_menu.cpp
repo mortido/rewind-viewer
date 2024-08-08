@@ -18,7 +18,7 @@ void MainMenu::render(RewindViewerState& ui_state, const models::Config& config,
       if (ImGui::MenuItem("Open")) {
         std::string file_path = open_file_dialog();
         if (!file_path.empty()) {
-          ui_state.current_frame_idx = 0;
+          scene.set_current_frame_idx(0ul);
           gateways[0]->substitute_transport(std::make_shared<gateway::DumpReader>(file_path));
         }
       }

@@ -47,6 +47,7 @@ endif ()
 
 set(GLM_TEST_ENABLE OFF)
 add_subdirectory(3rdparty/glm)
+add_subdirectory(3rdparty/lunasvg) # Depends from glm and GLFW
 add_subdirectory(3rdparty/imgui) # Depends from glm and GLFW
 
 

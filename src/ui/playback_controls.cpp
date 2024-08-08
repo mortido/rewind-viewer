@@ -7,10 +7,13 @@ namespace rewind_viewer::ui {
 
 void PlaybackControls::render(RewindViewerState& ui_state, const models::Config& config,
                               models::Scene& scene) {
+  handle_inputs(config, scene);
   if (!ui_state.show_playback_controls) {
     ui_state.playback_controls_height = 0.0f;
     return;
   }
+  size_t frame_idx = scene.get_current_frame_idx();
+  size_t prev_frame_idx = frame_idx;
   static const auto button_size = ImVec2{0, 0};
   static const float buttons_spacing = 5.0f;
   auto& io = ImGui::GetIO();
@@ -37,59 +40,63 @@ void PlaybackControls::render(RewindViewerState& ui_state, const models::Config&
     ImGui::SameLine();
     if (ImGui::Button(ICON_FA_BACKWARD_FAST "##fastprev", button_size)) {
       //    if (ImGui::IsItemActive()) { in case if long press will be needed
-      if (ui_state.current_frame_idx > config.ui->fast_skip_speed) {
-        ui_state.current_frame_idx -= config.ui->fast_skip_speed;
+      if (frame_idx > config.ui->fast_skip_speed) {
+        frame_idx -= config.ui->fast_skip_speed;
       } else {
-        ui_state.current_frame_idx = 0;
+        frame_idx = 0;
       }
     }
 
     ImGui::SameLine(0.0f, buttons_spacing);
     if (ImGui::Button(ICON_FA_BACKWARD "##prev", button_size)) {
-      if (ui_state.current_frame_idx > 0) {
-        ui_state.current_frame_idx--;
+      if (frame_idx > 0) {
+        frame_idx--;
       }
-      ui_state.autoplay = false;
+      autoplay_ = false;
     }
 
     ImGui::SameLine(0.0f, buttons_spacing);
-    if (ui_state.autoplay) {
-      ui_state.autoplay = !ImGui::Button(ICON_FA_PAUSE "##pause", button_size);
+    if (autoplay_) {
+      autoplay_ = !ImGui::Button(ICON_FA_PAUSE "##pause", button_size);
     } else {
-      ui_state.autoplay = ImGui::Button(ICON_FA_PLAY "##play", button_size);
+      autoplay_ = ImGui::Button(ICON_FA_PLAY "##play", button_size);
     }
 
     ImGui::SameLine(0.0f, buttons_spacing);
     if (ImGui::Button(ICON_FA_FORWARD "##next", button_size)) {
-      ui_state.current_frame_idx++;
-      ui_state.autoplay = false;
+      frame_idx++;
+      autoplay_ = false;
     }
 
     ImGui::SameLine(0.0f, buttons_spacing);
     if (ImGui::Button(ICON_FA_FORWARD_FAST "##fastnext", button_size)) {
-      ui_state.current_frame_idx += config.ui->fast_skip_speed;
+      frame_idx += config.ui->fast_skip_speed;
     }
     ImGui::SameLine(0.0f, buttons_spacing);
     if (ImGui::Button(ICON_FA_ROTATE_LEFT "##repeat", button_size)) {
-      ui_state.current_frame_idx = 0;
+      frame_idx = 0;
     }
 
     ImGui::SameLine();
     // Tick is one indexed
     const size_t frames_cnt = scene.frames_count();
     if (frames_cnt > 0ul) {
-      ui_state.current_frame_idx = std::min(frames_cnt, ui_state.current_frame_idx);
+      frame_idx = std::min(frames_cnt - 1, frame_idx);
       ImGui::PushItemWidth(-1);
-      int frame = static_cast<int>(ui_state.current_frame_idx) + 1;
+      int frame = static_cast<int>(frame_idx) + 1;
       const std::string slider_fmt = "%5d/" + std::to_string(frames_cnt);
       if (ImGui::SliderInt("##empty", &frame, 1, static_cast<int>(frames_cnt), slider_fmt.data(),
                            ImGuiSliderFlags_AlwaysClamp)) {
-        ui_state.current_frame_idx = frame - 1;
-        ui_state.autoplay = false;
+        frame_idx = frame - 1;
+        autoplay_ = false;
       }
       ImGui::PopItemWidth();
     } else {
       ImGui::TextDisabled("No Frames");
+    }
+
+    if (prev_frame_idx != frame_idx) {
+      scene.set_current_frame_idx(frame_idx);
     }
 
     ImGui::EndGroup();
@@ -97,33 +104,35 @@ void PlaybackControls::render(RewindViewerState& ui_state, const models::Config&
   }
 }
 
-void PlaybackControls::handle_inputs(RewindViewerState& ui_state, const models::Config& config) {
+void PlaybackControls::handle_inputs(const models::Config& config, models::Scene& scene) {
   const auto& io = ImGui::GetIO();
   if (!io.WantTextInput) {
     if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_LeftArrow)) {
-      if (io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl) {
-        if (ui_state.current_frame_idx > config.ui->fast_skip_speed) {
-          ui_state.current_frame_idx -= config.ui->fast_skip_speed;
+      size_t frame_idx = scene.get_current_frame_idx();
+      if (io.KeyCtrl) {
+        if (frame_idx > config.ui->fast_skip_speed) {
+          frame_idx -= config.ui->fast_skip_speed;
         } else {
-          ui_state.current_frame_idx = 0;
+          frame_idx = 0;
         }
-      } else {
-        if (ui_state.current_frame_idx > 0) {
-          ui_state.current_frame_idx--;
-        }
+      } else if (frame_idx > 0) {
+        frame_idx--;
       }
-      ui_state.autoplay = false;
+      scene.set_current_frame_idx(frame_idx);
+      autoplay_ = false;
     }
     if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
-      if (io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl) {
-        ui_state.current_frame_idx += config.ui->fast_skip_speed;
+      size_t frame_idx = scene.get_current_frame_idx();
+      if (io.KeyCtrl) {
+        frame_idx += config.ui->fast_skip_speed;
       } else {
-        ui_state.current_frame_idx++;
+        frame_idx++;
       }
-      ui_state.autoplay = false;
+      scene.set_current_frame_idx(frame_idx);
+      autoplay_ = false;
     }
     if (ImGui::IsKeyPressed(ImGuiKey_Space)) {
-      ui_state.autoplay = !ui_state.autoplay;
+      autoplay_ = !autoplay_;
     }
 
     static constexpr int fps_values[] = {1, 2, 5, 10, 20, 30, 45, 60, 80, 100, 120, 150, 200, 240};
@@ -142,6 +151,15 @@ void PlaybackControls::handle_inputs(RewindViewerState& ui_state, const models::
       if (current_index > 0) {
         config.ui->replay_fps = fps_values[--current_index];
       }
+    }
+  }
+
+  if (autoplay_) {
+    double delta_time = ImGui::GetTime() - last_frame_time_;
+    double frame_time = 1.0 / static_cast<double>(config.ui->replay_fps);
+    if (delta_time >= frame_time) {
+      scene.set_current_frame_idx(scene.get_current_frame_idx() + 1ul);
+      last_frame_time_ = ImGui::GetTime();
     }
   }
 }

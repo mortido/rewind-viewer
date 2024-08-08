@@ -44,6 +44,7 @@ public struct RewindMessage : IFlatbufferObject
   public rewind_viewer.fbs.Popup CommandAsPopup() { return Command<rewind_viewer.fbs.Popup>().Value; }
   public rewind_viewer.fbs.PopupRound CommandAsPopupRound() { return Command<rewind_viewer.fbs.PopupRound>().Value; }
   public rewind_viewer.fbs.CameraView CommandAsCameraView() { return Command<rewind_viewer.fbs.CameraView>().Value; }
+  public rewind_viewer.fbs.Text CommandAsText() { return Command<rewind_viewer.fbs.Text>().Value; }
 
   public static Offset<rewind_viewer.fbs.RewindMessage> CreateRewindMessage(FlatBufferBuilder builder,
       rewind_viewer.fbs.Command command_type = rewind_viewer.fbs.Command.NONE,

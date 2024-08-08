@@ -3,19 +3,23 @@
 
 #include <imgui/imgui.h>
 
+#include <array>
+
 namespace rewind_viewer::ui {
 void Viewport::update(RewindViewerState& ui_state, const models::Config& config,
                       models::Scene& scene,
-                      std::vector<std::unique_ptr<gateway::ClientGateway>>& gateways) {
+                      std::vector<std::unique_ptr<gateway::ClientGateway>>& gateways,
+                      const StyleManager& style_manager) {
   ImGuiIO& io = ImGui::GetIO();
-  // todo:
-  auto current_frame_ = scene.get_frame(&ui_state.current_frame_idx);
+  std::array<std::shared_ptr<models::Frame>, 2> frames = {scene.get_current_frame(),
+                                                          scene.get_current_frame(true)};
 
   // Adjust viewport position and size to account for UI elements and padding
-  ImVec2 viewport_pos = {1.0f * io.DisplayFramebufferScale.x,
-                         (ui_state.playback_controls_height + 1.0f) * io.DisplayFramebufferScale.y};
+  glm::vec2 viewport_pos = {
+      1.0f * io.DisplayFramebufferScale.x,
+      (ui_state.playback_controls_height + 1.0f) * io.DisplayFramebufferScale.y};
 
-  ImVec2 viewport_size = {
+  glm::vec2 viewport_size = {
       (io.DisplaySize.x - ui_state.frame_info_width - 2.f) * io.DisplayFramebufferScale.x,
       (io.DisplaySize.y - ui_state.main_menu_height - ui_state.playback_controls_height - 2.f) *
           io.DisplayFramebufferScale.y};
@@ -34,37 +38,48 @@ void Viewport::update(RewindViewerState& ui_state, const models::Config& config,
   // Correct the y-component of mouse coordinates to OpenGL space
   //  mouse_pos.y = viewport_size.y - mouse_pos.y;
 
-  scene.camera.set_viewport_size(viewport_size);
+  auto& camera = scene.get_camera();
+  camera.set_viewport_size(viewport_size);
   ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
   if (!io.WantCaptureMouse) {
+    auto mouse_game_pos = camera.screen_to_game(mouse_pos);
     if (io.MouseWheel != 0.0f) {
       float zoom_factor = std::exp(-io.MouseWheel * config.scene->camera.zoom_speed);
-      scene.camera.zoom(zoom_factor, mouse_pos);
-      ui_state.ignore_frame_camera_viewport = true;
+      camera.zoom(zoom_factor, mouse_game_pos);
+      ui_state.ignore_camera_zoom = true;
     }
 
     if (ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
       auto camera_move = io.MouseDelta;
       camera_move.x *= -io.DisplayFramebufferScale.x;
       camera_move.y *= -io.DisplayFramebufferScale.y;
-      scene.camera.move(camera_move);
+      camera.move(camera_move);
 
       ui_state.selected_camera.clear();
     }
 
-    auto mouse_game_pos = scene.camera.screen_to_game(mouse_pos);
     if (config.scene->show_game_coordinates) {
       ImGui::BeginTooltip();
       ImGui::Text("(%.3f, %.3f)", mouse_game_pos.x, mouse_game_pos.y);
       ImGui::EndTooltip();
     }
-    if (current_frame_) {
-      auto popup_text =
-          current_frame_->get_popup_text(mouse_game_pos, config.scene->enabled_layers);
-      if (!popup_text.empty()) {
-        ImGui::BeginTooltip();
-        ImGui::Text("%s", popup_text.c_str());
-        ImGui::EndTooltip();
+    if (frames[0]) {
+      for (size_t i = 0; i < 2; i++) {
+        const auto& frame = frames[i];
+        const auto& enabled =
+            i == 0 ? config.scene->enabled_layers : config.scene->enabled_permanent_layers;
+        for (size_t layer = 0; layer < models::Frame::LAYERS_COUNT; layer++) {
+          if (enabled[layer]) {
+            auto& popups = frame->get_popups(layer);
+            popups.iterate([&](const auto& popup) {
+              if (popup.hit_test(mouse_game_pos)) {
+                ImGui::BeginTooltip();
+                ImGui::Text("%s", popup.text());
+                ImGui::EndTooltip();
+              }
+            });
+          }
+        }
       }
     }
 
@@ -77,25 +92,46 @@ void Viewport::update(RewindViewerState& ui_state, const models::Config& config,
 
   if (!ui_state.selected_camera.empty()) {
     // TODO: clean up logic...
-    if (current_frame_) {
-      const auto& cameras = current_frame_->get_cameras();
+    if (frames[0]) {
+      //      for (const auto& frame : frames) {
+      const auto& cameras = frames[0]->get_cameras();
       auto it = cameras.find(ui_state.selected_camera);
       if (it != cameras.end()) {
-        scene.camera.set_view(it->second, ui_state.ignore_frame_camera_viewport);
+        if (ui_state.ignore_camera_zoom) {
+          camera.set_position(it->second.position);
+        } else {
+          camera.set_view(it->second);
+        }
+      }
+      //      }
+    }
+  }
+  scene.render();
+
+  ImDrawList* draw_list = ImGui::GetBackgroundDrawList();
+  if (frames[0]) {
+    for (size_t i = 0; i < 2; i++) {
+      const auto& frame = frames[i];
+      const auto& enabled =
+          i == 0 ? config.scene->enabled_layers : config.scene->enabled_permanent_layers;
+      for (size_t layer = 0; layer < models::Frame::LAYERS_COUNT; layer++) {
+        if (enabled[layer]) {
+          auto& texts = frame->get_texts(layer);
+          texts.iterate([&](const auto& text) {
+            // TODO: take origin into account. clean up code.
+            glm::vec2 text_position = camera.game_to_screen(text.position, text.origin);
+            text_position /= glm::vec2{io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y};
+
+            text_position.x += 1.0f;
+            text_position.y += (ui_state.main_menu_height + 1.0f);
+
+            draw_list->AddText(style_manager.draw_font, text.size / camera.get_scale(text.origin), text_position,
+                               text.color, text.text.c_str());
+          });
+        }
       }
     }
   }
-  scene.camera.update_projections();
-
-  if (ui_state.autoplay) {
-    double delta_time = ImGui::GetTime() - ui_state.last_frame_time;
-    double frame_time = 1.0 / static_cast<double>(config.ui->replay_fps);
-    if (delta_time >= frame_time) {
-      ui_state.current_frame_idx++;
-      ui_state.last_frame_time = ImGui::GetTime();
-    }
-  }
-  scene.render(ui_state.current_frame_idx);
 
   // Cleanup opengl state
   glBindVertexArray(0);

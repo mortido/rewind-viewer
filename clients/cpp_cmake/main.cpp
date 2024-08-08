@@ -93,22 +93,42 @@ void subscribe(rewind_viewer::RewindClient &rc) {
 }
 
 void draw_HUD(rewind_viewer::RewindClient &rc) {
+  Vec2D zero;
+  Vec2D text_pos_1{-40.0,50.0};
+  Vec2D text_pos_2{-40.0,0.0};
+
   rc.set_layer(0, true, rewind_viewer::LayerOrigin::left_top);
-  rc.circle(Vec2D{0.0, 0.0}, 50, red::Crimson, true);
+  rc.circle(zero, 50, red::Crimson, true);
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
   rc.set_layer(1, true, rewind_viewer::LayerOrigin::left_center);
-  rc.circle(Vec2D{0.0, 0.0}, 50, pink::HotPink, true);
+  rc.circle(zero, 50, pink::HotPink, true);
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
   rc.set_layer(2, true, rewind_viewer::LayerOrigin::left_bottom);
-  rc.circle(Vec2D{0.0, 0.0}, 50, orange::Tomato, true);
+  rc.circle(zero, 50, orange::Tomato, true);
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
   rc.set_layer(3, true, rewind_viewer::LayerOrigin::right_top);
-  rc.circle(Vec2D{0.0, 0.0}, 50, yellow::Gold, true);
+  rc.circle(zero, 50, yellow::Gold, true);
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
   rc.set_layer(4, true, rewind_viewer::LayerOrigin::right_center);
-  rc.circle(Vec2D{0.0, 0.0}, 50, purple::Orchid, true);
+  rc.circle(zero, 50, purple::Orchid, true);
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
   rc.set_layer(5, true, rewind_viewer::LayerOrigin::right_bottom);
-  rc.circle(Vec2D{0.0, 0.0}, 50, green::LimeGreen, true);
+  rc.circle(zero, 50, green::LimeGreen, true);
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
   rc.set_layer(6, true, rewind_viewer::LayerOrigin::top_center);
-  rc.circle(Vec2D{0.0, 0.0}, 50, blue::SkyBlue, true);
+  rc.circle(zero, 50, blue::SkyBlue, true);
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
   rc.set_layer(7, true, rewind_viewer::LayerOrigin::bottom_center);
-  rc.circle(Vec2D{0.0, 0.0}, 50, brown::Chocolate, true);
+  rc.circle(zero, 50, brown::Chocolate, true);
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
 }
 
 bool handle_events(rewind_viewer::RewindClient &rc, size_t pattern_id) {
@@ -135,7 +155,8 @@ bool handle_events(rewind_viewer::RewindClient &rc, size_t pattern_id) {
       for (const auto &path : event.mouse_paths) {
         for (size_t j = 1; j < path.size(); j++) {
           rc.line(path[j - 1], path[j], orange::OrangeRed);
-          rc.circle(path[j], 1, green::MediumAquamarine, true);
+//          rc.circle(path[j], 1, green::MediumAquamarine, true);
+          rc.text(path[j], 10.0, 0xFFFFFF00, "\U0001F434❤");
         }
       }
       was_draw = true;
@@ -220,10 +241,13 @@ int main(int argc, char *argv[]) {
 
     // Normal layer
     rc.set_layer(i);
+    uint32_t opacity = 255 - i * 15;
     rc.set_opacity(255 - i * 15);
     pattern_position.x = static_cast<int>(i % 5) * 100.0;
     pattern_position.y = static_cast<int>(i / 5) * 200.0;
     draw_pattern(rc, pattern_position, i);
+
+    rc.text(pattern_position, 10.0, 0xFFFF00 | (opacity << 24), "Hello, \U0001F434!");
 
     rc.camera_view("Allways Camera", pattern_position, 100.0);
 

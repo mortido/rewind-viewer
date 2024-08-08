@@ -30,6 +30,7 @@ public enum Command : byte
   Popup = 20,
   PopupRound = 21,
   CameraView = 22,
+  Text = 23,
 };
 
 
@@ -106,6 +107,9 @@ static public class CommandVerify
         break;
       case Command.CameraView:
         result = rewind_viewer.fbs.CameraViewVerify.Verify(verifier, tablePos);
+        break;
+      case Command.Text:
+        result = rewind_viewer.fbs.TextVerify.Verify(verifier, tablePos);
         break;
       default: result = true;
         break;

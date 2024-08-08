@@ -24,19 +24,17 @@ RewindViewer::RewindViewer(models::Config &config)
 
   ImGuiIO &io = ImGui::GetIO();
   io.ConfigWindowsResizeFromEdges = false;
-  style_manager_.setup_fonts(config_.ui->font_files);
+  style_manager_.setup_fonts(*config_.ui);
   style_manager_.setup_style(config_.ui->style);
 }
 
 bool RewindViewer::update() {
   // Handle keyboard before anything else
   handle_inputs();
-  current_frame_ = scene_->get_frame(&ui_state_.current_frame_idx);
 
   main_menu_.render(ui_state_, config_, *scene_, gateways_, style_manager_);
-  playback_controls_.handle_inputs(ui_state_, config_);
   playback_controls_.render(ui_state_, config_, *scene_);
-    toolbox_panel_.render(ui_state_, config_, *scene_, gateways_);
+  toolbox_panel_.render(ui_state_, config_, *scene_, gateways_);
 
   shortcuts_help();
   style_editor();
@@ -44,7 +42,7 @@ bool RewindViewer::update() {
   metrics();
 
   // Set viewport after all other windows size is known
-  viewport_.update(ui_state_, config_, *scene_, gateways_);
+  viewport_.update(ui_state_, config_, *scene_, gateways_, style_manager_);
 
   return !ui_state_.close_requested;
 }
@@ -87,11 +85,11 @@ void RewindViewer::handle_inputs() {
     if (config_.ui->close_with_esc && ImGui::IsKeyPressed(ImGuiKey_Escape)) {
       ui_state_.close_requested = true;
     }
-    if (ImGui::IsKeyChordPressed(ImGuiKey_D | ImGuiMod_Shortcut)) {
+    if (ImGui::IsKeyChordPressed(ImGuiKey_D | ImGuiMod_Ctrl)) {
       ui_state_.developer_mode = true;
     }
-    if (ImGui::IsKeyChordPressed(ImGuiKey_R | ImGuiMod_Shortcut)) {
-      scene_->clear();
+    if (ImGui::IsKeyChordPressed(ImGuiKey_R | ImGuiMod_Ctrl)) {
+      scene_->reset();
     }
 
     // Layer toggle shortcuts

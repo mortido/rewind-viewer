@@ -3,11 +3,11 @@
 
 // @generated
 
-use crate::ui.fbs::*;
 use crate::primitives.fbs::*;
 use crate::vector2f.fbs::*;
 use crate::actions.fbs::*;
 use crate::auxiliary.fbs::*;
+use crate::ui.fbs::*;
 use core::mem;
 use core::cmp::Ordering;
 
@@ -17,11 +17,11 @@ use self::flatbuffers::{EndianScalar, Follow};
 #[allow(unused_imports, dead_code)]
 pub mod rewind_viewer {
 
-  use crate::ui.fbs::*;
   use crate::primitives.fbs::*;
   use crate::vector2f.fbs::*;
   use crate::actions.fbs::*;
   use crate::auxiliary.fbs::*;
+  use crate::ui.fbs::*;
   use core::mem;
   use core::cmp::Ordering;
 
@@ -30,11 +30,11 @@ pub mod rewind_viewer {
 #[allow(unused_imports, dead_code)]
 pub mod fbs {
 
-  use crate::ui.fbs::*;
   use crate::primitives.fbs::*;
   use crate::vector2f.fbs::*;
   use crate::actions.fbs::*;
   use crate::auxiliary.fbs::*;
+  use crate::ui.fbs::*;
   use core::mem;
   use core::cmp::Ordering;
 
@@ -44,10 +44,10 @@ pub mod fbs {
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 pub const ENUM_MIN_COMMAND: u8 = 0;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
-pub const ENUM_MAX_COMMAND: u8 = 22;
+pub const ENUM_MAX_COMMAND: u8 = 23;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_COMMAND: [Command; 23] = [
+pub const ENUM_VALUES_COMMAND: [Command; 24] = [
   Command::NONE,
   Command::Subscribe,
   Command::Unsubscribe,
@@ -71,6 +71,7 @@ pub const ENUM_VALUES_COMMAND: [Command; 23] = [
   Command::Popup,
   Command::PopupRound,
   Command::CameraView,
+  Command::Text,
 ];
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
@@ -101,9 +102,10 @@ impl Command {
   pub const Popup: Self = Self(20);
   pub const PopupRound: Self = Self(21);
   pub const CameraView: Self = Self(22);
+  pub const Text: Self = Self(23);
 
   pub const ENUM_MIN: u8 = 0;
-  pub const ENUM_MAX: u8 = 22;
+  pub const ENUM_MAX: u8 = 23;
   pub const ENUM_VALUES: &'static [Self] = &[
     Self::NONE,
     Self::Subscribe,
@@ -128,6 +130,7 @@ impl Command {
     Self::Popup,
     Self::PopupRound,
     Self::CameraView,
+    Self::Text,
   ];
   /// Returns the variant's name or "" if unknown.
   pub fn variant_name(self) -> Option<&'static str> {
@@ -155,6 +158,7 @@ impl Command {
       Self::Popup => Some("Popup"),
       Self::PopupRound => Some("PopupRound"),
       Self::CameraView => Some("CameraView"),
+      Self::Text => Some("Text"),
       _ => None,
     }
   }
@@ -569,6 +573,20 @@ impl<'a> RewindMessage<'a> {
     }
   }
 
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn command_as_text(&self) -> Option<Text<'a>> {
+    if self.command_type() == Command::Text {
+      let u = self.command();
+      // Safety:
+      // Created from a valid Table for this object
+      // Which contains a valid union in this slot
+      Some(unsafe { Text::init_from_table(u) })
+    } else {
+      None
+    }
+  }
+
 }
 
 impl flatbuffers::Verifiable for RewindMessage<'_> {
@@ -602,6 +620,7 @@ impl flatbuffers::Verifiable for RewindMessage<'_> {
           Command::Popup => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Popup>>("Command::Popup", pos),
           Command::PopupRound => v.verify_union_variant::<flatbuffers::ForwardsUOffset<PopupRound>>("Command::PopupRound", pos),
           Command::CameraView => v.verify_union_variant::<flatbuffers::ForwardsUOffset<CameraView>>("Command::CameraView", pos),
+          Command::Text => v.verify_union_variant::<flatbuffers::ForwardsUOffset<Text>>("Command::Text", pos),
           _ => Ok(()),
         }
      })?
@@ -806,6 +825,13 @@ impl core::fmt::Debug for RewindMessage<'_> {
         },
         Command::CameraView => {
           if let Some(x) = self.command_as_camera_view() {
+            ds.field("command", &x)
+          } else {
+            ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Command::Text => {
+          if let Some(x) = self.command_as_text() {
             ds.field("command", &x)
           } else {
             ds.field("command", &"InvalidFlatbuffer: Union discriminant does not match value.")

@@ -44,17 +44,18 @@ std::unique_ptr<MessageHandler> ClientGateway::create_message_handler(std::share
 }
 
 std::unique_ptr<MessageHandler> ClientGateway::accept_connection() {
-  scene_editor_.reset();
   while (state_.load(std::memory_order_relaxed) != State::closed) {
     if (default_transport_->accept_connection(RETRY_TIMEOUT_MS)) {
       std::lock_guard lock(mutex_);
       name_ = default_transport_->get_name();
+      scene_editor_.reset();
       return create_message_handler(default_transport_);
     } else {
       std::lock_guard lock(mutex_);
       if (one_use_transport_) {
         name_ = one_use_transport_->get_name();
-        return create_message_handler(one_use_transport_);
+        scene_editor_.reset();
+        return create_message_handler(std::move(one_use_transport_));
       }
     }
   }

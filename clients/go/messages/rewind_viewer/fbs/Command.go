@@ -30,6 +30,7 @@ const (
 	CommandPopup         Command = 20
 	CommandPopupRound    Command = 21
 	CommandCameraView    Command = 22
+	CommandText          Command = 23
 )
 
 var EnumNamesCommand = map[Command]string{
@@ -56,6 +57,7 @@ var EnumNamesCommand = map[Command]string{
 	CommandPopup:         "Popup",
 	CommandPopupRound:    "PopupRound",
 	CommandCameraView:    "CameraView",
+	CommandText:          "Text",
 }
 
 var EnumValuesCommand = map[string]Command{
@@ -82,6 +84,7 @@ var EnumValuesCommand = map[string]Command{
 	"Popup":         CommandPopup,
 	"PopupRound":    CommandPopupRound,
 	"CameraView":    CommandCameraView,
+	"Text":          CommandText,
 }
 
 func (v Command) String() string {

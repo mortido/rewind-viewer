@@ -16,8 +16,7 @@ class Renderer {
   Renderer(ResourceManager& resources, const std::string &shaders_dir, const glm::vec2 &canvas_position,
            const glm::vec2 &canvas_size, const glm::u16vec2 &grid_cells);
 
-  void new_frame();
-  void set_projections(const std::array<glm::mat4, 9> &projections);
+  void new_frame(const std::array<glm::mat4, 9> &proj_views);
   void render_canvas(glm::vec3 color);
   void render_grid(glm::vec3 color);
   void load_primitives(const RenderContext& context, const PrimitiveStorage &storage);

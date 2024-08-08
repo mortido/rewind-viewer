@@ -9,7 +9,6 @@
 
 namespace rewind_viewer::ui {
 struct RewindViewerState {
-  size_t current_frame_idx = 0ul;
   float main_menu_height = 0.0f;
   float playback_controls_height = 0.0f;
   float frame_info_width = 0.0f;
@@ -24,9 +23,7 @@ struct RewindViewerState {
   bool show_metrics = false;
   bool show_style_editor = false;
 
-  bool autoplay = false;
-  double last_frame_time = ImGui::GetTime();
-  bool ignore_frame_camera_viewport = false;
+  bool ignore_camera_zoom = false;
   bool close_requested = false;
   std::string selected_camera;
 };

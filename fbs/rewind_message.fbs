@@ -32,7 +32,8 @@ union Command {
   LogText,
   Popup,
   PopupRound,
-  CameraView
+  CameraView,
+  Text
 }
 
 table RewindMessage {

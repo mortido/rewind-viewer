@@ -30,6 +30,9 @@ struct PopupRoundBuilder;
 struct CameraView;
 struct CameraViewBuilder;
 
+struct Text;
+struct TextBuilder;
+
 struct LogText FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef LogTextBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
@@ -312,6 +315,95 @@ inline ::flatbuffers::Offset<CameraView> CreateCameraViewDirect(
       name__,
       position,
       view_radius);
+}
+
+struct Text FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef TextBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_TEXT = 4,
+    VT_POSITION = 6,
+    VT_SIZE = 8,
+    VT_COLOR = 10
+  };
+  const ::flatbuffers::String *text() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_TEXT);
+  }
+  const rewind_viewer::fbs::Vector2f *position() const {
+    return GetStruct<const rewind_viewer::fbs::Vector2f *>(VT_POSITION);
+  }
+  float size() const {
+    return GetField<float>(VT_SIZE, 0.0f);
+  }
+  uint32_t color() const {
+    return GetField<uint32_t>(VT_COLOR, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffsetRequired(verifier, VT_TEXT) &&
+           verifier.VerifyString(text()) &&
+           VerifyFieldRequired<rewind_viewer::fbs::Vector2f>(verifier, VT_POSITION, 4) &&
+           VerifyField<float>(verifier, VT_SIZE, 4) &&
+           VerifyField<uint32_t>(verifier, VT_COLOR, 4) &&
+           verifier.EndTable();
+  }
+};
+
+struct TextBuilder {
+  typedef Text Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_text(::flatbuffers::Offset<::flatbuffers::String> text) {
+    fbb_.AddOffset(Text::VT_TEXT, text);
+  }
+  void add_position(const rewind_viewer::fbs::Vector2f *position) {
+    fbb_.AddStruct(Text::VT_POSITION, position);
+  }
+  void add_size(float size) {
+    fbb_.AddElement<float>(Text::VT_SIZE, size, 0.0f);
+  }
+  void add_color(uint32_t color) {
+    fbb_.AddElement<uint32_t>(Text::VT_COLOR, color, 0);
+  }
+  explicit TextBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Text> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Text>(end);
+    fbb_.Required(o, Text::VT_TEXT);
+    fbb_.Required(o, Text::VT_POSITION);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Text> CreateText(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> text = 0,
+    const rewind_viewer::fbs::Vector2f *position = nullptr,
+    float size = 0.0f,
+    uint32_t color = 0) {
+  TextBuilder builder_(_fbb);
+  builder_.add_color(color);
+  builder_.add_size(size);
+  builder_.add_position(position);
+  builder_.add_text(text);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<Text> CreateTextDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *text = nullptr,
+    const rewind_viewer::fbs::Vector2f *position = nullptr,
+    float size = 0.0f,
+    uint32_t color = 0) {
+  auto text__ = text ? _fbb.CreateString(text) : 0;
+  return rewind_viewer::fbs::CreateText(
+      _fbb,
+      text__,
+      position,
+      size,
+      color);
 }
 
 }  // namespace fbs

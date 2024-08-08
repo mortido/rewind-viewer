@@ -21,6 +21,7 @@ import { Rectangle } from '../../rewind-viewer/fbs/rectangle.js';
 import { RemoveAction } from '../../rewind-viewer/fbs/remove-action.js';
 import { StartProto } from '../../rewind-viewer/fbs/start-proto.js';
 import { Subscribe } from '../../rewind-viewer/fbs/subscribe.js';
+import { Text } from '../../rewind-viewer/fbs/text.js';
 import { Tiles } from '../../rewind-viewer/fbs/tiles.js';
 import { Triangle } from '../../rewind-viewer/fbs/triangle.js';
 import { Unsubscribe } from '../../rewind-viewer/fbs/unsubscribe.js';
@@ -49,13 +50,14 @@ export enum Command {
   LogText = 19,
   Popup = 20,
   PopupRound = 21,
-  CameraView = 22
+  CameraView = 22,
+  Text = 23
 }
 
 export function unionToCommand(
   type: Command,
-  accessor: (obj:Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Tiles|Triangle|Unsubscribe|null
-): Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Tiles|Triangle|Unsubscribe|null {
+  accessor: (obj:Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Text|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Text|Tiles|Triangle|Unsubscribe|null
+): Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Text|Tiles|Triangle|Unsubscribe|null {
   switch(Command[type]) {
     case 'NONE': return null; 
     case 'Subscribe': return accessor(new Subscribe())! as Subscribe;
@@ -80,15 +82,16 @@ export function unionToCommand(
     case 'Popup': return accessor(new Popup())! as Popup;
     case 'PopupRound': return accessor(new PopupRound())! as PopupRound;
     case 'CameraView': return accessor(new CameraView())! as CameraView;
+    case 'Text': return accessor(new Text())! as Text;
     default: return null;
   }
 }
 
 export function unionListToCommand(
   type: Command, 
-  accessor: (index: number, obj:Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Tiles|Triangle|Unsubscribe|null, 
+  accessor: (index: number, obj:Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Text|Tiles|Triangle|Unsubscribe) => Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Text|Tiles|Triangle|Unsubscribe|null, 
   index: number
-): Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Tiles|Triangle|Unsubscribe|null {
+): Arc|CameraView|Circle|CircleSegment|CreateAction|DrawProto|EndFrame|EndProto|Layer|LogText|Map|Polyline|Popup|PopupRound|ReadEvents|Rectangle|RemoveAction|StartProto|Subscribe|Text|Tiles|Triangle|Unsubscribe|null {
   switch(Command[type]) {
     case 'NONE': return null; 
     case 'Subscribe': return accessor(index, new Subscribe())! as Subscribe;
@@ -113,6 +116,7 @@ export function unionListToCommand(
     case 'Popup': return accessor(index, new Popup())! as Popup;
     case 'PopupRound': return accessor(index, new PopupRound())! as PopupRound;
     case 'CameraView': return accessor(index, new CameraView())! as CameraView;
+    case 'Text': return accessor(index, new Text())! as Text;
     default: return null;
   }
 }

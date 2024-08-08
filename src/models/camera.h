@@ -32,14 +32,16 @@ class Camera {
   void move(const glm::vec2& delta);
   void zoom(float zoom_value, glm::vec2 focal_point);
   glm::vec2 screen_to_game(const glm::vec2& screen_coords);
-  [[nodiscard]] const std::array<glm::mat4, static_cast<size_t>(CameraOrigin::COUNT)>& get_projection_matrices() const;
+  glm::vec2 game_to_screen(const glm::vec2& game_coords, CameraOrigin origin = CameraOrigin::game);
+  [[nodiscard]] const std::array<glm::mat4, static_cast<size_t>(CameraOrigin::COUNT)>&
+  get_projection_matrices() const;
   [[nodiscard]] const glm::vec2& get_position() const;
   void set_position(const glm::vec2& new_position);
-  [[nodiscard]] float get_scale() const;
+  [[nodiscard]] float get_scale(CameraOrigin origin = CameraOrigin::game) const;
   [[nodiscard]] bool is_y_axis_up() const;
   void set_y_axis_up(bool value);
   void set_scale(float new_scale);
-  void set_view(const CameraView& view, bool ignore_viewport = false);
+  void set_view(const CameraView& view);
   void update_projections();
 
  private:

@@ -527,6 +527,156 @@ impl core::fmt::Debug for CameraView<'_> {
       ds.finish()
   }
 }
+pub enum TextOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct Text<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for Text<'a> {
+  type Inner = Text<'a>;
+  #[inline]
+  unsafe fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    Self { _tab: flatbuffers::Table::new(buf, loc) }
+  }
+}
+
+impl<'a> Text<'a> {
+  pub const VT_TEXT: flatbuffers::VOffsetT = 4;
+  pub const VT_POSITION: flatbuffers::VOffsetT = 6;
+  pub const VT_SIZE_: flatbuffers::VOffsetT = 8;
+  pub const VT_COLOR: flatbuffers::VOffsetT = 10;
+
+  #[inline]
+  pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+    Text { _tab: table }
+  }
+  #[allow(unused_mut)]
+  pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr, A: flatbuffers::Allocator + 'bldr>(
+    _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr, A>,
+    args: &'args TextArgs<'args>
+  ) -> flatbuffers::WIPOffset<Text<'bldr>> {
+    let mut builder = TextBuilder::new(_fbb);
+    builder.add_color(args.color);
+    builder.add_size_(args.size_);
+    if let Some(x) = args.position { builder.add_position(x); }
+    if let Some(x) = args.text { builder.add_text(x); }
+    builder.finish()
+  }
+
+
+  #[inline]
+  pub fn text(&self) -> &'a str {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Text::VT_TEXT, None).unwrap()}
+  }
+  #[inline]
+  pub fn position(&self) -> &'a Vector2f {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<Vector2f>(Text::VT_POSITION, None).unwrap()}
+  }
+  #[inline]
+  pub fn size_(&self) -> f32 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<f32>(Text::VT_SIZE_, Some(0.0)).unwrap()}
+  }
+  #[inline]
+  pub fn color(&self) -> u32 {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<u32>(Text::VT_COLOR, Some(0)).unwrap()}
+  }
+}
+
+impl flatbuffers::Verifiable for Text<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>("text", Self::VT_TEXT, true)?
+     .visit_field::<Vector2f>("position", Self::VT_POSITION, true)?
+     .visit_field::<f32>("size_", Self::VT_SIZE_, false)?
+     .visit_field::<u32>("color", Self::VT_COLOR, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct TextArgs<'a> {
+    pub text: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub position: Option<&'a Vector2f>,
+    pub size_: f32,
+    pub color: u32,
+}
+impl<'a> Default for TextArgs<'a> {
+  #[inline]
+  fn default() -> Self {
+    TextArgs {
+      text: None, // required field
+      position: None, // required field
+      size_: 0.0,
+      color: 0,
+    }
+  }
+}
+
+pub struct TextBuilder<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a, A>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b, A: flatbuffers::Allocator + 'a> TextBuilder<'a, 'b, A> {
+  #[inline]
+  pub fn add_text(&mut self, text: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Text::VT_TEXT, text);
+  }
+  #[inline]
+  pub fn add_position(&mut self, position: &Vector2f) {
+    self.fbb_.push_slot_always::<&Vector2f>(Text::VT_POSITION, position);
+  }
+  #[inline]
+  pub fn add_size_(&mut self, size_: f32) {
+    self.fbb_.push_slot::<f32>(Text::VT_SIZE_, size_, 0.0);
+  }
+  #[inline]
+  pub fn add_color(&mut self, color: u32) {
+    self.fbb_.push_slot::<u32>(Text::VT_COLOR, color, 0);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a, A>) -> TextBuilder<'a, 'b, A> {
+    let start = _fbb.start_table();
+    TextBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<Text<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    self.fbb_.required(o, Text::VT_TEXT,"text");
+    self.fbb_.required(o, Text::VT_POSITION,"position");
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl core::fmt::Debug for Text<'_> {
+  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    let mut ds = f.debug_struct("Text");
+      ds.field("text", &self.text());
+      ds.field("position", &self.position());
+      ds.field("size_", &self.size_());
+      ds.field("color", &self.color());
+      ds.finish()
+  }
+}
 }  // pub mod fbs
 }  // pub mod rewind_viewer
 

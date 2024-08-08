@@ -15,6 +15,8 @@ class StyleManager {
     ImVec4 error_accent;
   };
 
+  ImFont* draw_font;
+
  private:
   constexpr static ColorScheme kLightThemeColors = {
       {0.0f, 0.0f, 0.8f, 1.0f}, {0.6f, 0.0f, 0.6f, 1.0f}, {0.8f, 0.0f, 0.0f, 1.0f}};
@@ -24,13 +26,10 @@ class StyleManager {
 
   constexpr static ColorScheme kClassicThemeColors = {
       {0.2f, 1.0f, 0.2f, 1.0f}, {1.0f, 1.0f, 0.2f, 1.0f}, {1.0f, 0.3f, 0.2f, 1.0f}};
-
-  constexpr static float DEFAULT_FONT_SIZE = 13.0f;
-  constexpr static float FONT_AWESOME_FONT_SIZE = 14.0f;
   ColorScheme current_scheme_;
 
  public:
-  void setup_fonts(const std::vector<std::string>& font_files) const;
+  void setup_fonts(const models::UIConfig& ui_config);
   void setup_style(models::UIStyle style);
   const ColorScheme& get_color_scheme() const { return current_scheme_; };
 };

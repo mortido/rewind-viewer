@@ -3,38 +3,54 @@
 
 #include <imgui/fontawesome.h>
 #include <imgui/imgui.h>
+#include <imgui/imgui_freetype.h>
 #include <imgui/imgui_impl_opengl3.h>
 
 namespace rewind_viewer::ui {
-void StyleManager::setup_fonts(const std::vector<std::string> &font_files) const {
+void StyleManager::setup_fonts(const models::UIConfig &ui_config) {
   ImGuiIO &io = ImGui::GetIO();
 
   const float scale_factor = std::max(io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-  auto font_cfg = ImFontConfig();
-  font_cfg.SizePixels = DEFAULT_FONT_SIZE * scale_factor;
-  font_cfg.OversampleH = 1;
-  font_cfg.OversampleV = 1;
-  font_cfg.PixelSnapH = true;
-  io.Fonts->AddFontDefault(&font_cfg);
-
-  // Load and merge fontawesome to current font
+  const float font_size = ui_config.font_size_pixels * scale_factor;
   const ImWchar icons_range[] = {ICON_MIN_FA, ICON_MAX_FA, 0};
-  ImFontConfig icons_config;
-  icons_config.MergeMode = true;
-  icons_config.PixelSnapH = true;
-  icons_config.GlyphMinAdvanceX = FONT_AWESOME_FONT_SIZE * scale_factor;
-  icons_config.GlyphOffset = ImVec2{0, 2.0};
-  for (const auto &font_file : font_files) {
-    io.Fonts->AddFontFromFileTTF(font_file.c_str(), FONT_AWESOME_FONT_SIZE * scale_factor,
-                                 &icons_config, icons_range);
-  }
+  const ImWchar emoji_range[] = {0x1, 0x1FFFF, 0};
 
-  io.FontGlobalScale = 1.0f / scale_factor;
-  // Need to call it here, otherwise fontawesome glyph ranges would be corrupted on Windows
-  ImGui_ImplOpenGL3_CreateDeviceObjects();
+  io.Fonts->AddFontFromFileTTF(ui_config.default_font.c_str(), font_size);
+
+  //   Load and merge fontawesome to current font
+  ImFontConfig icon_config;
+  icon_config.MergeMode = true;
+  icon_config.OversampleH = 1;
+  icon_config.OversampleV = 1;
+  icon_config.PixelSnapH = true;
+  icon_config.GlyphMinAdvanceX = font_size;
+  icon_config.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
+
+  io.Fonts->AddFontFromFileTTF(ui_config.font_awesome_regular.c_str(), font_size, &icon_config,
+                               icons_range);
+  io.Fonts->AddFontFromFileTTF(ui_config.font_awesome_solid.c_str(), font_size, &icon_config,
+                               icons_range);
+  io.Fonts->AddFontFromFileTTF(ui_config.emoji_font.c_str(), font_size, &icon_config, emoji_range);
+  io.Fonts->Build();
+
+  draw_font =
+      io.Fonts->AddFontFromFileTTF(ui_config.default_font.c_str(), ui_config.draw_font_size_pixels);
+  ImFontConfig emoji_config;
+  emoji_config.MergeMode = true;
+  emoji_config.OversampleH = 1;
+  emoji_config.OversampleV = 1;
+  emoji_config.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
+
+  io.Fonts->AddFontFromFileTTF(ui_config.emoji_font.c_str(), ui_config.draw_font_size_pixels,
+                               &emoji_config, emoji_range);
+  io.Fonts->Build();
+
+  //  io.FontGlobalScale = 1.0f / scale_factor;
+  //   Need to call it here, otherwise fontawesome glyph ranges would be corrupted on Windows
+  //  ImGui_ImplOpenGL3_CreateDeviceObjects();
 }
 
-void StyleManager::setup_style(models::UIStyle style){
+void StyleManager::setup_style(models::UIStyle style) {
   switch (style) {
     case models::UIStyle::light: {
       current_scheme_ = kLightThemeColors;
@@ -63,9 +79,9 @@ void StyleManager::setup_style(models::UIStyle style){
   imgui_style.ChildRounding = 4;
   imgui_style.GrabRounding = 2;
   imgui_style.WindowBorderSize = 0.0f;
-  imgui_style.WindowPadding = {4.0,4.0};
-//  imgui_style.FramePadding = {4.0,4.0};
-//  imgui_style.ItemSpacing = {4.0,2.0};
+  imgui_style.WindowPadding = {4.0, 4.0};
+  imgui_style.FramePadding = {4.0, 2.0};
+  imgui_style.ItemSpacing = {4.0, 4.0};
 }
 
 }  // namespace rewind_viewer::ui

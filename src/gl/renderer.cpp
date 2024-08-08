@@ -109,18 +109,16 @@ void Renderer::update_canvas([[maybe_unused]] const glm::vec2 &position, const g
   grid_vertex_count = static_cast<GLsizei>(grid.size() / 3);
 }
 
-void Renderer::new_frame() {
+void Renderer::new_frame(const std::array<glm::mat4, 9> &proj_views) {
+  glBindBuffer(GL_UNIFORM_BUFFER, uniform_buf);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * proj_views.size(), proj_views.data(),
+               GL_DYNAMIC_DRAW);
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
   glStencilMask(0xFF);
   glClear(GL_STENCIL_BUFFER_BIT);
   glStencilMask(0x00);
   stencil_ref = 1;
-}
-
-void Renderer::set_projections(const std::array<glm::mat4, 9> &projections) {
-  glBindBuffer(GL_UNIFORM_BUFFER, uniform_buf);
-  glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * projections.size(), projections.data(),
-               GL_DYNAMIC_DRAW);
-  glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void Renderer::render_canvas(glm::vec3 color) {

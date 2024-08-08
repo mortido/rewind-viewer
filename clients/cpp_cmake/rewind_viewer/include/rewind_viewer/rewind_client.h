@@ -432,6 +432,18 @@ class RewindClient {
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }
 
+  template <typename Vec2T, typename... Args>
+  void text(const Vec2T &position, const float size, uint32_t color, const char *fmt,
+            Args... args) {
+    builder_.Clear();
+    auto str = builder_.CreateString(str_format(fmt, args...));
+    fbs::Vector2f position_obj{static_cast<float>(position.x), static_cast<float>(position.y)};
+    auto command = fbs::CreateText(builder_, str, &position_obj, size, color);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Text, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
   template <typename Vec2T>
   void camera_view(const std::string &name, const Vec2T &pos, float r) {
     builder_.Clear();

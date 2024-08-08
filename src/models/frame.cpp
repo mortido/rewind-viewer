@@ -9,6 +9,8 @@ void Frame::transfer_from(Frame& other) {
   std::lock_guard lock2(other.mutex_);
   for (size_t i = 0; i < LAYERS_COUNT; ++i) {
     primitives_indices_[i].transfer_from(primitives_storage_, other.primitives_indices_[i]);
+    texts_[i].transfer_from(other.texts_[i]);
+    popups_[i].transfer_from(other.popups_[i]);
   }
 
   primitives_storage_.transfer_from(other.primitives_storage_);
@@ -28,35 +30,43 @@ void Frame::render(const gl::RenderContext& context, gl::Renderer& renderer,
   }
 }
 
-const std::map<std::string, CameraView>& UIFrame::get_cameras() const {
+const std::map<std::string, CameraView>& Frame::get_cameras() const {
   std::lock_guard lock(mutex_);
   return camera_views_;
 }
 
-const std::string& UIFrame::get_user_message() const {
+const std::string& Frame::get_user_message() const {
   std::lock_guard lock(mutex_);
   return user_message_;
 }
 
-std::string UIFrame::get_popup_text(glm::vec2 mouse_game_pos,
-                                    const std::array<bool, LAYERS_COUNT>& enabled_layers) {
-  std::stringstream ss;
-  bool first = true;
-  for (size_t idx = 0; idx < LAYERS_COUNT; ++idx) {
-    if (enabled_layers[idx]) {
-      for (const auto& popup : popups_[idx]) {
-        if (popup.hit_test(mouse_game_pos)) {
-          if (first) {
-            first = false;
-          } else {
-            ss << std::endl;
-          }
-          ss << popup.text();
-        }
-      }
-    }
-  }
-  return ss.str();
+const LockVector<Popup>& Frame::get_popups(size_t layer) const {
+  return popups_[layer];
 }
+
+const LockVector<Text>& Frame::get_texts(size_t layer) const {
+  return texts_[layer];
+}
+
+// std::string Frame::get_popup_text(glm::vec2 mouse_game_pos,
+//                                     const std::array<bool, LAYERS_COUNT>& enabled_layers) {
+//   std::stringstream ss;
+//   bool first = true;
+//   for (size_t idx = 0; idx < LAYERS_COUNT; ++idx) {
+//     if (enabled_layers[idx]) {
+//       for (const auto& popup : popups_[idx]) {
+//         if (popup.hit_test(mouse_game_pos)) {
+//           if (first) {
+//             first = false;
+//           } else {
+//             ss << std::endl;
+//           }
+//           ss << popup.text();
+//         }
+//       }
+//     }
+//   }
+//   return ss.str();
+// }
 
 }  // namespace rewind_viewer::models

@@ -165,6 +165,18 @@ class FlatbuffersMessageHandler : public MessageHandler {
                                       popup->area_radius(), popup->text()->str());
         break;
       }
+      case fbs::Command_Text: {
+        LOG_V8("FlatBuffersHandler::Text");
+        auto text = message->command_as_Text();
+        if (text->size() <= 0.0) {
+          throw ParsingError{"Text font size should be positive, got " +
+                             std::to_string(text->size())};
+        }
+
+        scene_editor_.add_text({text->position()->x(), text->position()->y()}, text->size(),
+                               text->color(), text->text()->str());
+        break;
+      }
       case fbs::Command_CameraView: {
         LOG_V8("FlatBuffersHandler::CAMERA_VIEW");
         auto cam_view_msg = message->command_as_CameraView();

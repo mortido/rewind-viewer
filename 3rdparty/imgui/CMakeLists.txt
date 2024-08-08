@@ -13,5 +13,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE include/imgui)
 #Dependency for implicit vector conversions
 target_link_libraries(${PROJECT_NAME} glfw glm)
 
+find_package(Freetype REQUIRED)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} lunasvg ${FREETYPE_LIBRARIES})
+
 #get_target_property(glm_includes glm INTERFACE_INCLUDE_DIRECTORIES)
 #target_include_directories(${PROJECT_NAME} PRIVATE ${glm_includes})

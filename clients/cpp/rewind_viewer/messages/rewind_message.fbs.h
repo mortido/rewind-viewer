@@ -48,11 +48,12 @@ enum Command : uint8_t {
   Command_Popup = 20,
   Command_PopupRound = 21,
   Command_CameraView = 22,
+  Command_Text = 23,
   Command_MIN = Command_NONE,
-  Command_MAX = Command_CameraView
+  Command_MAX = Command_Text
 };
 
-inline const Command (&EnumValuesCommand())[23] {
+inline const Command (&EnumValuesCommand())[24] {
   static const Command values[] = {
     Command_NONE,
     Command_Subscribe,
@@ -76,13 +77,14 @@ inline const Command (&EnumValuesCommand())[23] {
     Command_LogText,
     Command_Popup,
     Command_PopupRound,
-    Command_CameraView
+    Command_CameraView,
+    Command_Text
   };
   return values;
 }
 
 inline const char * const *EnumNamesCommand() {
-  static const char * const names[24] = {
+  static const char * const names[25] = {
     "NONE",
     "Subscribe",
     "Unsubscribe",
@@ -106,13 +108,14 @@ inline const char * const *EnumNamesCommand() {
     "Popup",
     "PopupRound",
     "CameraView",
+    "Text",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameCommand(Command e) {
-  if (::flatbuffers::IsOutRange(e, Command_NONE, Command_CameraView)) return "";
+  if (::flatbuffers::IsOutRange(e, Command_NONE, Command_Text)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesCommand()[index];
 }
@@ -209,6 +212,10 @@ template<> struct CommandTraits<rewind_viewer::fbs::CameraView> {
   static const Command enum_value = Command_CameraView;
 };
 
+template<> struct CommandTraits<rewind_viewer::fbs::Text> {
+  static const Command enum_value = Command_Text;
+};
+
 bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Command type);
 bool VerifyCommandVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
@@ -290,6 +297,9 @@ struct RewindMessage FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   const rewind_viewer::fbs::CameraView *command_as_CameraView() const {
     return command_type() == rewind_viewer::fbs::Command_CameraView ? static_cast<const rewind_viewer::fbs::CameraView *>(command()) : nullptr;
+  }
+  const rewind_viewer::fbs::Text *command_as_Text() const {
+    return command_type() == rewind_viewer::fbs::Command_Text ? static_cast<const rewind_viewer::fbs::Text *>(command()) : nullptr;
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -386,6 +396,10 @@ template<> inline const rewind_viewer::fbs::PopupRound *RewindMessage::command_a
 
 template<> inline const rewind_viewer::fbs::CameraView *RewindMessage::command_as<rewind_viewer::fbs::CameraView>() const {
   return command_as_CameraView();
+}
+
+template<> inline const rewind_viewer::fbs::Text *RewindMessage::command_as<rewind_viewer::fbs::Text>() const {
+  return command_as_Text();
 }
 
 struct RewindMessageBuilder {
@@ -511,6 +525,10 @@ inline bool VerifyCommand(::flatbuffers::Verifier &verifier, const void *obj, Co
     }
     case Command_CameraView: {
       auto ptr = reinterpret_cast<const rewind_viewer::fbs::CameraView *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Command_Text: {
+      auto ptr = reinterpret_cast<const rewind_viewer::fbs::Text *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;

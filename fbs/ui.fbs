@@ -23,3 +23,10 @@ table CameraView {
   position:Vector2f (required);
   view_radius:float;
 }
+
+table Text {
+  text:string (required);
+  position:Vector2f (required);
+  size:float;
+  color:uint;
+}

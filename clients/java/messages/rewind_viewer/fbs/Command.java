@@ -28,8 +28,9 @@ public final class Command {
   public static final byte Popup = 20;
   public static final byte PopupRound = 21;
   public static final byte CameraView = 22;
+  public static final byte Text = 23;
 
-  public static final String[] names = { "NONE", "Subscribe", "Unsubscribe", "CreateAction", "RemoveAction", "ReadEvents", "Layer", "Map", "EndFrame", "Arc", "Circle", "CircleSegment", "Polyline", "Rectangle", "Tiles", "Triangle", "StartProto", "EndProto", "DrawProto", "LogText", "Popup", "PopupRound", "CameraView", };
+  public static final String[] names = { "NONE", "Subscribe", "Unsubscribe", "CreateAction", "RemoveAction", "ReadEvents", "Layer", "Map", "EndFrame", "Arc", "Circle", "CircleSegment", "Polyline", "Rectangle", "Tiles", "Triangle", "StartProto", "EndProto", "DrawProto", "LogText", "Popup", "PopupRound", "CameraView", "Text", };
 
   public static String name(int e) { return names[e]; }
 }

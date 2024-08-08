@@ -7,16 +7,24 @@
 
 #include "common/lock.h"
 
-namespace rewind_viewer::gateway {
+namespace rewind_viewer {
 
 template <typename KeyT, typename ValueT>
 class LockDictionary {
  public:
   using Callback = std::function<void(const KeyT&, ValueT&)>;
+  using ConstCallback = std::function<void(const KeyT&, const ValueT&)>;
 
   void iterate(Callback callback) {
     std::lock_guard lock(mutex_);
     for (auto& [key, item] : items_) {
+      callback(key, item);
+    }
+  }
+
+  void iterate(Callback callback) const {
+    std::lock_guard lock(mutex_);
+    for (const auto& [key, item] : items_) {
       callback(key, item);
     }
   }
@@ -50,4 +58,4 @@ class LockDictionary {
   std::vector<std::pair<KeyT, ValueT>> items_;
 };
 
-}  // namespace rewind_viewer::gateway
+}  // namespace rewind_viewer

@@ -23,24 +23,18 @@ class RewindViewer {
 
   bool update();
   void stop();
-  bool close_requested() {
-    return ui_state_.close_requested;
-  }
 
  private:
   models::Config& config_;
   std::shared_ptr<models::Scene> scene_;
   std::vector<std::unique_ptr<gateway::ClientGateway>> gateways_;
-  std::shared_ptr<models::UIFrame> current_frame_;
-  ui::RewindViewerState ui_state_;
 
+  ui::StyleManager style_manager_;
+  ui::RewindViewerState ui_state_;
   ui::MainMenu main_menu_;
   ui::PlaybackControls playback_controls_;
   ui::ToolboxPanel toolbox_panel_;
   ui::Viewport viewport_;
-
-  ui::StyleManager style_manager_;
-
 
   void shortcuts_help();
   void handle_inputs();

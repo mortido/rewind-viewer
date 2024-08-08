@@ -11,6 +11,9 @@ jobs:
         with:
           submodules: true
 
+      - name: Install Homebrew dependencies
+        run: brew install freetype
+
       - name: Configure CMake
         run: cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
 
