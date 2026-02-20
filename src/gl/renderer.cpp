@@ -3,7 +3,6 @@
 #include <mutex>
 
 #include "common/logger.h"
-#include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "shader.h"
 #include "utils.h"
@@ -74,10 +73,8 @@ void Renderer::update_canvas([[maybe_unused]] const glm::vec2 &position, const g
                              const glm::u16vec2 &cells) {
   std::lock_guard<Spinlock> lock(canvas_mutex_);
 
-  // TODO: support position for canvas model
-  canvas_model = glm::scale(glm::mat4(1.0f), {size, 1.0f});
-  //  canvas_model = glm::rotate(canvas_model, static_cast<float>(M_PI / 4), glm::vec3(0.0f,
-  //  0.0f, 1.0f)); canvas_model = glm::translate(canvas_model, {position,1.0});
+  canvas_model = glm::translate(glm::mat4(1.0f), {position, 0.0f})
+                 * glm::scale(glm::mat4(1.0f), {size, 1.0f});
 
   grid.clear();
   const float step_x = 1.0f / static_cast<float>(cells.x);

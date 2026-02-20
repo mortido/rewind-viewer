@@ -99,36 +99,36 @@ void draw_HUD(rewind_viewer::RewindClient &rc) {
 
   rc.set_layer(0, true, rewind_viewer::LayerOrigin::left_top);
   rc.circle(zero, 50, red::Crimson, true);
-  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
-  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, ":horse::heart:");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, ":heart::unicorn_face:");
   rc.set_layer(1, true, rewind_viewer::LayerOrigin::left_center);
   rc.circle(zero, 50, pink::HotPink, true);
-  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
-  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, ":horse::heart:");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, ":heart::unicorn_face:");
   rc.set_layer(2, true, rewind_viewer::LayerOrigin::left_bottom);
   rc.circle(zero, 50, orange::Tomato, true);
-  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
-  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, ":horse::heart:");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, ":heart::unicorn_face:");
   rc.set_layer(3, true, rewind_viewer::LayerOrigin::right_top);
   rc.circle(zero, 50, yellow::Gold, true);
-  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
-  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, ":horse::heart:");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, ":heart::unicorn_face:");
   rc.set_layer(4, true, rewind_viewer::LayerOrigin::right_center);
   rc.circle(zero, 50, purple::Orchid, true);
-  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
-  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, ":horse::heart:");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, ":heart::unicorn_face:");
   rc.set_layer(5, true, rewind_viewer::LayerOrigin::right_bottom);
   rc.circle(zero, 50, green::LimeGreen, true);
-  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
-  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, ":horse::heart:");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, ":heart::unicorn_face:");
   rc.set_layer(6, true, rewind_viewer::LayerOrigin::top_center);
   rc.circle(zero, 50, blue::SkyBlue, true);
-  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
-  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, ":horse::heart:");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, ":heart::unicorn_face:");
   rc.set_layer(7, true, rewind_viewer::LayerOrigin::bottom_center);
   rc.circle(zero, 50, brown::Chocolate, true);
-  rc.text(text_pos_1, 20.0, 0xFFFFFF00, "\U0001F434❤");
-  rc.text(text_pos_2, 20.0, 0xFFFFFF00, "❤\U0001F984");
+  rc.text(text_pos_1, 20.0, 0xFFFFFF00, ":horse::heart:");
+  rc.text(text_pos_2, 20.0, 0xFFFFFF00, ":heart::unicorn_face:");
 }
 
 bool handle_events(rewind_viewer::RewindClient &rc, size_t pattern_id) {
@@ -156,7 +156,7 @@ bool handle_events(rewind_viewer::RewindClient &rc, size_t pattern_id) {
         for (size_t j = 1; j < path.size(); j++) {
           rc.line(path[j - 1], path[j], orange::OrangeRed);
 //          rc.circle(path[j], 1, green::MediumAquamarine, true);
-          rc.text(path[j], 10.0, 0xFFFFFF00, "\U0001F434❤");
+          rc.text(path[j], 10.0, 0xFFFFFF00, ":horse::heart:");
         }
       }
       was_draw = true;
@@ -166,7 +166,7 @@ bool handle_events(rewind_viewer::RewindClient &rc, size_t pattern_id) {
   return was_draw;
 }
 
-void draw_field(rewind_viewer::RewindClient &rc, Vec2D &map_size) {
+void draw_field(rewind_viewer::RewindClient &rc, Vec2D &map_pos, Vec2D &map_size) {
   static std::random_device rd;
   static std::mt19937 gen(rd());
   static std::uniform_int_distribution<> distrib(0, 23);
@@ -174,24 +174,23 @@ void draw_field(rewind_viewer::RewindClient &rc, Vec2D &map_size) {
   std::vector<uint32_t> field_colors;
 
   Vec2D cell_size{5.0, 10.0};
-  Vec2D start_pos{0.0, 0.0};
-  Vec2D pos = start_pos;
+  Vec2D pos_on_map{0.0, 0.0};
   uint16_t row_size = static_cast<uint16_t>(map_size.x / cell_size.x);
-  while (pos.y < map_size.y) {
-    pos.x = start_pos.x;
-    while (pos.x < map_size.x) {
+  while (pos_on_map.y < map_size.y) {
+    pos_on_map.x = 0;
+    while (pos_on_map.x < map_size.x) {
       uint32_t color = 127;
-      if (pos.x < map_size.x * 0.5 || distrib(gen) != 4) {
-        color |= static_cast<uint32_t>(255.0 * (pos.y / map_size.y)) << 24;
+      if (pos_on_map.x < map_size.x * 0.5 || distrib(gen) != 4) {
+        color |= static_cast<uint32_t>(255.0 * (pos_on_map.y / map_size.y)) << 24;
       }
-      color |= static_cast<uint32_t>(255.0 * (pos.y / map_size.y)) << 8;
-      color |= static_cast<uint32_t>(255.0 * (pos.x / map_size.x)) << 16;
+      color |= static_cast<uint32_t>(255.0 * (pos_on_map.y / map_size.y)) << 8;
+      color |= static_cast<uint32_t>(255.0 * (pos_on_map.x / map_size.x)) << 16;
       field_colors.push_back(color);
-      pos.x += cell_size.x;
+      pos_on_map.x += cell_size.x;
     }
-    pos.y += cell_size.y;
+    pos_on_map.y += cell_size.y;
   }
-  rc.tiles(start_pos, cell_size, row_size, &field_colors, false);
+  rc.tiles(map_pos, cell_size, row_size, &field_colors, false);
 }
 
 int main(int argc, char *argv[]) {
@@ -208,12 +207,12 @@ int main(int argc, char *argv[]) {
   draw_pattern(rc, Vec2D{-50.0, -50.0}, -1);
   size_t pattern_proto = rc.end_proto();
 
-  Vec2D map_pos{0.0, 0.0};
+  Vec2D map_pos{-100.0, -100.0};
   Vec2D map_size{500.0, 400.0};
   rc.map(map_pos, map_size, 5, 40);
 
   rc.set_layer(0, true);
-  draw_field(rc, map_size);
+  draw_field(rc, map_pos, map_size);
 
   Vec2D pattern_position{};
   std::uniform_real_distribution<> dis_y(-50.0, 50.0);
@@ -243,11 +242,12 @@ int main(int argc, char *argv[]) {
     rc.set_layer(i);
     uint32_t opacity = 255 - i * 15;
     rc.set_opacity(255 - i * 15);
-    pattern_position.x = static_cast<int>(i % 5) * 100.0;
-    pattern_position.y = static_cast<int>(i / 5) * 200.0;
+    pattern_position.x = map_pos.x + static_cast<int>(i % 5) * 100.0;
+    pattern_position.y = map_pos.y + static_cast<int>(i / 5) * 200.0;
     draw_pattern(rc, pattern_position, i);
 
     rc.text(pattern_position, 10.0, 0xFFFF00 | (opacity << 24), "Hello, \U0001F434!");
+    rc.log_text(":horse: = :heart:!");
 
     rc.camera_view("Allways Camera", pattern_position, 100.0);
 

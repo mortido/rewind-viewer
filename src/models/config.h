@@ -119,17 +119,19 @@ struct UIConfig : public YamlConfig {
   int replay_fps = 240;
   glm::vec3 canvas_background_color = {0.2, 0.3, 0.3};
   std::string icon_file = "resources/icon.png";
-//  std::string default_font = "resources/fonts/Roboto-Regular.ttf";
   std::string default_font = "resources/fonts/OpenSans-Regular.ttf";
-//  std::string default_font = "resources/fonts/OpenSans-SemiBold.ttf";
-//  std::string default_font = "resources/fonts/NotoSans-Regular.ttf";
-//  std::string emoji_font = "resources/fonts/NotoColorEmoji-Regular.ttf";
   std::string emoji_font = "resources/fonts/noto-untouchedsvg.ttf";
+//  std::string emoji_font = "resources/fonts/NotoColorEmoji-SVG.otf";
+//  std::string emoji_font = "resources/fonts/NotoEmoji.otf";
+//  std::string emoji_font = "resources/fonts/NotoColorEmoji-Regular.otf";
+//  std::string emoji_font = "resources/fonts/NotoColorEmoji-SVGinOT.ttf";
+//  std::string emoji_font = "resources/fonts/NotoColorEmoji-SVGinOT-OSX.ttf";
+//  std::string emoji_font = "resources/fonts/TwitterColorEmoji-SVGinOT.ttf";
   std::string font_awesome_regular = "resources/fonts/fa-regular-400.ttf";
   std::string font_awesome_solid = "resources/fonts/fa-solid-900.ttf";
 
   float font_size_pixels = 16.0f;
-  float draw_font_size_pixels = 100.0f;
+  float draw_font_size_pixels = 200.0f;
 
   UIStyle style{UIStyle::light};
 

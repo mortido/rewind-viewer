@@ -69,6 +69,8 @@ MacOS:
 [![Macos Build status](https://github.com/mortido/rewind-viewer/actions/workflows/macos_build.yml/badge.svg)](https://github.com/mortido/rewind-viewer/actions)
 
 ```bash
+brew install freetype
+
 mkdir build
 cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
 cmake --build build --target rewind-viewer -j

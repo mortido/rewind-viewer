@@ -48,10 +48,10 @@ class RewindClient {
  private:
   constexpr static uint64_t MAX_MESSAGE_SIZE = 1024 * 1024;  // 1MB
 
+  std::unique_ptr<rewind_viewer::TcpClient> tcp_client_;
   flatbuffers::FlatBufferBuilder builder_;
   std::vector<uint8_t> read_buffer_;
   uint32_t opacity_{0xFF000000};
-  std::unique_ptr<rewind_viewer::TcpClient> tcp_client_;
   std::ofstream file_;
   size_t proto_id = 0;
 
@@ -428,6 +428,18 @@ class RewindClient {
     fbs::Vector2f size_obj{static_cast<float>(size.x), static_cast<float>(size.y)};
     auto command = fbs::CreatePopup(builder_, str, &position_obj, &size_obj);
     auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Popup, command.Union());
+    builder_.Finish(msg);
+    send(builder_.GetBufferPointer(), builder_.GetSize());
+  }
+
+  template <typename Vec2T, typename... Args>
+  void text(const Vec2T &position, const float size, uint32_t color, const char *fmt,
+            Args... args) {
+    builder_.Clear();
+    auto str = builder_.CreateString(str_format(fmt, args...));
+    fbs::Vector2f position_obj{static_cast<float>(position.x), static_cast<float>(position.y)};
+    auto command = fbs::CreateText(builder_, str, &position_obj, size, color | opacity_);
+    auto msg = fbs::CreateRewindMessage(builder_, fbs::Command_Text, command.Union());
     builder_.Finish(msg);
     send(builder_.GetBufferPointer(), builder_.GetSize());
   }

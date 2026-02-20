@@ -22,7 +22,8 @@ void StyleManager::setup_fonts(const models::UIConfig &ui_config) {
   icon_config.MergeMode = true;
   icon_config.OversampleH = 1;
   icon_config.OversampleV = 1;
-  icon_config.PixelSnapH = true;
+  icon_config.RasterizerDensity = 2.0;
+//  icon_config.PixelSnapH = true;
   icon_config.GlyphMinAdvanceX = font_size;
   icon_config.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
 
@@ -39,6 +40,7 @@ void StyleManager::setup_fonts(const models::UIConfig &ui_config) {
   emoji_config.MergeMode = true;
   emoji_config.OversampleH = 1;
   emoji_config.OversampleV = 1;
+  icon_config.RasterizerDensity = 2.0;
   emoji_config.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
 
   io.Fonts->AddFontFromFileTTF(ui_config.emoji_font.c_str(), ui_config.draw_font_size_pixels,

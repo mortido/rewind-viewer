@@ -16,13 +16,13 @@ class JsonMessageHandler : public MessageHandler {
   JsonMessageHandler(models::SceneEditor& scene_editor, std::shared_ptr<Transport> transport)
       : MessageHandler(scene_editor, std::move(transport)) {}
 
-  void handle_message(uint32_t /*size*/, LockDictionary<char, std::unique_ptr<Event>>& events,
-                      LockDictionary<std::string, std::unique_ptr<Action>>& /*actions*/) override {
+  void handle_message(uint32_t size, LockDictionary<char, std::unique_ptr<Event>>& events,
+                      LockDictionary<std::string, std::unique_ptr<Action>>& actions) override {
     rapidjson::Document doc;
-    // TODO: zero terminated?
+    // Null-terminate the buffer at the correct position
+    read_buffer_[size] = '\0';
     if (doc.Parse(reinterpret_cast<const char*>(read_buffer_.data())).HasParseError()) {
-      LOG_ERROR("JSON parse error: %s %s", rapidjson::GetParseError_En(doc.GetParseError()),
-                reinterpret_cast<const char*>(read_buffer_.data()));
+      LOG_ERROR("JSON parse error: %s", rapidjson::GetParseError_En(doc.GetParseError()));
       return;
     }
 
@@ -205,8 +205,21 @@ class JsonMessageHandler : public MessageHandler {
       if (data_obj.HasMember("l")) {
         LOG_V8("JSONHandler::OPTIONS->LAYER");
         auto layer_obj = data_obj["l"].GetObject();
-        scene_editor_.set_layer(layer_obj["i"].GetUint(), layer_obj["upf"].GetBool(),
-                                models::CameraOrigin::game);  // todo: parse origin
+        uint32_t layer_id = layer_obj["i"].GetUint();
+        bool use_permanent_frame = layer_obj["upf"].GetBool();
+
+        // Parse origin if present
+        models::CameraOrigin origin = models::CameraOrigin::game;
+        if (layer_obj.HasMember("o")) {
+          origin = static_cast<models::CameraOrigin>(layer_obj["o"].GetUint());
+        }
+
+        scene_editor_.set_layer(layer_id, use_permanent_frame, origin);
+
+        // Set layer name if present
+        if (layer_obj.HasMember("n")) {
+          scene_editor_.set_layer_name(layer_id, layer_obj["n"].GetString(), use_permanent_frame);
+        }
       }
     } else if (cmd_type == "LT") {
       LOG_V8("JSONHandler::LOG_TEXT");
@@ -238,6 +251,16 @@ class JsonMessageHandler : public MessageHandler {
           position.x += cell.x;
         }
       }
+    } else if (cmd_type == "T") {
+      LOG_V8("JSONHandler::TEXT");
+      glm::vec2 position{data_obj["p"]["x"].GetFloat(), data_obj["p"]["y"].GetFloat()};
+      float size = data_obj["s"].GetFloat();
+      uint32_t color = data_obj["c"].GetUint();
+      std::string text = data_obj["t"].GetString();
+      if (size <= 0.0f) {
+        throw std::runtime_error("Text font size should be positive, got " + std::to_string(size));
+      }
+      scene_editor_.add_text(position, size, color, text);
     } else if (cmd_type == "S") {
       LOG_V8("JSONHandler::SUBSCRIBE");
       bool continuous = data_obj.HasMember("c") && data_obj["c"].GetBool();
@@ -255,12 +278,86 @@ class JsonMessageHandler : public MessageHandler {
       LOG_V8("JSONHandler::READ_EVENTS");
       json_buffer_.Clear();
       rapidjson::Writer<rapidjson::StringBuffer> writer(json_buffer_);
+      writer.StartObject();
+      writer.Key("events");
+      writer.StartArray();
       events.iterate([&](auto, auto& event) {
-        event->serialize(writer);
-        event->reset_state();
+        if (event->is_triggered()) {
+          event->serialize(writer);
+          event->reset_state();
+        }
       });
+      writer.EndArray();
+      writer.Key("actions");
+      writer.StartArray();
+      actions.iterate([&](auto, auto& action) {
+        if (action->is_triggered()) {
+          action->serialize(writer);
+          action->reset_state();
+        }
+      });
+      writer.EndArray();
+      writer.EndObject();
       transport_->send_msg(reinterpret_cast<const uint8_t*>(json_buffer_.GetString()),
                            static_cast<uint32_t>(json_buffer_.GetSize()));
+    } else if (cmd_type == "SP") {
+      LOG_V8("JSONHandler::START_PROTO");
+      scene_editor_.start_proto();
+    } else if (cmd_type == "EP") {
+      LOG_V8("JSONHandler::END_PROTO");
+      scene_editor_.end_proto();
+    } else if (cmd_type == "DP") {
+      LOG_V8("JSONHandler::DRAW_PROTO");
+      size_t id = data_obj["id"].GetUint64();
+      glm::vec2 position{data_obj["p"]["x"].GetFloat(), data_obj["p"]["y"].GetFloat()};
+      float angle = data_obj.HasMember("a") ? data_obj["a"].GetFloat() : 0.0f;
+      uint32_t color = data_obj.HasMember("c") ? data_obj["c"].GetUint() : 0;
+      float scale = data_obj.HasMember("sc") ? data_obj["sc"].GetFloat() : 1.0f;
+      scene_editor_.add_proto(id, position, angle, color, scale);
+    } else if (cmd_type == "CA") {
+      LOG_V8("JSONHandler::CREATE_ACTION");
+      std::string action_name = data_obj["n"].GetString();
+      std::string input_type = data_obj["it"].GetString();
+      const auto& input_data = data_obj["id"];
+
+      if (input_type == "bool") {
+        bool default_value = input_data["dv"].GetBool();
+        actions.add(action_name, std::make_unique<BoolInputAction>(action_name, default_value));
+      } else if (input_type == "button") {
+        actions.add(action_name, std::make_unique<ButtonAction>(action_name));
+      } else if (input_type == "float") {
+        float default_value = input_data["dv"].GetFloat();
+        float min_value = input_data["min"].GetFloat();
+        float max_value = input_data["max"].GetFloat();
+        actions.add(action_name,
+                    std::make_unique<FloatInputAction>(action_name, default_value, min_value,
+                                                       max_value));
+      } else if (input_type == "int") {
+        int32_t default_value = input_data["dv"].GetInt();
+        int32_t min_value = input_data["min"].GetInt();
+        int32_t max_value = input_data["max"].GetInt();
+        actions.add(action_name,
+                    std::make_unique<IntInputAction>(action_name, default_value, min_value,
+                                                     max_value));
+      } else if (input_type == "select") {
+        std::vector<std::string> options;
+        for (const auto& option : input_data["opts"].GetArray()) {
+          options.push_back(option.GetString());
+        }
+        uint16_t selected_option = input_data["so"].GetUint();
+        actions.add(action_name,
+                    std::make_unique<SelectInputAction>(action_name, std::move(options),
+                                                        selected_option));
+      } else if (input_type == "string") {
+        std::string default_value = input_data["dv"].GetString();
+        actions.add(action_name, std::make_unique<StringInputAction>(action_name, default_value));
+      } else {
+        LOG_ERROR("Unknown or Empty ActionType for CreateAction: %s", input_type.c_str());
+      }
+    } else if (cmd_type == "RA") {
+      LOG_V8("JSONHandler::REMOVE_ACTION");
+      std::string action_name = data_obj["n"].GetString();
+      actions.remove(action_name);
     } else {
       LOG_ERROR("Unknown command type");
     }

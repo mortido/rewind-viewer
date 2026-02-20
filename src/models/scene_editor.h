@@ -65,7 +65,7 @@ class SceneEditor {
   PRIMITIVE_ADD_METHOD(add_stencil_rectangle)
 
   void add_camera_view(const std::string& name, CameraView view);
-  void add_user_text(const std::string& msg);
+  void add_user_text(std::string message);
   void add_box_popup(glm::vec2 center, glm::vec2 size, std::string message);
   void add_round_popup(glm::vec2 center, float radius, std::string message);
   void add_text(glm::vec2 position, float size, uint32_t color, std::string message);

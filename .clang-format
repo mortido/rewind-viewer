@@ -9,3 +9,4 @@ FixNamespaceComments: true
 BreakConstructorInitializersBeforeComma: true
 IncludeBlocks: Regroup
 SortIncludes: CaseSensitive
+AlignTrailingComments: true

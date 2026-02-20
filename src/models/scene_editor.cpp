@@ -1,6 +1,7 @@
 
 
 #include "models/scene_editor.h"
+#include "common/emoji.h"
 
 namespace rewind_viewer::models {
 
@@ -64,26 +65,30 @@ void SceneEditor::add_camera_view(const std::string& name, CameraView view) {
   frame->camera_views_[name] = view;
 }
 
-void SceneEditor::add_user_text(const std::string& msg) {
+void SceneEditor::add_user_text(std::string message) {
+  emojize(message);
   auto frame = scene_->get_buffer_frame(use_permanent_);
   std::lock_guard lock(frame->mutex_);
-  frame->user_message_ += msg;
+  frame->user_message_ += message;
   frame->user_message_ += '\n';
 }
 
 void SceneEditor::add_box_popup(glm::vec2 center, glm::vec2 size, std::string message) {
+  emojize(message);
   auto frame = scene_->get_buffer_frame(use_permanent_);
   std::lock_guard lock(frame->mutex_);
   frame->popups_[layer_id_].emplace(Popup::create_rect(center, size, std::move(message)));
 }
 
 void SceneEditor::add_round_popup(glm::vec2 center, float radius, std::string message) {
+  emojize(message);
   auto frame = scene_->get_buffer_frame(use_permanent_);
   std::lock_guard lock(frame->mutex_);
   frame->popups_[layer_id_].emplace(Popup::create_circle(center, radius, std::move(message)));
 }
 
 void SceneEditor::add_text(glm::vec2 position, float size, uint32_t color, std::string message) {
+  emojize(message);
   auto frame = scene_->get_buffer_frame(use_permanent_);
   std::lock_guard lock(frame->mutex_);
   frame->texts_[layer_id_].emplace(Text{std::move(message), position, size, color, origin_});
