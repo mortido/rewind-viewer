@@ -14,7 +14,7 @@ if (UNIX)
     target_link_libraries(${PROJECT_NAME}
             PRIVATE
             Threads::Threads    # pthreads (or equivalent)
-            ${_lib_dl_linkflag} # dl (or equivalent)
+            ${CMAKE_DL_LIBS}    # dl (or equivalent)
             )
 #    target_link_libraries(${PROJECT_NAME} PRIVATE dl pthread)
 endif ()

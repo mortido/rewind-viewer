@@ -7,3 +7,6 @@
 [submodule "3rdparty/lunasvg"]
 	path = 3rdparty/lunasvg
 	url = https://github.com/sammycage/lunasvg.git
+[submodule "3rdparty/nfd"]
+	path = 3rdparty/nfd
+	url = https://github.com/btzy/nativefiledialog-extended.git

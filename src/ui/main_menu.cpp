@@ -3,7 +3,7 @@
 
 #include <imgui/fontawesome.h>
 #include <imgui/imgui.h>
-#include <nfd/nfd.h>
+#include <nfd.h>
 
 #include "gateway/transport/dump_reader.h"
 #include "version.h"
@@ -121,33 +121,51 @@ void MainMenu::render(RewindViewerState& ui_state, const models::Config& config,
 }
 
 std::string MainMenu::open_file_dialog() {
+  if (NFD_Init() != NFD_OKAY) {
+    LOG_ERROR("Error initializing file dialog: %s", NFD_GetError());
+    return "";
+  }
+
+  nfdu8filteritem_t filter_item[1] = {{"Rewind files", "rwn"}};
   nfdchar_t* out_path = nullptr;
-  nfdresult_t result = NFD_OpenDialog("rwn", nullptr, &out_path);
+  nfdresult_t result = NFD_OpenDialog(&out_path, filter_item, 1, nullptr);
 
   if (result == NFD_OKAY) {
     std::string file_path(out_path);
-    free(out_path);  // remember to free the allocated memory
+    NFD_FreePath(out_path);
+    NFD_Quit();
     return file_path;
   } else if (result == NFD_CANCEL) {
+    NFD_Quit();
     return "";
   } else {
     LOG_ERROR("Error opening file: %s", NFD_GetError());
+    NFD_Quit();
     return "";
   }
 }
 
 std::string MainMenu::save_file_dialog() {
+  if (NFD_Init() != NFD_OKAY) {
+    LOG_ERROR("Error initializing file dialog: %s", NFD_GetError());
+    return "";
+  }
+
+  nfdu8filteritem_t filter_item[1] = {{"Rewind files", "rwn"}};
   nfdchar_t* out_path = nullptr;
-  nfdresult_t result = NFD_SaveDialog("rwn", nullptr, &out_path);
+  nfdresult_t result = NFD_SaveDialog(&out_path, filter_item, 1, nullptr, nullptr);
 
   if (result == NFD_OKAY) {
     std::string file_path(out_path);
-    free(out_path);  // remember to free the allocated memory
+    NFD_FreePath(out_path);
+    NFD_Quit();
     return file_path;
   } else if (result == NFD_CANCEL) {
+    NFD_Quit();
     return "";
   } else {
     LOG_ERROR("Error opening file: %s", NFD_GetError());
+    NFD_Quit();
     return "";
   }
 }
